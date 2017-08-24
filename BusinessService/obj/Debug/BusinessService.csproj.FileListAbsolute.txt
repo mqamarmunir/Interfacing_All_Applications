@@ -1,0 +1,13 @@
+E:\Projects\Trees\MDI Tab Browsing\BusinessService\bin\Debug\BusinessService.dll
+E:\Projects\Trees\MDI Tab Browsing\BusinessService\bin\Debug\BusinessService.pdb
+E:\Projects\Trees\MDI Tab Browsing\BusinessService\bin\Debug\AutoMapper.dll
+E:\Projects\Trees\MDI Tab Browsing\BusinessService\bin\Debug\BusinessEntities.dll
+E:\Projects\Trees\MDI Tab Browsing\BusinessService\bin\Debug\DataModel.dll
+E:\Projects\Trees\MDI Tab Browsing\BusinessService\bin\Debug\EntityFramework.dll
+E:\Projects\Trees\MDI Tab Browsing\BusinessService\bin\Debug\AutoMapper.xml
+E:\Projects\Trees\MDI Tab Browsing\BusinessService\bin\Debug\BusinessEntities.pdb
+E:\Projects\Trees\MDI Tab Browsing\BusinessService\bin\Debug\DataModel.pdb
+E:\Projects\Trees\MDI Tab Browsing\BusinessService\obj\Debug\BusinessService.dll
+E:\Projects\Trees\MDI Tab Browsing\BusinessService\obj\Debug\BusinessService.pdb
+E:\Projects\Trees\MDI Tab Browsing\BusinessService\obj\Debug\BusinessService.csprojResolveAssemblyReference.cache
+E:\Projects\Trees\MDI Tab Browsing\BusinessService\bin\Debug\EntityFramework.xml

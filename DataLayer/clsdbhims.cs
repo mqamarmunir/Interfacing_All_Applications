@@ -2,6 +2,7 @@ using System;
 using System.Data;
 using MySql.Data.MySqlClient;
 
+
 namespace DataLayer
 {
     /// <summary>
@@ -98,7 +99,7 @@ namespace DataLayer
 
         public void Dispose()
         {
-
+            
         }
     }
 }

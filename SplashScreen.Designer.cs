@@ -46,9 +46,11 @@
             // 
             // progressBar1
             // 
+            this.progressBar1.ForeColor = System.Drawing.SystemColors.HotTrack;
             this.progressBar1.Location = new System.Drawing.Point(12, 326);
             this.progressBar1.Name = "progressBar1";
             this.progressBar1.Size = new System.Drawing.Size(511, 15);
+            this.progressBar1.Step = 1;
             this.progressBar1.TabIndex = 0;
             // 
             // label1

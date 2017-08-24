@@ -32,7 +32,7 @@ namespace WindowsApplication5
                 }
                 else
                 {
-                    System.Threading.Thread.Sleep(100);
+                    System.Threading.Thread.Sleep(10);
                     instance.ReportProgress(i);
                 }
             }

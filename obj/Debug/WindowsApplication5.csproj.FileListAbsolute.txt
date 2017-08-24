@@ -21,3 +21,13 @@ E:\Projects\Trees\MDI Tab Browsing\bin\Debug\BusinessLayer.pdb
 E:\Projects\Trees\MDI Tab Browsing\bin\Debug\DataLayer.pdb
 E:\Projects\Trees\MDI Tab Browsing\obj\Debug\WindowsApplication5.Properties.Resources.resources
 E:\Projects\Trees\MDI Tab Browsing\obj\Debug\WindowsApplication5.SplashScreen.resources
+E:\Projects\Trees\MDI Tab Browsing\bin\Debug\EntityFramework.dll
+E:\Projects\Trees\MDI Tab Browsing\bin\Debug\EntityFramework.xml
+E:\Projects\Trees\MDI Tab Browsing\bin\Debug\DataModel.dll
+E:\Projects\Trees\MDI Tab Browsing\bin\Debug\DataModel.pdb
+E:\Projects\Trees\MDI Tab Browsing\bin\Debug\BusinessEntities.dll
+E:\Projects\Trees\MDI Tab Browsing\bin\Debug\BusinessService.dll
+E:\Projects\Trees\MDI Tab Browsing\bin\Debug\AutoMapper.dll
+E:\Projects\Trees\MDI Tab Browsing\bin\Debug\BusinessEntities.pdb
+E:\Projects\Trees\MDI Tab Browsing\bin\Debug\BusinessService.pdb
+E:\Projects\Trees\MDI Tab Browsing\bin\Debug\AutoMapper.xml

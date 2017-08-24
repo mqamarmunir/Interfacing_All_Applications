@@ -140,3 +140,7 @@ C:\Users\Muhammad Qamar\Downloads\Compressed\MDI Tab Browsing\DataLayer\bin\Debu
 C:\Users\Muhammad Qamar\Downloads\Compressed\MDI Tab Browsing\DataLayer\bin\Debug\DataLayer.pdb
 C:\Users\Muhammad Qamar\Downloads\Compressed\MDI Tab Browsing\DataLayer\obj\Debug\DataLayer.dll
 C:\Users\Muhammad Qamar\Downloads\Compressed\MDI Tab Browsing\DataLayer\obj\Debug\DataLayer.pdb
+E:\Projects\Trees\MDI Tab Browsing\DataLayer\bin\Debug\DataLayer.dll
+E:\Projects\Trees\MDI Tab Browsing\DataLayer\bin\Debug\DataLayer.pdb
+E:\Projects\Trees\MDI Tab Browsing\DataLayer\obj\Debug\DataLayer.dll
+E:\Projects\Trees\MDI Tab Browsing\DataLayer\obj\Debug\DataLayer.pdb
