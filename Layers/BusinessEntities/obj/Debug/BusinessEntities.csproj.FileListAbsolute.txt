@@ -1,0 +1,10 @@
+E:\Projects\Trees\MDI Tab Browsing\BusinessEntities\bin\Debug\BusinessEntities.dll
+E:\Projects\Trees\MDI Tab Browsing\BusinessEntities\bin\Debug\BusinessEntities.pdb
+E:\Projects\Trees\MDI Tab Browsing\BusinessEntities\obj\Debug\BusinessEntities.dll
+E:\Projects\Trees\MDI Tab Browsing\BusinessEntities\obj\Debug\BusinessEntities.pdb
+E:\Projects\Trees\MDI Tab Browsing\BusinessEntities\obj\Debug\BusinessEntities.csprojResolveAssemblyReference.cache
+E:\Projects\Trees\MDI Tab Browsing\Layers\BusinessEntities\bin\Debug\BusinessEntities.dll
+E:\Projects\Trees\MDI Tab Browsing\Layers\BusinessEntities\bin\Debug\BusinessEntities.pdb
+E:\Projects\Trees\MDI Tab Browsing\Layers\BusinessEntities\obj\Debug\BusinessEntities.csprojResolveAssemblyReference.cache
+E:\Projects\Trees\MDI Tab Browsing\Layers\BusinessEntities\obj\Debug\BusinessEntities.dll
+E:\Projects\Trees\MDI Tab Browsing\Layers\BusinessEntities\obj\Debug\BusinessEntities.pdb
