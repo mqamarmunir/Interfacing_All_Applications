@@ -19,11 +19,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessEntities", "Layers\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestService", "TestService\TestService.csproj", "{E7BB421C-84D7-49FF-9CB9-E200E7F9E522}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestProjects", "TestProjects", "{CD102380-2E77-4724-8828-80D58D19879B}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestApps", "TestApps", "{A1BA0D97-5831-4DD9-BD49-409B118964C8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SerialTest", "SerialTest\SerialTest\SerialTest.csproj", "{D66EF136-FD2E-4482-A857-9F4C002E3D75}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SerialTest", "TestApps\SerialTest\SerialTest.csproj", "{D66EF136-FD2E-4482-A857-9F4C002E3D75}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OtherTests", "SerialTest\OtherTests\OtherTests.csproj", "{78EC4ADD-3450-41AB-9515-BB3A2409888E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OtherTests", "TestApps\OtherTests\OtherTests.csproj", "{78EC4ADD-3450-41AB-9515-BB3A2409888E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -120,7 +120,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{D66EF136-FD2E-4482-A857-9F4C002E3D75} = {CD102380-2E77-4724-8828-80D58D19879B}
-		{78EC4ADD-3450-41AB-9515-BB3A2409888E} = {CD102380-2E77-4724-8828-80D58D19879B}
+		{D66EF136-FD2E-4482-A857-9F4C002E3D75} = {A1BA0D97-5831-4DD9-BD49-409B118964C8}
+		{78EC4ADD-3450-41AB-9515-BB3A2409888E} = {A1BA0D97-5831-4DD9-BD49-409B118964C8}
 	EndGlobalSection
 EndGlobal
