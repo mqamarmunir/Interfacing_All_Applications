@@ -37,7 +37,7 @@ namespace DataModel
         public string Stopbit { get; set; }
         public string DataBit { get; set; }
         public string FlowControl { get; set; }
-        public Nullable<long> Acknowledgement_code { get; set; }
+        public string Acknowledgement_code { get; set; }
         public long EnteredBy { get; set; }
         public System.DateTime EnteredOn { get; set; }
         public string ClientID { get; set; }

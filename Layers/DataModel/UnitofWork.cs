@@ -22,6 +22,7 @@ namespace DataModel
         private GenericRepository<cliqmachinemapping> _cliqMachineMappings;
         private GenericRepository<mi_tinstruments> _InstrumentsRepository;
         private GenericRepository<mi_tresult> _ResultsRepository;
+        private GenericRepository<cliqtestsandattribute> _CliqTestAndAttributesRepository;
 
         
         //private GenericRepository<Token> _tokenRepository;
@@ -34,7 +35,16 @@ namespace DataModel
 
         #region Public Repository Creation properties...
         
-         public GenericRepository<mi_tresult> ResultsRepository
+         public GenericRepository<cliqtestsandattribute> CliqTestAndAttributesRepository
+        {
+            get
+            {
+                if (this._CliqTestAndAttributesRepository == null)
+                    this._CliqTestAndAttributesRepository = new GenericRepository<cliqtestsandattribute>(_context);
+                return _CliqTestAndAttributesRepository;
+            }
+        }
+            public GenericRepository<mi_tresult> ResultsRepository
         {
             get
             {
@@ -111,16 +121,21 @@ namespace DataModel
                 foreach (var eve in e.EntityValidationErrors)
                 {
                     outputLines.Add(string.Format(
-                        "{0}: Entity of type \"{1}\" in state \"{2}\" has the following validation errors:", DateTime.Now, 
+                        "{0}: Entity of type \"{1}\" in state \"{2}\" has the following validation errors:", DateTime.Now,
                         eve.Entry.Entity.GetType().Name, eve.Entry.State));
                     foreach (var ve in eve.ValidationErrors)
                     {
                         outputLines.Add(string.Format("- Property: \"{0}\", Error: \"{1}\"", ve.PropertyName, ve.ErrorMessage));
                     }
                 }
-                System.IO.File.AppendAllLines(@"C:\errors.txt", outputLines);
+                System.IO.File.AppendAllLines(@"E:\errors.txt", outputLines);
 
                 throw e;
+            }
+            catch (Exception ee)
+            {
+                System.IO.File.AppendAllText(@"E:\errors.txt", ee.ToString());
+                throw ee;
             }
 
         }

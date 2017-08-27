@@ -67,7 +67,7 @@
     <Property Name="Stopbit" Type="String" MaxLength="10" FixedLength="false" Unicode="false" Nullable="false" />
     <Property Name="DataBit" Type="String" MaxLength="10" FixedLength="false" Unicode="false" Nullable="false" />
     <Property Name="FlowControl" Type="String" MaxLength="10" FixedLength="false" Unicode="false" Nullable="false" />
-    <Property Name="Acknowledgement_code" Type="Int64" />
+    <Property Name="Acknowledgement_code" Type="String" />
     <Property Name="EnteredBy" Type="Int64" Nullable="false" />
     <Property Name="EnteredOn" Type="DateTime" Nullable="false" />
     <Property Name="ClientID" Type="String" MaxLength="45" FixedLength="false" Unicode="false" Nullable="false" />
@@ -247,6 +247,7 @@
       <End Role="mi_tinstruments" EntitySet="mi_tinstruments" />
       <End Role="cliqmachinemapping" EntitySet="cliqmachinemappings" />
     </AssociationSet>
+    <EntitySet Name="cliqtestsandattributes" EntityType="miModel.cliqtestsandattribute" />
   </EntityContainer>
   <EntityType Name="cliqmachinemapping">
     <Key>
@@ -277,4 +278,15 @@
       </Dependent>
     </ReferentialConstraint>
   </Association>
+  <EntityType Name="cliqtestsandattribute">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="test_id" Type="Int64" Nullable="false" />
+    <Property Name="test_name" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+    <Property Name="department_id" Type="Int64" Nullable="false" />
+    <Property Name="att_id" Type="Int64" Nullable="false" />
+    <Property Name="att_name" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+  </EntityType>
 </Schema>

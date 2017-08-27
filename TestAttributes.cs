@@ -56,6 +56,8 @@ namespace WindowsApplication5
         private Button button1;
 
         private readonly UnitOfWork _unitOfWork;
+        private BindingSource cliqtestsandattributeBindingSource;
+        private int _MachineID;
 		public TestAttributes()
 		{
 			//
@@ -69,6 +71,20 @@ namespace WindowsApplication5
 			// TODO: Add any constructor code after InitializeComponent call
 			//
 		}
+        public TestAttributes(int machineID)
+        {
+            //
+            // Required for Windows Form Designer support
+            //
+            InitializeComponent();
+            this._MachineID = machineID;
+            _unitOfWork = new UnitOfWork();
+
+
+            //
+            // TODO: Add any constructor code after InitializeComponent call
+            //
+        }
 
 		/// <summary>
 		/// Clean up any resources being used.
@@ -141,6 +157,7 @@ namespace WindowsApplication5
             this.btnReset = new System.Windows.Forms.Button();
             this.btnSave = new System.Windows.Forms.Button();
             this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
+            this.cliqtestsandattributeBindingSource = new System.Windows.Forms.BindingSource(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.cliqmachinemappingBindingSource1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.cliqmachinemappingBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
@@ -148,18 +165,19 @@ namespace WindowsApplication5
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.mitinstrumentsBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.cliqtestsandattributeBindingSource)).BeginInit();
             this.SuspendLayout();
             // 
             // cmbTests
             // 
-            this.cmbTests.DataSource = this.cliqmachinemappingBindingSource1;
-            this.cmbTests.DisplayMember = "TestName";
+            this.cmbTests.DataSource = this.cliqtestsandattributeBindingSource;
+            this.cmbTests.DisplayMember = "test_name";
             this.cmbTests.FormattingEnabled = true;
             this.cmbTests.Location = new System.Drawing.Point(191, 12);
             this.cmbTests.Name = "cmbTests";
             this.cmbTests.Size = new System.Drawing.Size(158, 21);
             this.cmbTests.TabIndex = 0;
-            this.cmbTests.ValueMember = "Test_ID";
+            this.cmbTests.ValueMember = "test_id";
             this.cmbTests.SelectionChangeCommitted += new System.EventHandler(this.cmbTests_SelectionChangeCommitted);
             // 
             // cliqmachinemappingBindingSource1
@@ -187,14 +205,14 @@ namespace WindowsApplication5
             // 
             // cmbAttributes
             // 
-            this.cmbAttributes.DataSource = this.cliqmachinemappingBindingSource;
-            this.cmbAttributes.DisplayMember = "AttributeName";
+            this.cmbAttributes.DataSource = this.cliqtestsandattributeBindingSource;
+            this.cmbAttributes.DisplayMember = "att_name";
             this.cmbAttributes.FormattingEnabled = true;
             this.cmbAttributes.Location = new System.Drawing.Point(503, 12);
             this.cmbAttributes.Name = "cmbAttributes";
             this.cmbAttributes.Size = new System.Drawing.Size(158, 21);
             this.cmbAttributes.TabIndex = 3;
-            this.cmbAttributes.ValueMember = "CliqAttributeID";
+            this.cmbAttributes.ValueMember = "att_id";
             // 
             // cliqmachinemappingBindingSource
             // 
@@ -219,6 +237,9 @@ namespace WindowsApplication5
             // dataGridView1
             // 
             this.dataGridView1.AllowUserToResizeRows = false;
+            this.dataGridView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.dataGridView1.AutoGenerateColumns = false;
             this.dataGridView1.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
@@ -295,6 +316,8 @@ namespace WindowsApplication5
             // 
             // panel1
             // 
+            this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.panel1.Controls.Add(this.button1);
             this.panel1.Controls.Add(this.cmbInstruments);
             this.panel1.Controls.Add(this.label4);
@@ -314,7 +337,7 @@ namespace WindowsApplication5
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(341, 70);
+            this.button1.Location = new System.Drawing.Point(35, 72);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
             this.button1.TabIndex = 12;
@@ -350,10 +373,11 @@ namespace WindowsApplication5
             // 
             // chkActive
             // 
+            this.chkActive.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.chkActive.AutoSize = true;
             this.chkActive.Checked = true;
             this.chkActive.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkActive.Location = new System.Drawing.Point(35, 74);
+            this.chkActive.Location = new System.Drawing.Point(441, 78);
             this.chkActive.Name = "chkActive";
             this.chkActive.Size = new System.Drawing.Size(56, 17);
             this.chkActive.TabIndex = 9;
@@ -362,6 +386,7 @@ namespace WindowsApplication5
             // 
             // btnReset
             // 
+            this.btnReset.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnReset.Location = new System.Drawing.Point(586, 74);
             this.btnReset.Name = "btnReset";
             this.btnReset.Size = new System.Drawing.Size(75, 23);
@@ -372,6 +397,7 @@ namespace WindowsApplication5
             // 
             // btnSave
             // 
+            this.btnSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnSave.Location = new System.Drawing.Point(503, 74);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(75, 23);
@@ -383,6 +409,10 @@ namespace WindowsApplication5
             // errorProvider1
             // 
             this.errorProvider1.ContainerControl = this;
+            // 
+            // cliqtestsandattributeBindingSource
+            // 
+            this.cliqtestsandattributeBindingSource.DataSource = typeof(DataModel.cliqtestsandattribute);
             // 
             // TestAttributes
             // 
@@ -404,6 +434,7 @@ namespace WindowsApplication5
             this.panel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.mitinstrumentsBindingSource)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.cliqtestsandattributeBindingSource)).EndInit();
             this.ResumeLayout(false);
 
 		}
@@ -450,13 +481,20 @@ namespace WindowsApplication5
         private void BindTestsToGrid()
         {
             var tests = _unitOfWork.CliqMachineMappings.GetMany(x => x.Active == true);
-            dataGridView1.DataSource = tests;
+            if (this._MachineID > 0)
+            {
+                tests = tests.Where(x => x.MachineID == this._MachineID);
+            }
+           dataGridView1.DataSource = tests.ToList();
         }
 
         private void BindInstrumentsToComboBox()
         {
             var tests = _unitOfWork.InstrumentsRepository.GetMany(x => x.Active=="Y");//.Select(y => new {TestID=y.,TestName=y.TestName });
-
+            if (this._MachineID > 0)
+            {
+                tests = tests.Where(x => x.InstrumentID == this._MachineID);
+            }
 
             cmbInstruments.DataSource = tests.ToList();
         }
@@ -464,8 +502,11 @@ namespace WindowsApplication5
         
         private void BindCliqTestsToComboBox()
         {
-            var tests = _unitOfWork.CliqMachineMappings.GetMany(x => x.Active == true);//.Select(y => new {TestID=y.,TestName=y.TestName });
-
+            var tests = _unitOfWork.CliqTestAndAttributesRepository.GetAll().DistinctBy(x=>x.test_id);//.Select(y => new {TestID=y.,TestName=y.TestName });
+            //if (this._MachineID > 0)
+            //{
+            //    tests = tests.Where(x => x.MachineID == _MachineID);
+            //}
             
             cmbTests.DataSource = tests.ToList() ;
          
@@ -479,10 +520,10 @@ namespace WindowsApplication5
 
         private void cmbTests_SelectionChangeCommitted(object sender, EventArgs e)
         {
-            cliqmachinemapping obj= cmbTests.SelectedItem as cliqmachinemapping;
+            cliqtestsandattribute obj= cmbTests.SelectedItem as cliqtestsandattribute;
             if (obj != null)
             {
-                cmbAttributes.DataSource = _unitOfWork.CliqMachineMappings.GetMany(x => x.Test_ID == obj.Test_ID);
+                cmbAttributes.DataSource = _unitOfWork.CliqTestAndAttributesRepository.GetMany(x => x.test_id == obj.test_id);
             }
         }
 
@@ -490,17 +531,44 @@ namespace WindowsApplication5
         {
             if (ValidateForm())
             {
-                cliqmachinemapping obj = cmbTests.SelectedItem as cliqmachinemapping;
+                cliqmachinemapping obj = _unitOfWork.CliqMachineMappings.GetSingle(x => x.MachineID == Convert.ToInt32(cmbInstruments.SelectedValue) && x.CliqAttributeID == Convert.ToInt32(cmbAttributes.SelectedValue));
                 if (obj != null)
                 {
-                    obj.MachineID =Convert.ToInt32(cmbInstruments.SelectedValue);
+                    obj.MachineID = Convert.ToInt32(cmbInstruments.SelectedValue);
                     obj.MachineAttributeCode = textBox1.Text.Trim();
                     obj.Active = chkActive.Checked;
 
+                    _unitOfWork.CliqMachineMappings.UpdateCurrentContext(obj);
                 }
-                _unitOfWork.CliqMachineMappings.Update(obj);
+                else
+                {
+                    obj = new cliqmachinemapping
+                    {
+
+                        MachineID = Convert.ToInt32(cmbInstruments.SelectedValue),
+                        AttributeName = cmbAttributes.Text,
+                        BranchID = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings["BranchID"].ToString().Trim()),
+                        CliqAttributeID = Convert.ToInt32(cmbAttributes.SelectedValue),
+                        MachineAttributeCode = textBox1.Text,
+                        Test_ID = Convert.ToInt32(cmbTests.SelectedValue),
+                        TestName = cmbTests.Text,
+                        Active = chkActive.Checked,
+                    };
+                    _unitOfWork.CliqMachineMappings.Insert(obj);
+                }
+                //
+                //var chekthisattrib = _unitOfWork.CliqMachineMappings.GetSingle(x => x.MachineID == obj.MachineID && x.CliqAttributeID == obj.CliqAttributeID);
+                //if (chekthisattrib != null)
+                //{
+                //    obj.id = chekthisattrib.id;
+                //    chekthisattrib = obj;
+                //    _unitOfWork.CliqMachineMappings.Update(chekthisattrib);
+                //}
+                //else
+                //    _unitOfWork.CliqMachineMappings.Insert(obj);
                 _unitOfWork.Save();
                 BindTestsToGrid();
+                
                // cliqmachinemapping obj=new cliqmachinemapping{
                //     Active=chkActive.Checked,
                //     MachineAttributeCode=textBox1.Text,

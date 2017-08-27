@@ -14,6 +14,17 @@
     <Property Name="Active" Type="bool" Nullable="false" />
     <Property Name="MachineID" Type="uint" Nullable="false" />
   </EntityType>
+  <EntityType Name="cliqtestsandattributes">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="uint" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="test_id" Type="uint" Nullable="false" />
+    <Property Name="test_name" Type="varchar" MaxLength="100" Nullable="false" />
+    <Property Name="department_id" Type="uint" Nullable="false" />
+    <Property Name="att_id" Type="uint" Nullable="false" />
+    <Property Name="att_name" Type="varchar" MaxLength="100" Nullable="false" />
+  </EntityType>
   <EntityType Name="mi_setting">
     <Key>
       <PropertyRef Name="ID" />
@@ -63,7 +74,7 @@
       <PropertyRef Name="InstrumentID" />
     </Key>
     <Property Name="InstrumentID" Type="uint" StoreGeneratedPattern="Identity" Nullable="false" />
-    <Property Name="Supplierid" Type="uint" Nullable="false" />
+    <Property Name="Supplierid" Type="uint" />
     <Property Name="Instrument_Name" Type="varchar" MaxLength="150" Nullable="false" />
     <Property Name="Model" Type="varchar" MaxLength="50" Nullable="false" />
     <Property Name="I_Release" Type="varchar" MaxLength="50" />
@@ -80,7 +91,7 @@
     <Property Name="Stopbit" Type="varchar" MaxLength="10" Nullable="false" />
     <Property Name="DataBit" Type="varchar" MaxLength="10" Nullable="false" />
     <Property Name="FlowControl" Type="varchar" MaxLength="10" Nullable="false" />
-    <Property Name="Acknowledgement_code" Type="uint" />
+    <Property Name="Acknowledgement_code" Type="varchar" MaxLength="10" />
     <Property Name="EnteredBy" Type="uint" Nullable="false" />
     <Property Name="EnteredOn" Type="datetime" Precision="0" Nullable="false" />
     <Property Name="ClientID" Type="varchar" MaxLength="45" Nullable="false" />
@@ -254,6 +265,7 @@
   </Association>
   <EntityContainer Name="miModelStoreContainer">
     <EntitySet Name="cliqmachinemappings" EntityType="Self.cliqmachinemappings" Schema="mi" store:Type="Tables" />
+    <EntitySet Name="cliqtestsandattributes" EntityType="Self.cliqtestsandattributes" Schema="mi" store:Type="Tables" />
     <EntitySet Name="mi_setting" EntityType="Self.mi_setting" Schema="mi" store:Type="Tables" />
     <EntitySet Name="mi_taudit" EntityType="Self.mi_taudit" Schema="mi" store:Type="Tables" />
     <EntitySet Name="mi_tbooking" EntityType="Self.mi_tbooking" Schema="mi" store:Type="Tables" />

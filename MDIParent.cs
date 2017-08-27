@@ -7,92 +7,136 @@ using System.Data;
 
 namespace WindowsApplication5
 {
-	/// <summary>
-	/// Summary description for Form1.
-	/// </summary>
-	public class MDIParent : System.Windows.Forms.Form
-	{
-		private System.Windows.Forms.TabControl tabControl1;
-		private System.Windows.Forms.MainMenu mainMenu1;
+    /// <summary>
+    /// Summary description for Form1.
+    /// </summary>
+    public class MDIParent : System.Windows.Forms.Form
+    {
+        private System.Windows.Forms.TabControl tabControl1;
+        private System.Windows.Forms.MainMenu mainMenu1;
         private System.Windows.Forms.MenuItem menuItem5;
         private IContainer components;
-		private System.Windows.Forms.MenuItem fileMenuItem;
-		private System.Windows.Forms.MenuItem winMenuItem;
-		private System.Windows.Forms.MenuItem newMenuItem;
-		private System.Windows.Forms.MenuItem exitMenuItem;
-		private System.Windows.Forms.MenuItem cascadeMenuItem;
-		private System.Windows.Forms.MenuItem horizonMenuItem;
-		private System.Windows.Forms.MenuItem verticalMenuItem;
-		//int childCount = 1;
-        TestAttributes _testAttributeForm;
-		public MDIParent()
-		{
-			//
-			// Required for Windows Form Designer support
-			//
-			InitializeComponent();
-            if (_testAttributeForm == null)
+        private System.Windows.Forms.MenuItem fileMenuItem;
+        private System.Windows.Forms.MenuItem winMenuItem;
+        private System.Windows.Forms.MenuItem exitMenuItem;
+        private System.Windows.Forms.MenuItem cascadeMenuItem;
+        private System.Windows.Forms.MenuItem horizonMenuItem;
+        private System.Windows.Forms.MenuItem verticalMenuItem;
+        private MenuItem menuItem1;
+        private static MDIParent instance=new MDIParent();
+        public static MDIParent Instance
+        {
+            get
             {
-                _testAttributeForm = new TestAttributes();
-                //childForm.Text = "MDIChild " + childCount.ToString();
-                _testAttributeForm.MdiParent = this;
+                if (instance == null)
+                {
+                    instance = new MDIParent();
+                }
+                return instance;
+            }
+        }
+        //int childCount = 1;
+        TestAttributes _testAttributeForm;
+        MachineRegistration _machineRegistration;
+        private MDIParent()
+        {
+            //
+            // Required for Windows Form Designer support
+            //
+            InitializeComponent();
 
-                _testAttributeForm.TabCtrl = tabControl1;
+
+            if (_machineRegistration == null)
+            {
+                _machineRegistration = new MachineRegistration();
+                //childForm.Text = "MDIChild " + childCount.ToString();
+                _machineRegistration.MdiParent = this;
+
+                _machineRegistration.TabCtrl = tabControl1;
                 TabPage tp = new TabPage();
                 tp.Parent = tabControl1;
-                tp.Text = _testAttributeForm.Text;
+                tp.Text = _machineRegistration.Text;
                 tp.Show();
-               
+
                 //child Form will now hold a reference value to a tabpage
-                _testAttributeForm.TabPag = tp;
-                _testAttributeForm.WindowState = FormWindowState.Maximized;
+                _machineRegistration.TabPag = tp;
+                _machineRegistration.WindowState = FormWindowState.Maximized;
                 //Activate the MDI child form
-                _testAttributeForm.Show();
+                _machineRegistration.Show();
                 tabControl1.SelectedTab = tp;
-               // _testAttributeForm.Dock = DockStyle.Fill; 
-                _testAttributeForm.FormClosed+=_testAttributeForm_FormClosed;
+                // _testAttributeForm.Dock = DockStyle.Fill; 
+                _machineRegistration.FormClosed += _machineRegistration_FormClosed;
             }
             else
-                _testAttributeForm.Activate();
+                _machineRegistration.Activate();
 
-			//
-			// TODO: Add any constructor code after InitializeComponent call
-			//
-		}
+            //if (_testAttributeForm == null)
+            //{
+            //    _testAttributeForm = new TestAttributes();
+            //    //childForm.Text = "MDIChild " + childCount.ToString();
+            //    _testAttributeForm.MdiParent = this;
+
+            //    _testAttributeForm.TabCtrl = tabControl1;
+            //    TabPage tp = new TabPage();
+            //    tp.Parent = tabControl1;
+            //    tp.Text = _testAttributeForm.Text;
+            //    tp.Show();
+
+            //    //child Form will now hold a reference value to a tabpage
+            //    _testAttributeForm.TabPag = tp;
+            //    _testAttributeForm.WindowState = FormWindowState.Maximized;
+            //    //Activate the MDI child form
+            //    _testAttributeForm.Show();
+            //    tabControl1.SelectedTab = tp;
+            //   // _testAttributeForm.Dock = DockStyle.Fill; 
+            //    _testAttributeForm.FormClosed+=_testAttributeForm_FormClosed;
+            //}
+            //else
+            //    _testAttributeForm.Activate();
+
+            //
+            // TODO: Add any constructor code after InitializeComponent call
+            //
+        }
+
+        private void _machineRegistration_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            _machineRegistration = null;
+        }
 
         private void _testAttributeForm_FormClosed(object sender, FormClosedEventArgs e)
         {
             _testAttributeForm = null;
         }
 
-		/// <summary>
-		/// Clean up any resources being used.
-		/// </summary>
-		protected override void Dispose( bool disposing )
-		{
-			if( disposing )
-			{
-				if (components != null) 
-				{
-					components.Dispose();
-				}
-			}
-			base.Dispose( disposing );
-		}
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (components != null)
+                {
+                    components.Dispose();
+                }
+            }
+            base.Dispose(disposing);
+        }
 
-		#region Windows Form Designer generated code
-		/// <summary>
-		/// Required method for Designer support - do not modify
-		/// the contents of this method with the code editor.
-		/// </summary>
-		private void InitializeComponent()
-		{
+        #region Windows Form Designer generated code
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
             this.components = new System.ComponentModel.Container();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.mainMenu1 = new System.Windows.Forms.MainMenu(this.components);
             this.fileMenuItem = new System.Windows.Forms.MenuItem();
-            this.newMenuItem = new System.Windows.Forms.MenuItem();
             this.menuItem5 = new System.Windows.Forms.MenuItem();
+            this.menuItem1 = new System.Windows.Forms.MenuItem();
             this.exitMenuItem = new System.Windows.Forms.MenuItem();
             this.winMenuItem = new System.Windows.Forms.MenuItem();
             this.cascadeMenuItem = new System.Windows.Forms.MenuItem();
@@ -123,22 +167,21 @@ namespace WindowsApplication5
             // 
             this.fileMenuItem.Index = 0;
             this.fileMenuItem.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-            this.newMenuItem,
+            this.menuItem1,
             this.menuItem5,
             this.exitMenuItem});
             this.fileMenuItem.Text = "&File";
-            // 
-            // newMenuItem
-            // 
-            this.newMenuItem.Index = 0;
-            this.newMenuItem.Shortcut = System.Windows.Forms.Shortcut.CtrlN;
-            this.newMenuItem.Text = "&New";
-            this.newMenuItem.Click += new System.EventHandler(this.NewMenuItem_Click);
             // 
             // menuItem5
             // 
             this.menuItem5.Index = 1;
             this.menuItem5.Text = "-";
+            // 
+            // menuItem1
+            // 
+            this.menuItem1.Index = 0;
+            this.menuItem1.Text = "&Register Instrument";
+            this.menuItem1.Click += new System.EventHandler(this.menuItem1_Click);
             // 
             // exitMenuItem
             // 
@@ -184,22 +227,22 @@ namespace WindowsApplication5
             this.Text = "MDI Parent Form";
             this.ResumeLayout(false);
 
-		}
-		#endregion
+        }
+        #endregion
 
-		/// <summary>
-		/// The main entry point for the application.
-		/// </summary>
-		[STAThread]
-        static void Main() 
-		{
-			Application.Run(new SplashScreen());
-           
+        /// <summary>
+        /// The main entry point for the application.
+        /// </summary>
+        [STAThread]
+        static void Main()
+        {
+            Application.Run(new SplashScreen());
 
-		}
-      private void NewMenuItem_Click(object sender, System.EventArgs e)
-		{
-			//Creating MDI child form and initialize its fields
+
+        }
+        private void NewMenuItem_Click(object sender, System.EventArgs e)
+        {
+            //Creating MDI child form and initialize its fields
             if (_testAttributeForm == null)
             {
                 _testAttributeForm = new TestAttributes();
@@ -220,48 +263,83 @@ namespace WindowsApplication5
                 tabControl1.SelectedTab = tp;
             }
 
-			//child Form will now hold a reference value to the tab control
-			
+            //child Form will now hold a reference value to the tab control
 
-			//Add a Tabpage and enables it
-			
-			//childCount++;
 
-			//Activate the newly created Tabpage
-			
-		}
+            //Add a Tabpage and enables it
 
-		private void exitMenuItem_Click(object sender, System.EventArgs e)
-		{
-			this.Close();
-		}
+            //childCount++;
 
-		private void tabControl1_SelectedIndexChanged(object sender, System.EventArgs e)
-		{
-			foreach (TestAttributes childForm in this.MdiChildren) 
-			{
-				//Check for its corresponding MDI child form
-				if (childForm.TabPag.Equals(tabControl1.SelectedTab)) 
-				{
-					//Activate the MDI child form
-					childForm.Select();
-				}
-			}
-		}
+            //Activate the newly created Tabpage
 
-		private void cascadeMenuItem_Click(object sender, System.EventArgs e)
-		{
-			this.LayoutMdi(MdiLayout.Cascade);
-		}
+        }
 
-		private void horizonMenuItem_Click(object sender, System.EventArgs e)
-		{
-			this.LayoutMdi(MdiLayout.TileHorizontal);
-		}
+        private void exitMenuItem_Click(object sender, System.EventArgs e)
+        {
+            this.Close();
+        }
 
-		private void verticalMenuItem_Click(object sender, System.EventArgs e)
-		{
-			this.LayoutMdi(MdiLayout.TileVertical);
-		}
-	}
+        private void tabControl1_SelectedIndexChanged(object sender, System.EventArgs e)
+        {
+            foreach (Form childForm in this.MdiChildren)
+            {
+                //Check for its corresponding MDI child form
+                if (childForm.Text.Equals(tabControl1.SelectedTab.Text))
+                {
+                    //Activate the MDI child form
+                    childForm.Select();
+                    break;
+                }
+            }
+        }
+
+        private void cascadeMenuItem_Click(object sender, System.EventArgs e)
+        {
+            this.LayoutMdi(MdiLayout.Cascade);
+        }
+
+        private void horizonMenuItem_Click(object sender, System.EventArgs e)
+        {
+            this.LayoutMdi(MdiLayout.TileHorizontal);
+        }
+
+        private void verticalMenuItem_Click(object sender, System.EventArgs e)
+        {
+            this.LayoutMdi(MdiLayout.TileVertical);
+        }
+
+        private void menuItem1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        internal void LoadAttributesForm(int InstrumentID)
+        {
+            if (_testAttributeForm == null)
+            {
+                _testAttributeForm = new TestAttributes(InstrumentID);
+                //childForm.Text = "MDIChild " + childCount.ToString();
+                _testAttributeForm.MdiParent = this;
+
+                _testAttributeForm.TabCtrl = tabControl1;
+                TabPage tp = new TabPage();
+                tp.Parent = tabControl1;
+                tp.Text = _testAttributeForm.Text;
+                tp.Show();
+
+                //child Form will now hold a reference value to a tabpage
+                _testAttributeForm.TabPag = tp;
+                _testAttributeForm.WindowState = FormWindowState.Maximized;
+                //Activate the MDI child form
+                _testAttributeForm.Show();
+                tabControl1.SelectedTab = tp;
+            }
+            else
+            {
+                _testAttributeForm.Close();
+                _testAttributeForm = null;
+                LoadAttributesForm(InstrumentID);
+            }
+        }
+    }
 }

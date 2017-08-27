@@ -236,5 +236,17 @@
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
+    <EntitySetMapping Name="cliqtestsandattributes">
+      <EntityTypeMapping TypeName="miModel.cliqtestsandattribute">
+        <MappingFragment StoreEntitySet="cliqtestsandattributes">
+          <ScalarProperty Name="att_name" ColumnName="att_name" />
+          <ScalarProperty Name="att_id" ColumnName="att_id" />
+          <ScalarProperty Name="department_id" ColumnName="department_id" />
+          <ScalarProperty Name="test_name" ColumnName="test_name" />
+          <ScalarProperty Name="test_id" ColumnName="test_id" />
+          <ScalarProperty Name="id" ColumnName="id" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
   </EntityContainerMapping>
 </Mapping>

@@ -4,13 +4,17 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using DataModel;
 using System.Web.Script.Serialization;
 
 namespace OtherTests
 {
     class Program
     {
+        private static UnitOfWork _unitofwork;
+
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        
         static void Main(string[] args)
         {
             //TestApi();
@@ -18,6 +22,7 @@ namespace OtherTests
             //Console.WriteLine("Hit enter");
             //log.Error("Hello I am an Exception");
             //Console.ReadLine();
+            _unitofwork = new UnitOfWork();
             ParseAu480();
              Console.ReadLine();
         }
@@ -41,7 +46,7 @@ namespace OtherTests
             var splitter2 = new string[] { " " };
             var arrayafter1stseperator = text.Split(splitter1, StringSplitOptions.RemoveEmptyEntries);
             string labid = "";
-            List<mi_tresult> result = new List<mi_tresult>();
+            //List<DataModel.mi_tresult> result = new List<DataModel.mi_tresult>();
             foreach (string str1 in arrayafter1stseperator)
             {
                 try
@@ -64,28 +69,41 @@ namespace OtherTests
                             {
                                 string machinetestcode = testresultsingle.Substring(0, 3).Trim();
                                 string resultsingle = testresultsingle.Substring(3).Trim();
-
-                                result.Add(new mi_tresult
+                                var objresult = new DataModel.mi_tresult
                                 {
                                     BookingID = labid,
                                     AttributeID = machinetestcode,
                                     ClientID = "007",
-                                    EnteredBy = "1",
-                                    EnteredOn = System.DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss tt"),
-                                    MachineName = "1",
-                                    Result = resultsingle
-
-                                });
+                                    EnteredBy = 1,
+                                    EnteredOn = System.DateTime.Now,//.ToString("yyyy-MM-dd hh:mm:ss tt"),
+                                    machinename = "1",
+                                    Result = resultsingle,
+                                    Status="N"
+                                };
+                                _unitofwork.ResultsRepository.Insert(objresult);
+                               
+                                
                             }
                         }
 
                     }
                 }
+
                 catch (Exception ee)
                 {
                     Console.WriteLine(str1);
                 }
+                try
+                {
+
+                    _unitofwork.Save();
+                }
+                catch (Exception ee)
+                {
+                    log.Error("On Saving:", ee);
+                }
             }
+
 
 
             //foreach(byte a in text)

@@ -148,3 +148,7 @@ E:\Projects\Trees\MDI Tab Browsing\Layers\DataLayer\bin\Debug\DataLayer.dll
 E:\Projects\Trees\MDI Tab Browsing\Layers\DataLayer\bin\Debug\DataLayer.pdb
 E:\Projects\Trees\MDI Tab Browsing\Layers\DataLayer\obj\Debug\DataLayer.dll
 E:\Projects\Trees\MDI Tab Browsing\Layers\DataLayer\obj\Debug\DataLayer.pdb
+E:\Projects\Trees\InterfacingAllApps\Layers\DataLayer\bin\Debug\DataLayer.dll
+E:\Projects\Trees\InterfacingAllApps\Layers\DataLayer\bin\Debug\DataLayer.pdb
+E:\Projects\Trees\InterfacingAllApps\Layers\DataLayer\obj\Debug\DataLayer.dll
+E:\Projects\Trees\InterfacingAllApps\Layers\DataLayer\obj\Debug\DataLayer.pdb

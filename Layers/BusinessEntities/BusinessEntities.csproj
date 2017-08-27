@@ -43,10 +43,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CliqAttributeEntity.cs" />
     <Compile Include="cliqresults.cs" />
-    <Compile Include="TestAttributesEntity.cs" />
-    <Compile Include="CliqMachineEntity.cs" />
-    <Compile Include="TestsEntity.cs" />
+    <Compile Include="CliqTestsEntity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

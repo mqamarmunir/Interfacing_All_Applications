@@ -93,8 +93,38 @@ namespace DataModel
         /// <param name="entityToUpdate"></param>
         public virtual void Update(TEntity entityToUpdate)
         {
+            ////db.Entry(v).CurrentValues.SetValues(model);
+            ////Context.Entry(entityToUpdate).CurrentValues.SetValues(entityToUpdate);
+            //if (entityToUpdate == null)
+            //{
+            //    throw new ArgumentException("Cannot add a null entity.");
+            //}
+
+            //var entry = Context.Entry<TEntity>(entityToUpdate);
+
+            //if (entry.State == EntityState.Detached)
+            //{
+            //    var set = Context.Set<TEntity>();
+            //    TEntity attachedEntity = set.Local.SingleOrDefault(e => e. == entity.Id);  // You need to have access to key
+
+            //    if (attachedEntity != null)
+            //    {
+            //        var attachedEntry = Context.Entry(attachedEntity);
+            //        attachedEntry.CurrentValues.SetValues(entityToUpdate);
+            //    }
+            //    else
+            //    {
+            //        entry.State = EntityState.Modified; // This should attach entity
+            //    }
+            //}
             DbSet.Attach(entityToUpdate);
             Context.Entry(entityToUpdate).State = EntityState.Modified;
+        }
+        public virtual void UpdateCurrentContext(TEntity entityToUpdate)
+        {
+            //db.Entry(v).CurrentValues.SetValues(model);
+            Context.Entry(entityToUpdate).CurrentValues.SetValues(entityToUpdate);
+            
         }
 
         /// <summary>
@@ -180,7 +210,10 @@ namespace DataModel
         /// <returns>A single record that matches the specified criteria</returns>
         public TEntity GetSingle(Func<TEntity, bool> predicate)
         {
-            return DbSet.Single<TEntity>(predicate);
+            if (DbSet.Where(predicate).FirstOrDefault() != null)
+                return DbSet.Single<TEntity>(predicate);
+            else
+                return null;
         }
 
         /// <summary>
