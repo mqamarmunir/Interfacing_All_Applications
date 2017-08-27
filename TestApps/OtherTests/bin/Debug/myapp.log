@@ -1,0 +1,7 @@
+2017-08-22 07:50:36,346 [9] INFO OtherTests.Program - Hello logging world!
+2017-08-22 07:53:07,492 [9] INFO OtherTests.Program - Hello logging world!
+2017-08-22 07:53:07,507 [9] ERROR OtherTests.Program - Hello I am an Exception
+2017-08-27 16:16:45,520 [9] ERROR OtherTests.Program - On Saving:
+System.Data.Entity.Validation.DbEntityValidationException: Validation failed for one or more entities. See 'EntityValidationErrors' property for more details.
+   at DataModel.UnitOfWork.Save() in e:\Projects\Trees\InterfacingAllApps\Layers\DataModel\UnitofWork.cs:line 133
+   at OtherTests.Program.ParseAu480() in e:\Projects\Trees\InterfacingAllApps\TestApps\OtherTests\Program.cs:line 108
