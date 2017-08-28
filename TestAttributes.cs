@@ -131,6 +131,7 @@ namespace WindowsApplication5
 		{
             this.components = new System.ComponentModel.Container();
             this.cmbTests = new System.Windows.Forms.ComboBox();
+            this.cliqtestsandattributeBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.cliqmachinemappingBindingSource1 = new System.Windows.Forms.BindingSource(this.components);
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -157,7 +158,7 @@ namespace WindowsApplication5
             this.btnReset = new System.Windows.Forms.Button();
             this.btnSave = new System.Windows.Forms.Button();
             this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
-            this.cliqtestsandattributeBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            ((System.ComponentModel.ISupportInitialize)(this.cliqtestsandattributeBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.cliqmachinemappingBindingSource1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.cliqmachinemappingBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
@@ -165,7 +166,6 @@ namespace WindowsApplication5
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.mitinstrumentsBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.cliqtestsandattributeBindingSource)).BeginInit();
             this.SuspendLayout();
             // 
             // cmbTests
@@ -179,6 +179,10 @@ namespace WindowsApplication5
             this.cmbTests.TabIndex = 0;
             this.cmbTests.ValueMember = "test_id";
             this.cmbTests.SelectionChangeCommitted += new System.EventHandler(this.cmbTests_SelectionChangeCommitted);
+            // 
+            // cliqtestsandattributeBindingSource
+            // 
+            this.cliqtestsandattributeBindingSource.DataSource = typeof(DataModel.cliqtestsandattribute);
             // 
             // cliqmachinemappingBindingSource1
             // 
@@ -343,7 +347,6 @@ namespace WindowsApplication5
             this.button1.TabIndex = 12;
             this.button1.Text = "button1";
             this.button1.UseVisualStyleBackColor = true;
-            this.button1.Visible = false;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // cmbInstruments
@@ -410,10 +413,6 @@ namespace WindowsApplication5
             // 
             this.errorProvider1.ContainerControl = this;
             // 
-            // cliqtestsandattributeBindingSource
-            // 
-            this.cliqtestsandattributeBindingSource.DataSource = typeof(DataModel.cliqtestsandattribute);
-            // 
             // TestAttributes
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
@@ -426,6 +425,7 @@ namespace WindowsApplication5
             this.Activated += new System.EventHandler(this.MDIChild_Activated);
             this.Closing += new System.ComponentModel.CancelEventHandler(this.MDIChild_Closing);
             this.Load += new System.EventHandler(this.TestAttributes_Load);
+            ((System.ComponentModel.ISupportInitialize)(this.cliqtestsandattributeBindingSource)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.cliqmachinemappingBindingSource1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.cliqmachinemappingBindingSource)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
@@ -434,7 +434,6 @@ namespace WindowsApplication5
             this.panel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.mitinstrumentsBindingSource)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.cliqtestsandattributeBindingSource)).EndInit();
             this.ResumeLayout(false);
 
 		}
@@ -591,7 +590,7 @@ namespace WindowsApplication5
                 errorProvider1.SetError(cmbAttributes, "Please Select");
                 return false;
             }
-            if (textBox1.Text.Length < 1)
+            if (textBox1.Text.Trim().Length < 1)
             {
                 MessageBox.Show("All mandatory fields not completed");
                 errorProvider1.SetError(textBox1, "Please Enter");
