@@ -13,17 +13,28 @@ namespace BusinessLayer
         {
             if (HTTPMethod == "GET")
             {
-                HttpClient client = new HttpClient();
-                HttpResponseMessage res = await client.GetAsync(Address);
+                using (HttpClient client = new HttpClient())
+                {
+                    client.Timeout = new TimeSpan(0, 0, 20);
+                    try
+                    {
+                        HttpResponseMessage res = await client.GetAsync(Address);
 
-                if (res.IsSuccessStatusCode)
-                {
-                    var content = await res.Content.ReadAsStringAsync();
-                    return content.ToString();
-                }
-                else
-                {
-                    return "";
+                        if (res.IsSuccessStatusCode)
+                        {
+                            var content = await res.Content.ReadAsStringAsync();
+                            return content.ToString();
+                        }
+                        else
+                        {
+                            return "";
+                        }
+
+                    }
+                    catch (Exception ee)
+                    {
+                        throw ee;
+                    }
                 }
             }
             else

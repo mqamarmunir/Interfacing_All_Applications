@@ -12,6 +12,7 @@ using MySql.Data.MySqlClient;
 using BusinessLayer;
 using System.Data.OleDb;
 using DataModel;
+using BusinessEntities;
 
 namespace TestService
 {
@@ -47,7 +48,7 @@ namespace TestService
             eventLog1.ModifyOverflowPolicy(OverflowAction.OverwriteAsNeeded, 1);
 
             serialPort1.Open();
-
+            //   Main(null, null);
             this.timer = new System.Timers.Timer(180000D);  // 30000 milliseconds = 30 seconds
             this.timer.AutoReset = true;
             this.timer.Elapsed += new System.Timers.ElapsedEventHandler(this.Main);
@@ -67,17 +68,19 @@ namespace TestService
                 data = serialPort1.ReadExisting();
                 if (data.Length > 0)
                 {
-
-                    serialPort1.Write(new byte[] { 0x06 }, 0, 1);//send Ack to machine
+                    var thismachinesettings = _unitOfWork.InstrumentsRepository.GetSingle(x => x.Active == "Y" && x.PORT == "COM1");
+                    if (!String.IsNullOrEmpty(thismachinesettings.Acknowledgement_code))
+                        serialPort1.Write(new byte[] { 0x06 }, 0, 1);//send Ack to machine
                     sb_port1.Append(data);
-                    if (sb_port1.ToString().Contains("L|1"))//L|1 is a terminator record according to astm standards
+
+                    if (sb_port1.ToString().Contains(thismachinesettings.RecordTerminator))//L|1 is a terminator record according to astm standards
                     {
                         ///if the recieved string contains the terminator
                         ///then parse the record and Clear the string Builder for next 
                         ///Record.
                         // eventLog1.WriteEntry(sb.ToString());
                         // eventLog1.WriteEntry(System.Configuration.ConfigurationSettings.AppSettings["parsingalgorithm_port1"].ToString().Trim());
-                        Parsethisandinsert(sb_port1.ToString(), Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["parsingalgorithm_port1"].ToString().Trim()));
+                        Parsethisandinsert(sb_port1.ToString(), thismachinesettings.ParsingAlgorithm);
                         sb_port1.Clear();
 
 
@@ -239,62 +242,104 @@ namespace TestService
                         }
                     }
                     break;//case 1 ends here
+                #endregion
+                #region 2nd Parser
                 case 2://AU480 Beckman
-                    var text = data;//System.IO.File.ReadAllText(@"E:\Sample.txt");
-                    var splitter1 = new char[1] { Convert.ToChar(3) };
-                    var splitter2 = new string[] { " " };
-                    var arrayafter1stseperator = text.Split(splitter1, StringSplitOptions.RemoveEmptyEntries);
-                    labid = "";
-                    List<mi_tresult> lstresult = new List<mi_tresult>();
-                    foreach (string str1 in arrayafter1stseperator)
-                    {
-                        try
-                        {
-                            if (str1.Contains("DB") || str1.Contains("DE") || string.IsNullOrEmpty(str1))//skip start and end strings
-                                continue;
-
-                            var arrayafter2ndseperator = str1.Substring(0, 40).Split(splitter2, StringSplitOptions.RemoveEmptyEntries);
-                            if (arrayafter2ndseperator.Length > 3)
-                            {
-                                labid = arrayafter2ndseperator[3];
-
-                                string testsandresults = str1.Substring(40);
-                                var splitter3 = new string[] { "r", "nr" };
-                                var arrayafter3rdseperator = testsandresults.Split(splitter3, StringSplitOptions.None);
-                                foreach (string testresultall in arrayafter3rdseperator)
-                                {
-                                    string testresultsingle = testresultall.Replace("E", "").Trim();
-                                    if (testresultsingle.Length > 1)
-                                    {
-                                        string machinetestcode = testresultsingle.Substring(0, 3).Trim();
-                                        string resultsingle = testresultsingle.Substring(3).Trim();
-
-                                        lstresult.Add(new mi_tresult
-                                        {
-                                            BookingID = labid,
-                                            AttributeID = machinetestcode,
-                                            ClientID = "007",
-                                            EnteredBy = 1,
-                                            EnteredOn = System.DateTime.Now,//.ToString("yyyy-MM-dd hh:mm:ss tt"),
-                                            machinename = "1",
-                                            Result = resultsingle
-
-                                        });
-                                    }
-                                }
-
-                            }
-                        }
-                        catch (Exception ee)
-                        {
-                            Console.WriteLine(str1);
-                        }
-                    }
+                    ParseAu480(data);
 
                     break;
+
+
+
                 #endregion
             }
 
+        }
+        private void ParseAu480(string data)
+        {
+            var text = data;// System.IO.File.ReadAllText(@"E:\WriteMe.txt");
+            var splitter1 = new char[1] { Convert.ToChar(3) };
+            var splitter2 = new string[] { " " };
+            var arrayafter1stseperator = text.Split(splitter1, StringSplitOptions.RemoveEmptyEntries);
+            string labid = "";
+            //List<DataModel.mi_tresult> result = new List<DataModel.mi_tresult>();
+            foreach (string str1 in arrayafter1stseperator)
+            {
+                try
+                {
+                    if (str1.Contains("DB") || str1.Contains("DE") || string.IsNullOrEmpty(str1))//skip start and end strings
+                        continue;
+
+                    var arrayafter2ndseperator = str1.Substring(0, 40).Split(splitter2, StringSplitOptions.RemoveEmptyEntries);
+                    if (arrayafter2ndseperator.Length > 3)
+                    {
+                        labid = arrayafter2ndseperator[3];
+
+                        string testsandresults = str1.Substring(40);
+                        var splitter3 = new string[] { "r", "nr" };
+                        var arrayafter3rdseperator = testsandresults.Split(splitter3, StringSplitOptions.None);
+                        foreach (string testresultall in arrayafter3rdseperator)
+                        {
+                            string testresultsingle = testresultall.Replace("E", "").Trim();
+                            if (testresultsingle.Length > 1)
+                            {
+                                string machinetestcode = testresultsingle.Substring(0, 3).Trim();
+                                string resultsingle = testresultsingle.Substring(3).Trim();
+                                var objresult = new DataModel.mi_tresult
+                                {
+                                    BookingID = labid,
+                                    AttributeID = machinetestcode,
+                                    ClientID = System.Configuration.ConfigurationSettings.AppSettings["BranchID"].ToString().Trim(),
+                                    EnteredBy = 1,
+                                    EnteredOn = System.DateTime.Now,//.ToString("yyyy-MM-dd hh:mm:ss tt"),
+                                    machinename = "1",
+                                    Result = resultsingle,
+                                    Status = "N"
+                                };
+                                _unitOfWork.ResultsRepository.Insert(objresult);
+
+
+                            }
+                        }
+
+                    }
+                }
+
+                catch (Exception ee)
+                {
+                    Console.WriteLine(str1);
+                }
+
+            }
+            try
+            {
+
+                _unitOfWork.Save();
+                eventLog1.WriteEntry("Result Data saved to database", EventLogEntryType.SuccessAudit);
+            }
+            catch (Exception ee)
+            {
+                eventLog1.WriteEntry("On Saving to local results table: " + ee.ToString(), EventLogEntryType.Error);
+                //log.Error("On Saving:", ee);
+            }
+
+
+
+            //foreach(byte a in text)
+            //{
+            //    Console.Write(a.ToString());
+            //    Console.Write('\t');
+            //    Console.Write(Convert.ToChar(a).ToString());
+            //    Console.Write('\n');
+            //    Console.ReadLine();
+            //}
+            //if (result.Count > 0)
+            //{
+            //    var jsonSerialiser = new JavaScriptSerializer();
+            //  //  var json = jsonSerialiser.Serialize(result);
+            //   // System.IO.File.AppendAllText(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "InterfacingJSON.json"), json);
+            //}
+            //Console.WriteLine("Done");
         }
         private void InsertBookingList(List<mi_tresult> lstresult)
         {
@@ -378,9 +423,10 @@ values('" + System.DateTime.Now.ToString("yy") + "-" + str[1].Replace("'", "''")
         }
 
 
-        private void Main(object sender, System.Timers.ElapsedEventArgs e)
+        private async void Main(object sender, System.Timers.ElapsedEventArgs e)
         {
-            eventLog1.WriteEntry("TImer main method");
+            timer.Stop();
+            eventLog1.WriteEntry("In remote Sending method.");
             // WindowsImpersonationContext impersonationContext = null;
             //// Program g = new Program();
             //getservercredetials();
@@ -392,21 +438,138 @@ values('" + System.DateTime.Now.ToString("yy") + "-" + str[1].Replace("'", "''")
             //}
             ////else
             //{
-
-            DataTable dt = getDatatable();
-            eventLog1.WriteEntry(dt.Rows.Count.ToString() + " new rows found");
-            if (dt != null)
+            #region Web Service Methodology
+            clsBLMain objMai = new clsBLMain();
+            DataView dv = objMai.GetAll(7);
+            if (dv.Count > 0)
             {
-                _remoteinserter ri = null;
-                IAsyncResult _result;// = new IAsyncResult;
+                eventLog1.WriteEntry("Found results:" + dv.Count.ToString());
+                try
+                {
+                    List<cliqresults> lstresults = new List<cliqresults>();
+                    for (int i = 0; i < dv.Count; i++)
+                    {
+                        lstresults.Add(new cliqresults
+                        {
+                            ResultID = Convert.ToInt32(dv[i]["ResultID"].ToString().Trim()),
+                            BookingID = dv[i]["BookingID"].ToString().Trim(),
+                            ClientID = dv[i]["ClientID"].ToString().Trim(),
+                            CliqAttributeID = dv[i]["CliqAttributeID"].ToString().Trim(),
+                            CliqTestID = dv[i]["CliqTestID"].ToString().Trim(),
+                            MachineID = dv[i]["MachineID"].ToString().Trim(),
+                            Result = dv[i]["Result"].ToString().Trim(),
+                            MachineAttributeCode = dv[i]["MachineAttributeCode"].ToString().Trim()
 
-                ri = insertRemoteData;
-                _result = ri.BeginInvoke(dt, new AsyncCallback(callbackmethod), dt.Rows[0]["Bookingid"].ToString().Trim());
-                eventLog1.WriteEntry("Now filling remote database");
-                // WriteXml(dt);
+                        });
+                    }
 
-                //DoWork();
+
+
+                    // var jsonSerialiser = new Newtonsoft.Json.Serialization.Ser();
+
+
+                    var json = Newtonsoft.Json.JsonConvert.SerializeObject(lstresults.Select(x => new { BookingID = x.BookingID, ClientID = x.ClientID, CliqAttributeID = x.CliqAttributeID, CliqTestID = x.CliqTestID, MachineID = x.MachineID, Result = x.Result }).ToList());
+                    //if (!System.IO.File.Exists("E:\\TreesJSON.json"))
+                    //    System.IO.File.Create("E:\\TreesJSON.json");
+                    //System.IO.File.WriteAllText("E:\\TreesJSON.json", json);
+                    eventLog1.WriteEntry("Sendin Async Call.", EventLogEntryType.SuccessAudit);
+                    var content = await Helper.CallCliqApi("http://192.168.22.16:818/ricapi/site/curl_data?str=" + json.ToString().Trim());
+                    eventLog1.WriteEntry("remote Call Successful.", EventLogEntryType.SuccessAudit);
+                    if (content.Length > 0)
+                    {
+                        var cliqresultresponse = Newtonsoft.Json.JsonConvert.DeserializeObject<List<CliqResultResponse>>(content);
+                        if (cliqresultresponse != null && (cliqresultresponse.FirstOrDefault().Code == "3" || cliqresultresponse.FirstOrDefault().Code == "1"))
+                        {
+                            clsBLMain objMain = null;
+                            foreach (var result in lstresults)
+                            {
+                                objMain = new clsBLMain();
+                                objMain.status = "Y";
+                                objMain.Sentto = "http://192.168.22.16:818/ricapi/site/curl_data";
+                                objMain.Senton = System.DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss tt");
+                                objMain.ResultID = result.ResultID.ToString();
+                                try
+                                {
+                                    objMain.Update();
+                                    eventLog1.WriteEntry("Result ID: " + result.ResultID + " updated locally", EventLogEntryType.SuccessAudit);
+                                }
+                                catch (Exception ee)
+                                {
+                                    eventLog1.WriteEntry("Error while updating local record id: " + result.ResultID.ToString() + "-------" + ee.ToString(), EventLogEntryType.Error);
+                                }
+                                //mi_tresult res = new mi_tresult
+                                //{
+                                //    ResultID = result.ResultID,
+                                //    Status = "Y",
+                                //    senton = System.DateTime.Now,
+                                //    BookingID = result.BookingID,
+                                //    machinename = result.MachineID,
+                                //    Result = result.Result,
+                                //    AttributeID = result.MachineAttributeCode,
+                                //    EnteredBy = 1,
+                                //    EnteredOn = System.DateTime.Now,
+                                //    ClientID = System.Configuration.ConfigurationSettings.AppSettings["BranchID"].ToString().Trim(),
+                                //    //  AttributeID=result.Attribut
+
+                                //    sentto = "http://192.168.22.16:818/ricapi/site/curl_data"
+                                //};
+                                //try
+                                //{
+                                //    _unitOfWork.ResultsRepository.UpdateCurrentContext(res);
+                                //    //_unitOfWork.ResultsRepository.Update(res);
+                                //}
+                                //catch (System.InvalidOperationException ee)
+                                //{
+                                //    eventLog1.WriteEntry("Once again error: " + ee.ToString(), EventLogEntryType.Error);
+                                //}
+
+                            }
+                            //_unitOfWork.Save();
+
+
+
+                        }
+                        else
+                        {
+                            eventLog1.WriteEntry("JSON recieved: " + content);
+                        }
+
+                    }
+                }
+                catch (Exception ee)
+                {
+                    eventLog1.WriteEntry(ee.ToString(), EventLogEntryType.Error);
+                    // MessageBox.Show(ee.Message);
+                }
+                finally
+                {
+                    timer.Start();
+                }
+
+
             }
+            else
+            {
+                timer.Start();
+            }
+
+            #endregion
+            #region Old methodology
+            //DataTable dt = getDatatable();
+            //eventLog1.WriteEntry(dt.Rows.Count.ToString() + " new rows found");
+            //if (dt != null)
+            //{
+            //    _remoteinserter ri = null;
+            //    IAsyncResult _result;// = new IAsyncResult;
+
+            //    ri = insertRemoteData;
+            //    _result = ri.BeginInvoke(dt, new AsyncCallback(callbackmethod), dt.Rows[0]["Bookingid"].ToString().Trim());
+            //    eventLog1.WriteEntry("Now filling remote database");
+            //    // WriteXml(dt);
+
+            //    //DoWork();
+            //}
+            #endregion
 
         }
         private DataTable getDatatable()

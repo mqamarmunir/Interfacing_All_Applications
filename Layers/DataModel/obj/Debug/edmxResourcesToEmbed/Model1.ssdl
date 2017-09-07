@@ -96,6 +96,8 @@
     <Property Name="EnteredOn" Type="datetime" Precision="0" Nullable="false" />
     <Property Name="ClientID" Type="varchar" MaxLength="45" Nullable="false" />
     <Property Name="Active" Type="char" MaxLength="1" Nullable="false" />
+    <Property Name="RecordTerminator" Type="varchar" MaxLength="10" Nullable="false" />
+    <Property Name="ParsingAlgorithm" Type="utinyint" Nullable="false" />
   </EntityType>
   <EntityType Name="mi_tpersonnel">
     <Key>
@@ -173,7 +175,7 @@
     <Property Name="Status" Type="char" MaxLength="1" Nullable="false" />
     <Property Name="machinename" Type="varchar" MaxLength="45" />
     <Property Name="senton" Type="datetime" Precision="0" />
-    <Property Name="sentto" Type="varchar" MaxLength="45" />
+    <Property Name="sentto" Type="varchar" MaxLength="100" />
   </EntityType>
   <EntityType Name="mi_tsuppliers">
     <Key>

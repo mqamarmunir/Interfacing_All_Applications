@@ -688,11 +688,11 @@ namespace WindowsApplication5
         {
             SetDefaults();
            
-            BindTestsToGrid();
+            BindInstrumentsToGrid();
             
         }
 
-        private void BindTestsToGrid()
+        private void BindInstrumentsToGrid()
         {
             var machines= _unitOfWork.InstrumentsRepository.GetAll();
             grdMachines.DataSource = machines;
@@ -720,7 +720,7 @@ namespace WindowsApplication5
                     Active = chkActive.Checked ? "Y" : "N",
                     BaudRate = Convert.ToInt32(cmbBaudRate.Text.Trim()),
                     Bidirectional = "Y",
-                    ClientID = "007",
+                    ClientID = System.Configuration.ConfigurationSettings.AppSettings["BranchID"].ToString().Trim(),
                     Communication_method = cmbCommMethod.Text.Trim(),
                     Communication_Stnadard = cmbStandard.Text.Trim(),
                     DataBit = cmbDataBits.Text.Trim(),
@@ -731,10 +731,13 @@ namespace WindowsApplication5
                     Model = txtModel.Text.Trim(),
                     Parity = cmbParity.Text.Trim(),
                     PORT = cmbPort.Text.Trim(),
-                    Stopbit = cmbStopBits.Text.Trim()
+                    Stopbit = cmbStopBits.Text.Trim(),
+                    RecordTerminator=txtRecordTerminator.Text.Trim(),
+                    ParsingAlgorithm=1
                 };
                 _unitOfWork.InstrumentsRepository.Insert(_instrument);
                 _unitOfWork.Save();
+                BindInstrumentsToGrid();
             }
 
         }

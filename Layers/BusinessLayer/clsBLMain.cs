@@ -15,7 +15,7 @@ namespace BusinessLayer
         static clsdbhims objdbhims = new clsdbhims();
         static QueryBuilder objQB = new QueryBuilder();
         private const string Default = "~!@";
-        private const string TableName = "mi_taudit";
+        private const string TableName = "mi_tresult";
 
         private string StrErrorMessage = "";
         private string StrFilename = Default;
@@ -24,6 +24,13 @@ namespace BusinessLayer
         private string StrStatus = Default;
         private string Strmaxid = Default;
         private string StrFailreason = Default;
+        private string _ResultID = Default;
+
+        public string ResultID
+        {
+            get { return _ResultID; }
+            set { _ResultID = value; }
+        }
 
 
         #endregion
@@ -119,9 +126,13 @@ namespace BusinessLayer
                     objdbhims.Query = "SELECT Attributeid,LimsAttributeName FROM mi_ttestattribute m where m.Active='Y' and Machine_testid=" + this._TestID;
                     break;
                 case 7:
-                    objdbhims.Query = @"SELECT m.BookingID,c.Test_ID cliqtestid,c.CliqAttributeID,m.result,m.clientid,m.machineName MachineID
-                                        FROM mi_tresult m inner join cliqmachinemappings c on c.machineattributecode=m.attributeid
-                                        limit 100";
+                    objdbhims.Query = @"SELECT m.resultid,m.BookingID,(Select c.test_id from cliqmachinemappings c where c.machineattributecode=m.attributeid and c.Active=1 limit 1) as cliqtestid,(Select c.CliqAttributeID from cliqmachinemappings c where c.machineattributecode=m.attributeid and c.active=1 limit 1) as CliqAttributeid,m.result,m.clientid,m.machineName MachineID,m.attributeid machineAttributeCode
+                                        FROM mi_tresult m where m.Status='N' order by resultid desc limit 20
+";
+//                    objdbhims.Query = @"SELECT m.resultid,m.BookingID,c.Test_ID cliqtestid,c.CliqAttributeID,m.result,m.clientid,m.machineName MachineID,m.attributeid MachineAttributeCode
+//                                        FROM mi_tresult m inner join cliqmachinemappings c on c.machineattributecode=m.attributeid
+//                                        Where m.Status='N'
+//                                        limit 20";
                     break;
             }
 
@@ -209,13 +220,13 @@ namespace BusinessLayer
 
         private string[,] MakeArray()
         {
-            string[,] strArr = new string[5, 3];
+            string[,] strArr = new string[4, 3];
 
-            if (!this.StrFilename.ToString().Equals(Default) && !this.StrFilename.ToString().Equals(""))
+            if (!this._ResultID.Equals(Default))
             {
-                strArr[0, 0] = "Filename";
-                strArr[0, 1] = StrFilename;
-                strArr[0, 2] = "string";
+                strArr[0, 0] = "ResultID";
+                strArr[0, 1] = this._ResultID;
+                strArr[0, 2] = "int";
             }
             if (!this.StrSenton.Equals(Default))
             {
@@ -235,12 +246,7 @@ namespace BusinessLayer
                 strArr[3, 1] = this.StrStatus;
                 strArr[3, 2] = "string";
             }
-            if (!this.Strmaxid.Equals(Default))
-            {
-                strArr[4, 0] = "maxresultid";
-                strArr[4, 1] = this.Strmaxid;
-                strArr[4, 2] = "int";
-            }
+            
 
 
             return strArr;

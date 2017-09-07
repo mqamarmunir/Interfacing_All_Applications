@@ -73,6 +73,8 @@
     <Property Name="ClientID" Type="String" MaxLength="45" FixedLength="false" Unicode="false" Nullable="false" />
     <Property Name="Active" Type="String" MaxLength="1" FixedLength="false" Unicode="false" Nullable="false" />
     <NavigationProperty Name="cliqmachinemappings" Relationship="miModel.FK_cliqmachinemappings_MachineId" FromRole="mi_tinstruments" ToRole="cliqmachinemapping" />
+    <Property Name="RecordTerminator" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
+    <Property Name="ParsingAlgorithm" Type="Byte" Nullable="false" />
   </EntityType>
   <EntityType Name="mi_tpersonnel">
     <Key>
@@ -150,7 +152,7 @@
     <Property Name="Status" Type="String" MaxLength="1" FixedLength="false" Unicode="false" Nullable="false" />
     <Property Name="machinename" Type="String" MaxLength="45" FixedLength="false" Unicode="false" />
     <Property Name="senton" Type="DateTime" />
-    <Property Name="sentto" Type="String" MaxLength="45" FixedLength="false" Unicode="false" />
+    <Property Name="sentto" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
     <NavigationProperty Name="mi_taudit" Relationship="Self.FK_mi_taudit_1" FromRole="mi_tresult" ToRole="mi_taudit" />
   </EntityType>
   <EntityType Name="mi_tsuppliers">

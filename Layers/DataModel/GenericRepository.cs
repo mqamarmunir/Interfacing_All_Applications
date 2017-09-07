@@ -90,41 +90,41 @@ namespace DataModel
         /// <summary>
         /// Generic update method for the entities
         /// </summary>
-        /// <param name="entityToUpdate"></param>
-        public virtual void Update(TEntity entityToUpdate)
+        /// <param name="entity"></param>
+        public virtual void Update(TEntity entity, Func<TEntity, int> getKey)
         {
-            ////db.Entry(v).CurrentValues.SetValues(model);
-            ////Context.Entry(entityToUpdate).CurrentValues.SetValues(entityToUpdate);
-            //if (entityToUpdate == null)
-            //{
-            //    throw new ArgumentException("Cannot add a null entity.");
-            //}
+            if (entity == null)
+            {
+                throw new ArgumentException("Cannot add a null entity.");
+            }
 
-            //var entry = Context.Entry<TEntity>(entityToUpdate);
+            var entry = Context.Entry<TEntity>(entity);
 
-            //if (entry.State == EntityState.Detached)
-            //{
-            //    var set = Context.Set<TEntity>();
-            //    TEntity attachedEntity = set.Local.SingleOrDefault(e => e. == entity.Id);  // You need to have access to key
+            if (entry.State == EntityState.Detached)
+            {
+                var set = Context.Set<TEntity>();
+                TEntity attachedEntity = set.Find(getKey(entity));
 
-            //    if (attachedEntity != null)
-            //    {
-            //        var attachedEntry = Context.Entry(attachedEntity);
-            //        attachedEntry.CurrentValues.SetValues(entityToUpdate);
-            //    }
-            //    else
-            //    {
-            //        entry.State = EntityState.Modified; // This should attach entity
-            //    }
-            //}
-            DbSet.Attach(entityToUpdate);
-            Context.Entry(entityToUpdate).State = EntityState.Modified;
+                if (attachedEntity != null)
+                {
+                    var attachedEntry = Context.Entry(attachedEntity);
+                    attachedEntry.CurrentValues.SetValues(entity);
+                }
+                else
+                {
+                    entry.State = EntityState.Modified; // This should attach entity
+                }
+            }
+            DbSet.Attach(entity);
+            Context.Entry(entity).State = EntityState.Modified;
         }
         public virtual void UpdateCurrentContext(TEntity entityToUpdate)
         {
+
+            // Context.mi_tresult.Find(entityToUpdate,entit);
             //db.Entry(v).CurrentValues.SetValues(model);
             Context.Entry(entityToUpdate).CurrentValues.SetValues(entityToUpdate);
-            
+
         }
 
         /// <summary>

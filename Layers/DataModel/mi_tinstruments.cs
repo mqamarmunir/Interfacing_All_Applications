@@ -42,6 +42,8 @@ namespace DataModel
         public System.DateTime EnteredOn { get; set; }
         public string ClientID { get; set; }
         public string Active { get; set; }
+        public string RecordTerminator { get; set; }
+        public byte ParsingAlgorithm { get; set; }
     
         public virtual ICollection<cliqmachinemapping> cliqmachinemappings { get; set; }
     }

@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CliqAttributeEntity.cs" />
+    <Compile Include="CliqResultResponse.cs" />
     <Compile Include="cliqresults.cs" />
     <Compile Include="CliqTestsEntity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

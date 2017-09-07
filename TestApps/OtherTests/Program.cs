@@ -28,7 +28,7 @@ namespace OtherTests
             //Console.ReadLine();
             
             _unitofwork = new UnitOfWork();
-           // ParseAu480();
+            ParseAu480("");
             _serial.PortName = System.Configuration.ConfigurationSettings.AppSettings["PortName"].ToString();
             _serial.BaudRate = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["BaudRate"].ToString());
             _serial.StopBits = System.Configuration.ConfigurationSettings.AppSettings["StopBits"].ToString() == "1" ? StopBits.One : StopBits.None;
@@ -430,7 +430,7 @@ namespace OtherTests
         }
         static void ParseAu480(string data)
         {
-            var text = data;//System.IO.File.ReadAllText(@"E:\WriteMe.txt");
+            var text = System.IO.File.ReadAllText(@"E:\WriteMe.txt");
             var splitter1 = new char[1] { Convert.ToChar(3) };
             var splitter2 = new string[] { " " };
             var arrayafter1stseperator = text.Split(splitter1, StringSplitOptions.RemoveEmptyEntries);
