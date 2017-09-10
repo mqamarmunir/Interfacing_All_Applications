@@ -16,24 +16,38 @@ namespace SerialTest
             //string abc="H|\\^&||||||||||P||\rP|1||||||||||||||||||||||||||||||||||\r O|1|000004|40^0^5^^SAMPLE^NORMAL|ALL|R|20051220095504|||||X ||||||||||||||O\r R|1|^^^10^^0|1.25|ulU/ml|0.270^4.20|N||F|||20051220095534| 20051220101604|\r R|2|^^^30^2^1|1.52|ng/dl|1.01^1.79|N||F|||20051220103034| 20051220105004|\r R|3|^^^40^^0|1.17|ulU/ml|0.846^2.02|N||F|||20051220110034| 20051220112004|\r L|1";
             //string replaced = abc.Replace('\r', Convert.ToChar(13));
            // serial port comm settings
-            _serial.PortName = System.Configuration.ConfigurationSettings.AppSettings["PortName"].ToString();
-            _serial.BaudRate = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["BaudRate"].ToString());
-            _serial.StopBits = System.Configuration.ConfigurationSettings.AppSettings["StopBits"].ToString() == "1" ? StopBits.One : StopBits.None;
-            _serial.DataBits = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["DataBits"].ToString());
-            _serial.Parity = Parity.None;
-            try
-            {
-                _serial.Open();
-            }
-            catch (Exception ee)
-            {
-                Console.WriteLine(ee.ToString().Trim());
-            }
-            _serial.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(serialPort1_DataReceived);
-
-           // string alldata = File.ReadAllText("E:\\aaa.txt");
+            //_serial.PortName = System.Configuration.ConfigurationSettings.AppSettings["PortName"].ToString();
+            //_serial.BaudRate = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["BaudRate"].ToString());
+            //_serial.StopBits = System.Configuration.ConfigurationSettings.AppSettings["StopBits"].ToString() == "1" ? StopBits.One : StopBits.None;
+            //_serial.DataBits = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["DataBits"].ToString());
+            //_serial.Parity = Parity.None;
+            //try
+            //{
+            //    _serial.Open();
+            //}
+            //catch (Exception ee)
+            //{
+            //    Console.WriteLine(ee.ToString().Trim());
+            //}
+            //_serial.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(serialPort1_DataReceived);
+            MyNewParser("003 27.52r 006      / 007  72.3r 014  1.59nr016    14nr018    76nr019114.29r 023 102.7r 026103.19r 031  0.81r 034    24nr035282.49r 061 24.83r 062 12.86r 063 20.64r 097   139r 098  3.43r 099   100r");
+          // string alldata = File.ReadAllText("E:\\TetData.txt");
            // Parsethisandinsert(alldata, 2);
             Console.ReadLine();
+
+        }
+
+        private static void MyNewParser(string data)
+        {
+            int thisordertestscount = Convert.ToInt32(Math.Round(data.Length / 11.0));
+            string[] indtestanditsresult = new string[thisordertestscount];
+            for (int i = 0; i < thisordertestscount; i++)
+            {
+                if (11 * i + 11 <= data.Length)
+                    indtestanditsresult[i] = data.Substring(11 * i, 11);
+                else
+                    indtestanditsresult[i] = data.Substring(11 * i);
+            }
 
         }
         static private void serialPort1_DataReceived(object sender, SerialDataReceivedEventArgs e)

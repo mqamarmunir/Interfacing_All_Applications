@@ -69,10 +69,12 @@ namespace TestService
                 if (data.Length > 0)
                 {
                     var thismachinesettings = _unitOfWork.InstrumentsRepository.GetSingle(x => x.Active == "Y" && x.PORT == "COM1");
+                    string MachineID = thismachinesettings.CliqInstrumentID.ToString().Trim();
                     if (!String.IsNullOrEmpty(thismachinesettings.Acknowledgement_code))
                         serialPort1.Write(new byte[] { 0x06 }, 0, 1);//send Ack to machine
                     sb_port1.Append(data);
-
+                    eventLog1.WriteEntry(data);
+                    System.IO.File.AppendAllText("D:\\TestData.txt",data);
                     if (sb_port1.ToString().Contains(thismachinesettings.RecordTerminator))//L|1 is a terminator record according to astm standards
                     {
                         ///if the recieved string contains the terminator
@@ -80,7 +82,7 @@ namespace TestService
                         ///Record.
                         // eventLog1.WriteEntry(sb.ToString());
                         // eventLog1.WriteEntry(System.Configuration.ConfigurationSettings.AppSettings["parsingalgorithm_port1"].ToString().Trim());
-                        Parsethisandinsert(sb_port1.ToString(), thismachinesettings.ParsingAlgorithm);
+                        Parsethisandinsert(sb_port1.ToString(), thismachinesettings.ParsingAlgorithm,MachineID);
                         sb_port1.Clear();
 
 
@@ -98,7 +100,7 @@ namespace TestService
 
 
 
-        private void Parsethisandinsert(string data, int Parsingalgorithm)
+        private void Parsethisandinsert(string data, int Parsingalgorithm,string MachineID)
         {
 
             switch (Parsingalgorithm)
@@ -245,7 +247,7 @@ namespace TestService
                 #endregion
                 #region 2nd Parser
                 case 2://AU480 Beckman
-                    ParseAu480(data);
+                    ParseAu480(data,MachineID);
 
                     break;
 
@@ -255,9 +257,11 @@ namespace TestService
             }
 
         }
-        private void ParseAu480(string data)
+        private void ParseAu480(string data,string MachineID)
         {
+            
             var text = data;// System.IO.File.ReadAllText(@"E:\WriteMe.txt");
+            eventLog1.WriteEntry(data);
             var splitter1 = new char[1] { Convert.ToChar(3) };
             var splitter2 = new string[] { " " };
             var arrayafter1stseperator = text.Split(splitter1, StringSplitOptions.RemoveEmptyEntries);
@@ -271,20 +275,29 @@ namespace TestService
                         continue;
 
                     var arrayafter2ndseperator = str1.Substring(0, 40).Split(splitter2, StringSplitOptions.RemoveEmptyEntries);
+                    eventLog1.WriteEntry(str1.Substring(0,40));
                     if (arrayafter2ndseperator.Length > 3)
                     {
                         labid = arrayafter2ndseperator[3];
+                        //eventLog1.WriteEntry(str1.Substring(0, 40));
+                        string testsandresults = str1.Substring(40).TrimStart().Replace("E", "");
 
-                        string testsandresults = str1.Substring(40);
-                        var splitter3 = new string[] { "r", "nr" };
-                        var arrayafter3rdseperator = testsandresults.Split(splitter3, StringSplitOptions.None);
-                        foreach (string testresultall in arrayafter3rdseperator)
+                        int thisordertestscount = Convert.ToInt32(Math.Round(testsandresults.Length / 11.0));
+                        string[] indtestanditsresult = new string[thisordertestscount];
+                        for (int i = 0; i < thisordertestscount; i++)
                         {
-                            string testresultsingle = testresultall.Replace("E", "").Trim();
-                            if (testresultsingle.Length > 1)
+                            if (11 * i + 11 <= testsandresults.Length)
+                                indtestanditsresult[i] = testsandresults.Substring(11 * i, 11);
+                            else
+                                indtestanditsresult[i] = testsandresults.Substring(11 * i);
+                        }
+                        foreach (string thistestandresult in indtestanditsresult)
+                        {
+                           
+                            if (thistestandresult.Length > 1)
                             {
-                                string machinetestcode = testresultsingle.Substring(0, 3).Trim();
-                                string resultsingle = testresultsingle.Substring(3).Trim();
+                                string machinetestcode = thistestandresult.Substring(0, 3).Trim();
+                                string resultsingle = thistestandresult.Substring(3).Trim();
                                 var objresult = new DataModel.mi_tresult
                                 {
                                     BookingID = labid,
@@ -292,10 +305,12 @@ namespace TestService
                                     ClientID = System.Configuration.ConfigurationSettings.AppSettings["BranchID"].ToString().Trim(),
                                     EnteredBy = 1,
                                     EnteredOn = System.DateTime.Now,//.ToString("yyyy-MM-dd hh:mm:ss tt"),
-                                    machinename = "1",
+                                    machinename = MachineID,
                                     Result = resultsingle,
                                     Status = "N"
                                 };
+                                var resultserialized=Newtonsoft.Json.JsonConvert.SerializeObject(objresult);
+                                eventLog1.WriteEntry(resultserialized);
                                 _unitOfWork.ResultsRepository.Insert(objresult);
 
 
@@ -305,9 +320,9 @@ namespace TestService
                     }
                 }
 
-                catch (Exception ee)
+                catch 
                 {
-                    Console.WriteLine(str1);
+                    eventLog1.WriteEntry("Error in following line: "+str1,EventLogEntryType.Error);
                 }
 
             }
@@ -341,16 +356,7 @@ namespace TestService
             //}
             //Console.WriteLine("Done");
         }
-        private void InsertBookingList(List<mi_tresult> lstresult)
-        {
-            lstresult.ForEach(x => x.Status = "0");
-            foreach (var result in lstresult)
-            {
-                _unitOfWork.ResultsRepository.Insert(result);
-
-            }
-            _unitOfWork.Save();
-        }
+       
         private void InsertBooking(string pars)
         {
 

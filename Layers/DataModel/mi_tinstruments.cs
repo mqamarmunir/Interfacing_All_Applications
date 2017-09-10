@@ -44,6 +44,7 @@ namespace DataModel
         public string Active { get; set; }
         public string RecordTerminator { get; set; }
         public byte ParsingAlgorithm { get; set; }
+        public long CliqInstrumentID { get; set; }
     
         public virtual ICollection<cliqmachinemapping> cliqmachinemappings { get; set; }
     }

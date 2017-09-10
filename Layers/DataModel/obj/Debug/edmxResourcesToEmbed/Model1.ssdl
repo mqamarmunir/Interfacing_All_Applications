@@ -98,6 +98,7 @@
     <Property Name="Active" Type="char" MaxLength="1" Nullable="false" />
     <Property Name="RecordTerminator" Type="varchar" MaxLength="10" Nullable="false" />
     <Property Name="ParsingAlgorithm" Type="utinyint" Nullable="false" />
+    <Property Name="CliqInstrumentID" Type="uint" Nullable="false" />
   </EntityType>
   <EntityType Name="mi_tpersonnel">
     <Key>
@@ -251,20 +252,6 @@
       </Dependent>
     </ReferentialConstraint>
   </Association>
-  <Association Name="FK_mi_taudit_1">
-    <End Role="mi_tresult" Type="Self.mi_tresult" Multiplicity="1">
-      <OnDelete Action="Cascade" />
-    </End>
-    <End Role="mi_taudit" Type="Self.mi_taudit" Multiplicity="*" />
-    <ReferentialConstraint>
-      <Principal Role="mi_tresult">
-        <PropertyRef Name="ResultID" />
-      </Principal>
-      <Dependent Role="mi_taudit">
-        <PropertyRef Name="maxresultid" />
-      </Dependent>
-    </ReferentialConstraint>
-  </Association>
   <EntityContainer Name="miModelStoreContainer">
     <EntitySet Name="cliqmachinemappings" EntityType="Self.cliqmachinemappings" Schema="mi" store:Type="Tables" />
     <EntitySet Name="cliqtestsandattributes" EntityType="Self.cliqtestsandattributes" Schema="mi" store:Type="Tables" />
@@ -281,10 +268,6 @@
     <AssociationSet Name="FK_cliqmachinemappings_MachineId" Association="Self.FK_cliqmachinemappings_MachineId">
       <End Role="mi_tinstruments" EntitySet="mi_tinstruments" />
       <End Role="cliqmachinemappings" EntitySet="cliqmachinemappings" />
-    </AssociationSet>
-    <AssociationSet Name="FK_mi_taudit_1" Association="Self.FK_mi_taudit_1">
-      <End Role="mi_tresult" EntitySet="mi_tresult" />
-      <End Role="mi_taudit" EntitySet="mi_taudit" />
     </AssociationSet>
   </EntityContainer>
 </Schema>

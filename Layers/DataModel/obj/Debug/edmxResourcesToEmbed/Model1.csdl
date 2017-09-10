@@ -75,6 +75,7 @@
     <NavigationProperty Name="cliqmachinemappings" Relationship="miModel.FK_cliqmachinemappings_MachineId" FromRole="mi_tinstruments" ToRole="cliqmachinemapping" />
     <Property Name="RecordTerminator" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
     <Property Name="ParsingAlgorithm" Type="Byte" Nullable="false" />
+    <Property Name="CliqInstrumentID" Type="Int64" Nullable="false" />
   </EntityType>
   <EntityType Name="mi_tpersonnel">
     <Key>

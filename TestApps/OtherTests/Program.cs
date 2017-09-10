@@ -29,20 +29,20 @@ namespace OtherTests
             
             _unitofwork = new UnitOfWork();
             ParseAu480("");
-            _serial.PortName = System.Configuration.ConfigurationSettings.AppSettings["PortName"].ToString();
-            _serial.BaudRate = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["BaudRate"].ToString());
-            _serial.StopBits = System.Configuration.ConfigurationSettings.AppSettings["StopBits"].ToString() == "1" ? StopBits.One : StopBits.None;
-            _serial.DataBits = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["DataBits"].ToString());
-            _serial.Parity = Parity.None;
-            try
-            {
-                _serial.Open();
-            }
-            catch (Exception ee)
-            {
-                Console.WriteLine(ee.ToString().Trim());
-            }
-            _serial.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(serialPort1_DataReceived);
+            //_serial.PortName = System.Configuration.ConfigurationSettings.AppSettings["PortName"].ToString();
+            //_serial.BaudRate = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["BaudRate"].ToString());
+            //_serial.StopBits = System.Configuration.ConfigurationSettings.AppSettings["StopBits"].ToString() == "1" ? StopBits.One : StopBits.None;
+            //_serial.DataBits = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["DataBits"].ToString());
+            //_serial.Parity = Parity.None;
+            //try
+            //{
+            //    _serial.Open();
+            //}
+            //catch (Exception ee)
+            //{
+            //    Console.WriteLine(ee.ToString().Trim());
+            //}
+            //_serial.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(serialPort1_DataReceived);
  
             
             
@@ -430,7 +430,7 @@ namespace OtherTests
         }
         static void ParseAu480(string data)
         {
-            var text = System.IO.File.ReadAllText(@"E:\WriteMe.txt");
+            var text = System.IO.File.ReadAllText(@"E:\TestData.txt");
             var splitter1 = new char[1] { Convert.ToChar(3) };
             var splitter2 = new string[] { " " };
             var arrayafter1stseperator = text.Split(splitter1, StringSplitOptions.RemoveEmptyEntries);
@@ -448,16 +448,27 @@ namespace OtherTests
                     {
                         labid = arrayafter2ndseperator[3];
 
-                        string testsandresults = str1.Substring(40);
-                        var splitter3 = new string[] { "r", "nr" };
-                        var arrayafter3rdseperator = testsandresults.Split(splitter3, StringSplitOptions.None);
-                        foreach (string testresultall in arrayafter3rdseperator)
+                        string testsandresults = str1.Substring(40).TrimStart().Replace("E","");
+
+                        int thisordertestscount = Convert.ToInt32(Math.Round(testsandresults.Length / 11.0));
+                        string[] indtestanditsresult = new string[thisordertestscount];
+                        for (int i = 0; i < thisordertestscount; i++)
                         {
-                            string testresultsingle = testresultall.Replace("E", "").Trim();
-                            if (testresultsingle.Length > 1)
+                            if (11 * i + 11 <= testsandresults.Length)
+                                indtestanditsresult[i] = testsandresults.Substring(11 * i, 11);
+                            else
+                                indtestanditsresult[i] = testsandresults.Substring(11 * i);
+                        }
+                        //var splitter3 = new string[] { "r", "nr" };
+                        //var arrayafter3rdseperator = testsandresults.Split(splitter3, StringSplitOptions.None);
+
+                        foreach (string thistestandresult in indtestanditsresult)
+                        {
+                            //string testresultsingle = testresultall.Replace("E", "").Trim();
+                            if (thistestandresult.Length > 1)
                             {
-                                string machinetestcode = testresultsingle.Substring(0, 3).Trim();
-                                string resultsingle = testresultsingle.Substring(3).Trim();
+                                string machinetestcode = thistestandresult.Substring(0, 3).Trim();
+                                string resultsingle = thistestandresult.Substring(3, 6).Trim();
                                 var objresult = new DataModel.mi_tresult
                                 {
                                     BookingID = labid,
@@ -469,6 +480,7 @@ namespace OtherTests
                                     Result = resultsingle,
                                     Status="N"
                                 };
+                                
                                 _unitofwork.ResultsRepository.Insert(objresult);
                                
                                 

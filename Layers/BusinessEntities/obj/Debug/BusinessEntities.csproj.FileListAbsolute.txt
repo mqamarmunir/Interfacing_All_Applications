@@ -12,3 +12,4 @@ E:\Projects\Trees\InterfacingAllApps\Layers\BusinessEntities\bin\Debug\BusinessE
 E:\Projects\Trees\InterfacingAllApps\Layers\BusinessEntities\bin\Debug\BusinessEntities.pdb
 E:\Projects\Trees\InterfacingAllApps\Layers\BusinessEntities\obj\Debug\BusinessEntities.dll
 E:\Projects\Trees\InterfacingAllApps\Layers\BusinessEntities\obj\Debug\BusinessEntities.pdb
+E:\Projects\Trees\InterfacingAllApps\Layers\BusinessEntities\obj\Debug\BusinessEntities.csprojResolveAssemblyReference.cache

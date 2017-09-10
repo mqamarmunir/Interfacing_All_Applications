@@ -51,6 +51,7 @@
     <EntitySetMapping Name="mi_tinstruments">
       <EntityTypeMapping TypeName="miModel.mi_tinstruments">
         <MappingFragment StoreEntitySet="mi_tinstruments">
+          <ScalarProperty Name="CliqInstrumentID" ColumnName="CliqInstrumentID" />
           <ScalarProperty Name="ParsingAlgorithm" ColumnName="ParsingAlgorithm" />
           <ScalarProperty Name="RecordTerminator" ColumnName="RecordTerminator" />
           <ScalarProperty Name="InstrumentID" ColumnName="InstrumentID" />
