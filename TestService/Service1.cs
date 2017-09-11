@@ -49,7 +49,7 @@ namespace TestService
 
             serialPort1.Open();
             //   Main(null, null);
-            this.timer = new System.Timers.Timer(180000D);  // 30000 milliseconds = 30 seconds
+            this.timer = new System.Timers.Timer(60000D);  // 30000 milliseconds = 30 seconds
             this.timer.AutoReset = true;
             this.timer.Elapsed += new System.Timers.ElapsedEventHandler(this.Main);
             this.timer.Start();
@@ -297,7 +297,7 @@ namespace TestService
                             if (thistestandresult.Length > 1)
                             {
                                 string machinetestcode = thistestandresult.Substring(0, 3).Trim();
-                                string resultsingle = thistestandresult.Substring(3).Trim();
+                                string resultsingle = thistestandresult.Substring(3,6).Trim();
                                 var objresult = new DataModel.mi_tresult
                                 {
                                     BookingID = labid,
@@ -483,63 +483,62 @@ values('" + System.DateTime.Now.ToString("yy") + "-" + str[1].Replace("'", "''")
                     eventLog1.WriteEntry("remote Call Successful.", EventLogEntryType.SuccessAudit);
                     if (content.Length > 0)
                     {
+                        eventLog1.WriteEntry("JSON recieved: " + content);
                         var cliqresultresponse = Newtonsoft.Json.JsonConvert.DeserializeObject<List<CliqResultResponse>>(content);
-                        if (cliqresultresponse != null && (cliqresultresponse.FirstOrDefault().Code == "3" || cliqresultresponse.FirstOrDefault().Code == "1"))
+                        //if (cliqresultresponse != null && (cliqresultresponse.FirstOrDefault().Code == "3" || cliqresultresponse.FirstOrDefault().Code == "1"))
+                        //{
+                        clsBLMain objMain = null;
+                        foreach (var result in lstresults)
                         {
-                            clsBLMain objMain = null;
-                            foreach (var result in lstresults)
+                            objMain = new clsBLMain();
+                            objMain.status = "Y";
+                            objMain.Sentto = "http://192.168.22.16:818/ricapi/site/curl_data";
+                            objMain.Senton = System.DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss tt");
+                            objMain.ResultID = result.ResultID.ToString();
+                            try
                             {
-                                objMain = new clsBLMain();
-                                objMain.status = "Y";
-                                objMain.Sentto = "http://192.168.22.16:818/ricapi/site/curl_data";
-                                objMain.Senton = System.DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss tt");
-                                objMain.ResultID = result.ResultID.ToString();
-                                try
-                                {
-                                    objMain.Update();
-                                    eventLog1.WriteEntry("Result ID: " + result.ResultID + " updated locally", EventLogEntryType.SuccessAudit);
-                                }
-                                catch (Exception ee)
-                                {
-                                    eventLog1.WriteEntry("Error while updating local record id: " + result.ResultID.ToString() + "-------" + ee.ToString(), EventLogEntryType.Error);
-                                }
-                                //mi_tresult res = new mi_tresult
-                                //{
-                                //    ResultID = result.ResultID,
-                                //    Status = "Y",
-                                //    senton = System.DateTime.Now,
-                                //    BookingID = result.BookingID,
-                                //    machinename = result.MachineID,
-                                //    Result = result.Result,
-                                //    AttributeID = result.MachineAttributeCode,
-                                //    EnteredBy = 1,
-                                //    EnteredOn = System.DateTime.Now,
-                                //    ClientID = System.Configuration.ConfigurationSettings.AppSettings["BranchID"].ToString().Trim(),
-                                //    //  AttributeID=result.Attribut
-
-                                //    sentto = "http://192.168.22.16:818/ricapi/site/curl_data"
-                                //};
-                                //try
-                                //{
-                                //    _unitOfWork.ResultsRepository.UpdateCurrentContext(res);
-                                //    //_unitOfWork.ResultsRepository.Update(res);
-                                //}
-                                //catch (System.InvalidOperationException ee)
-                                //{
-                                //    eventLog1.WriteEntry("Once again error: " + ee.ToString(), EventLogEntryType.Error);
-                                //}
-
+                                objMain.Update();
+                                eventLog1.WriteEntry("Result ID: " + result.ResultID + " updated locally", EventLogEntryType.SuccessAudit);
                             }
-                            //_unitOfWork.Save();
-
-
-
+                            catch (Exception ee)
+                            {
+                                eventLog1.WriteEntry("Error while updating local record id: " + result.ResultID.ToString() + "-------" + ee.ToString(), EventLogEntryType.Error);
+                            }
+                           
                         }
-                        else
+                        //_unitOfWork.Save();
+
+
+
+
+                        //else
+                        //{
+                        //    eventLog1.WriteEntry("JSON recieved: " + content);
+                        //}
+
+                    }
+                    else
+                    {
+                        clsBLMain objMain = null;
+                        eventLog1.WriteEntry("Some Problem occured in remote call. Call: " + "http://192.168.22.16:818/ricapi/site/curl_data?str=" + json.ToString().Trim(),EventLogEntryType.FailureAudit);
+                        foreach (var result in lstresults)
                         {
-                            eventLog1.WriteEntry("JSON recieved: " + content);
-                        }
+                            objMain = new clsBLMain();
+                            objMain.status = "X";
+                            objMain.Sentto = "http://192.168.22.16:818/ricapi/site/curl_data";
+                            objMain.Senton = System.DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss tt");
+                            objMain.ResultID = result.ResultID.ToString();
+                            try
+                            {
+                                objMain.Update();
+                                eventLog1.WriteEntry("Result ID: " + result.ResultID + " updated locally", EventLogEntryType.SuccessAudit);
+                            }
+                            catch (Exception ee)
+                            {
+                                eventLog1.WriteEntry("Error while updating local record id: " + result.ResultID.ToString() + "-------" + ee.ToString(), EventLogEntryType.Error);
+                            }
 
+                        }
                     }
                 }
                 catch (Exception ee)

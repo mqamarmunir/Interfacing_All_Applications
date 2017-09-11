@@ -461,7 +461,7 @@ namespace OtherTests
                         }
                         //var splitter3 = new string[] { "r", "nr" };
                         //var arrayafter3rdseperator = testsandresults.Split(splitter3, StringSplitOptions.None);
-
+                        List<DataModel.mi_tresult> lstresults = new List<DataModel.mi_tresult>();
                         foreach (string thistestandresult in indtestanditsresult)
                         {
                             //string testresultsingle = testresultall.Replace("E", "").Trim();
@@ -469,6 +469,7 @@ namespace OtherTests
                             {
                                 string machinetestcode = thistestandresult.Substring(0, 3).Trim();
                                 string resultsingle = thistestandresult.Substring(3, 6).Trim();
+                                
                                 var objresult = new DataModel.mi_tresult
                                 {
                                     BookingID = labid,
@@ -480,8 +481,8 @@ namespace OtherTests
                                     Result = resultsingle,
                                     Status="N"
                                 };
-                                
-                                _unitofwork.ResultsRepository.Insert(objresult);
+                                lstresults.Add(objresult);
+                                //_unitofwork.ResultsRepository.Insert(objresult);
                                
                                 
                             }
@@ -497,7 +498,7 @@ namespace OtherTests
                 try
                 {
 
-                    _unitofwork.Save();
+                  //  _unitofwork.Save();
                     Console.WriteLine("Data saved to database");
                 }
                 catch (Exception ee)
