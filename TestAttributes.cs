@@ -44,19 +44,17 @@ namespace WindowsApplication5
         private BindingSource mitinstrumentsBindingSource;
         private BindingSource cliqmachinemappingBindingSource1;
         private ErrorProvider errorProvider1;
-        private DataGridViewTextBoxColumn idDataGridViewTextBoxColumn;
-        private DataGridViewTextBoxColumn branchIDDataGridViewTextBoxColumn;
-        private DataGridViewTextBoxColumn testIDDataGridViewTextBoxColumn;
-        private DataGridViewTextBoxColumn testNameDataGridViewTextBoxColumn;
-        private DataGridViewTextBoxColumn cliqAttributeIDDataGridViewTextBoxColumn;
-        private DataGridViewTextBoxColumn attributeNameDataGridViewTextBoxColumn;
-        private DataGridViewTextBoxColumn machineAttributeCodeDataGridViewTextBoxColumn;
-        private DataGridViewCheckBoxColumn activeDataGridViewCheckBoxColumn;
         private BindingSource cliqmachinemappingBindingSource2;
         private Button button1;
 
         private readonly UnitOfWork _unitOfWork;
         private BindingSource cliqtestsandattributeBindingSource;
+        private DataGridViewTextBoxColumn idDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn branchIDDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn cliqAttributeIDDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn attributeNameDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn machineAttributeCodeDataGridViewTextBoxColumn;
+        private DataGridViewCheckBoxColumn activeDataGridViewCheckBoxColumn;
         private int _MachineID;
 		public TestAttributes()
 		{
@@ -140,14 +138,6 @@ namespace WindowsApplication5
             this.label3 = new System.Windows.Forms.Label();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
-            this.idDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.branchIDDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.testIDDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.testNameDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.cliqAttributeIDDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.attributeNameDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.machineAttributeCodeDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.activeDataGridViewCheckBoxColumn = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.cliqmachinemappingBindingSource2 = new System.Windows.Forms.BindingSource(this.components);
             this.panel1 = new System.Windows.Forms.Panel();
             this.button1 = new System.Windows.Forms.Button();
@@ -158,6 +148,12 @@ namespace WindowsApplication5
             this.btnReset = new System.Windows.Forms.Button();
             this.btnSave = new System.Windows.Forms.Button();
             this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
+            this.idDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.branchIDDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.cliqAttributeIDDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.attributeNameDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.machineAttributeCodeDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.activeDataGridViewCheckBoxColumn = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.cliqtestsandattributeBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.cliqmachinemappingBindingSource1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.cliqmachinemappingBindingSource)).BeginInit();
@@ -173,11 +169,12 @@ namespace WindowsApplication5
             this.cmbTests.DataSource = this.cliqtestsandattributeBindingSource;
             this.cmbTests.DisplayMember = "test_name";
             this.cmbTests.FormattingEnabled = true;
-            this.cmbTests.Location = new System.Drawing.Point(191, 12);
+            this.cmbTests.Location = new System.Drawing.Point(355, 17);
             this.cmbTests.Name = "cmbTests";
             this.cmbTests.Size = new System.Drawing.Size(158, 21);
             this.cmbTests.TabIndex = 0;
             this.cmbTests.ValueMember = "test_id";
+            this.cmbTests.Visible = false;
             this.cmbTests.SelectionChangeCommitted += new System.EventHandler(this.cmbTests_SelectionChangeCommitted);
             // 
             // cliqtestsandattributeBindingSource
@@ -192,7 +189,7 @@ namespace WindowsApplication5
             // 
             this.label1.AutoSize = true;
             this.label1.BackColor = System.Drawing.SystemColors.ScrollBar;
-            this.label1.Location = new System.Drawing.Point(399, 20);
+            this.label1.Location = new System.Drawing.Point(32, 20);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(69, 13);
             this.label1.TabIndex = 1;
@@ -201,18 +198,19 @@ namespace WindowsApplication5
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(32, 20);
+            this.label2.Location = new System.Drawing.Point(552, 20);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(51, 13);
             this.label2.TabIndex = 2;
             this.label2.Text = "Cliq Test:";
+            this.label2.Visible = false;
             // 
             // cmbAttributes
             // 
             this.cmbAttributes.DataSource = this.cliqtestsandattributeBindingSource;
             this.cmbAttributes.DisplayMember = "att_name";
             this.cmbAttributes.FormattingEnabled = true;
-            this.cmbAttributes.Location = new System.Drawing.Point(503, 12);
+            this.cmbAttributes.Location = new System.Drawing.Point(191, 12);
             this.cmbAttributes.Name = "cmbAttributes";
             this.cmbAttributes.Size = new System.Drawing.Size(158, 21);
             this.cmbAttributes.TabIndex = 3;
@@ -250,8 +248,6 @@ namespace WindowsApplication5
             this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.idDataGridViewTextBoxColumn,
             this.branchIDDataGridViewTextBoxColumn,
-            this.testIDDataGridViewTextBoxColumn,
-            this.testNameDataGridViewTextBoxColumn,
             this.cliqAttributeIDDataGridViewTextBoxColumn,
             this.attributeNameDataGridViewTextBoxColumn,
             this.machineAttributeCodeDataGridViewTextBoxColumn,
@@ -261,58 +257,6 @@ namespace WindowsApplication5
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.Size = new System.Drawing.Size(750, 196);
             this.dataGridView1.TabIndex = 7;
-            // 
-            // idDataGridViewTextBoxColumn
-            // 
-            this.idDataGridViewTextBoxColumn.DataPropertyName = "id";
-            this.idDataGridViewTextBoxColumn.HeaderText = "id";
-            this.idDataGridViewTextBoxColumn.Name = "idDataGridViewTextBoxColumn";
-            this.idDataGridViewTextBoxColumn.Visible = false;
-            // 
-            // branchIDDataGridViewTextBoxColumn
-            // 
-            this.branchIDDataGridViewTextBoxColumn.DataPropertyName = "BranchID";
-            this.branchIDDataGridViewTextBoxColumn.HeaderText = "BranchID";
-            this.branchIDDataGridViewTextBoxColumn.Name = "branchIDDataGridViewTextBoxColumn";
-            this.branchIDDataGridViewTextBoxColumn.Visible = false;
-            // 
-            // testIDDataGridViewTextBoxColumn
-            // 
-            this.testIDDataGridViewTextBoxColumn.DataPropertyName = "Test_ID";
-            this.testIDDataGridViewTextBoxColumn.HeaderText = "Test_ID";
-            this.testIDDataGridViewTextBoxColumn.Name = "testIDDataGridViewTextBoxColumn";
-            this.testIDDataGridViewTextBoxColumn.Visible = false;
-            // 
-            // testNameDataGridViewTextBoxColumn
-            // 
-            this.testNameDataGridViewTextBoxColumn.DataPropertyName = "TestName";
-            this.testNameDataGridViewTextBoxColumn.HeaderText = "TestName";
-            this.testNameDataGridViewTextBoxColumn.Name = "testNameDataGridViewTextBoxColumn";
-            // 
-            // cliqAttributeIDDataGridViewTextBoxColumn
-            // 
-            this.cliqAttributeIDDataGridViewTextBoxColumn.DataPropertyName = "CliqAttributeID";
-            this.cliqAttributeIDDataGridViewTextBoxColumn.HeaderText = "CliqAttributeID";
-            this.cliqAttributeIDDataGridViewTextBoxColumn.Name = "cliqAttributeIDDataGridViewTextBoxColumn";
-            this.cliqAttributeIDDataGridViewTextBoxColumn.Visible = false;
-            // 
-            // attributeNameDataGridViewTextBoxColumn
-            // 
-            this.attributeNameDataGridViewTextBoxColumn.DataPropertyName = "AttributeName";
-            this.attributeNameDataGridViewTextBoxColumn.HeaderText = "AttributeName";
-            this.attributeNameDataGridViewTextBoxColumn.Name = "attributeNameDataGridViewTextBoxColumn";
-            // 
-            // machineAttributeCodeDataGridViewTextBoxColumn
-            // 
-            this.machineAttributeCodeDataGridViewTextBoxColumn.DataPropertyName = "MachineAttributeCode";
-            this.machineAttributeCodeDataGridViewTextBoxColumn.HeaderText = "MachineAttributeCode";
-            this.machineAttributeCodeDataGridViewTextBoxColumn.Name = "machineAttributeCodeDataGridViewTextBoxColumn";
-            // 
-            // activeDataGridViewCheckBoxColumn
-            // 
-            this.activeDataGridViewCheckBoxColumn.DataPropertyName = "Active";
-            this.activeDataGridViewCheckBoxColumn.HeaderText = "Active";
-            this.activeDataGridViewCheckBoxColumn.Name = "activeDataGridViewCheckBoxColumn";
             // 
             // cliqmachinemappingBindingSource2
             // 
@@ -413,6 +357,45 @@ namespace WindowsApplication5
             // 
             this.errorProvider1.ContainerControl = this;
             // 
+            // idDataGridViewTextBoxColumn
+            // 
+            this.idDataGridViewTextBoxColumn.DataPropertyName = "id";
+            this.idDataGridViewTextBoxColumn.HeaderText = "id";
+            this.idDataGridViewTextBoxColumn.Name = "idDataGridViewTextBoxColumn";
+            this.idDataGridViewTextBoxColumn.Visible = false;
+            // 
+            // branchIDDataGridViewTextBoxColumn
+            // 
+            this.branchIDDataGridViewTextBoxColumn.DataPropertyName = "BranchID";
+            this.branchIDDataGridViewTextBoxColumn.HeaderText = "BranchID";
+            this.branchIDDataGridViewTextBoxColumn.Name = "branchIDDataGridViewTextBoxColumn";
+            this.branchIDDataGridViewTextBoxColumn.Visible = false;
+            // 
+            // cliqAttributeIDDataGridViewTextBoxColumn
+            // 
+            this.cliqAttributeIDDataGridViewTextBoxColumn.DataPropertyName = "CliqAttributeID";
+            this.cliqAttributeIDDataGridViewTextBoxColumn.HeaderText = "CliqAttributeID";
+            this.cliqAttributeIDDataGridViewTextBoxColumn.Name = "cliqAttributeIDDataGridViewTextBoxColumn";
+            this.cliqAttributeIDDataGridViewTextBoxColumn.Visible = false;
+            // 
+            // attributeNameDataGridViewTextBoxColumn
+            // 
+            this.attributeNameDataGridViewTextBoxColumn.DataPropertyName = "AttributeName";
+            this.attributeNameDataGridViewTextBoxColumn.HeaderText = "AttributeName";
+            this.attributeNameDataGridViewTextBoxColumn.Name = "attributeNameDataGridViewTextBoxColumn";
+            // 
+            // machineAttributeCodeDataGridViewTextBoxColumn
+            // 
+            this.machineAttributeCodeDataGridViewTextBoxColumn.DataPropertyName = "MachineAttributeCode";
+            this.machineAttributeCodeDataGridViewTextBoxColumn.HeaderText = "MachineAttributeCode";
+            this.machineAttributeCodeDataGridViewTextBoxColumn.Name = "machineAttributeCodeDataGridViewTextBoxColumn";
+            // 
+            // activeDataGridViewCheckBoxColumn
+            // 
+            this.activeDataGridViewCheckBoxColumn.DataPropertyName = "Active";
+            this.activeDataGridViewCheckBoxColumn.HeaderText = "Active";
+            this.activeDataGridViewCheckBoxColumn.Name = "activeDataGridViewCheckBoxColumn";
+            // 
             // TestAttributes
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
@@ -471,7 +454,7 @@ namespace WindowsApplication5
 
         private void TestAttributes_Load(object sender, EventArgs e)
         {
-            BindCliqTestsToComboBox();
+            BindCliqAttributesToComboBox();
             BindInstrumentsToComboBox();
             BindTestsToGrid();
             
@@ -499,15 +482,15 @@ namespace WindowsApplication5
         }
 
         
-        private void BindCliqTestsToComboBox()
+        private void BindCliqAttributesToComboBox()
         {
-            var tests = _unitOfWork.CliqTestAndAttributesRepository.GetAll().DistinctBy(x=>x.test_id);//.Select(y => new {TestID=y.,TestName=y.TestName });
+            var tests = _unitOfWork.CliqTestAndAttributesRepository.GetAll().DistinctBy(x=>x.att_id);//.Select(y => new {TestID=y.,TestName=y.TestName });
             //if (this._MachineID > 0)
             //{
             //    tests = tests.Where(x => x.MachineID == _MachineID);
             //}
             
-            cmbTests.DataSource = tests.ToList() ;
+            cmbAttributes.DataSource = tests.ToList() ;
          
         }
 
@@ -549,8 +532,8 @@ namespace WindowsApplication5
                         BranchID = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings["BranchID"].ToString().Trim()),
                         CliqAttributeID = Convert.ToInt32(cmbAttributes.SelectedValue),
                         MachineAttributeCode = textBox1.Text,
-                        Test_ID = Convert.ToInt32(cmbTests.SelectedValue),
-                        TestName = cmbTests.Text,
+                        //Test_ID = Convert.ToInt32(cmbTests.SelectedValue),
+                        //TestName = cmbTests.Text,
                         Active = chkActive.Checked,
                     };
                     _unitOfWork.CliqMachineMappings.Insert(obj);
@@ -578,12 +561,12 @@ namespace WindowsApplication5
 
         private bool ValidateForm()
         {
-            if (cmbTests.SelectedValue.ToString().Trim()=="")
-            {
-                MessageBox.Show("All mandatory fields not completed");
-                errorProvider1.SetError(cmbTests, "Please Select");
-                return false;
-            }
+            //if (cmbTests.SelectedValue.ToString().Trim()=="")
+            //{
+            //    MessageBox.Show("All mandatory fields not completed");
+            //    errorProvider1.SetError(cmbTests, "Please Select");
+            //    return false;
+            //}
             if (cmbAttributes.SelectedValue.ToString().Trim()=="")
             {
                 MessageBox.Show("All mandatory fields not completed");
@@ -611,7 +594,7 @@ namespace WindowsApplication5
         {
 
             cmbAttributes.DataSource = null;
-            cmbTests.SelectedIndex = 0;
+           // cmbTests.SelectedIndex = 0;
             textBox1.Text = "";
         }
 
@@ -657,7 +640,7 @@ namespace WindowsApplication5
                     //if (!System.IO.File.Exists("E:\\TreesJSON.json"))
                     //    System.IO.File.Create("E:\\TreesJSON.json");
                     //System.IO.File.WriteAllText("E:\\TreesJSON.json", json);
-                    var content = await Helper.CallCliqApi("http://192.168.22.16:818/ricapi/site/curl_data?str=" + json.ToString().Trim());
+                    var content = await Helper.CallCliqApi(System.Configuration.ConfigurationSettings.AppSettings["WebServicebasePath"].ToString().Trim() + "/ricapi/site/curl_data?str=" + json.ToString().Trim());
                     
                     if (content.Length > 0)
                     {
@@ -679,8 +662,8 @@ namespace WindowsApplication5
                                     EnteredOn=System.DateTime.Now,
                                     ClientID=System.Configuration.ConfigurationManager.AppSettings["BranchID"].ToString().Trim(),
                                   //  AttributeID=result.Attribut
-                                    
-                                    sentto = "http://192.168.22.16:818/ricapi/site/curl_data"
+
+                                    sentto = System.Configuration.ConfigurationSettings.AppSettings["WebServicebasePath"].ToString().Trim() + "/ricapi/site/curl_data"
                                 };
                                 _unitOfWork.ResultsRepository.Update(res,x=>Convert.ToInt32(x.ResultID));
                             }

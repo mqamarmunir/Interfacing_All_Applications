@@ -8,6 +8,8 @@ using DataModel;
 using System.Web.Script.Serialization;
 using System.IO.Ports;
 using System.IO;
+using MySql.Data.MySqlClient;
+using System.Data;
 
 namespace OtherTests
 {
@@ -29,6 +31,7 @@ namespace OtherTests
             
             _unitofwork = new UnitOfWork();
             ParseAu480("");
+           // Parsethisandinsertsysmex(System.IO.File.ReadAllText("e:\\sysmex8000idata.txt"), 1);
             //_serial.PortName = System.Configuration.ConfigurationSettings.AppSettings["PortName"].ToString();
             //_serial.BaudRate = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["BaudRate"].ToString());
             //_serial.StopBits = System.Configuration.ConfigurationSettings.AppSettings["StopBits"].ToString() == "1" ? StopBits.One : StopBits.None;
@@ -50,6 +53,234 @@ namespace OtherTests
             
             
             Console.ReadLine();
+        }
+        private static void Parsethisandinsertsysmex(string data, int Parsingalgorithm)
+        {
+            string str1 = "";
+            string str2 = "";
+            string str3 = "";
+            if (Parsingalgorithm != 1)
+                return;
+            string[] separator = new string[1] { "L|1" };
+            char[] chArray1 = new char[1] { Convert.ToChar(13) };
+            string[] strArray1 = data.Split(separator, StringSplitOptions.RemoveEmptyEntries);
+            char[] chArray2 = new char[1] { '|' };
+            char[] chArray3 = new char[1] { '^' };
+            for (int index1 = 0; index1 <= strArray1.GetUpperBound(0); ++index1)
+            {
+                string[] strArray2 = strArray1[index1].Split(new string[1]{"\r\n"},StringSplitOptions.None);
+                for (int index2 = 0; index2 < strArray2.GetUpperBound(0); ++index2)
+                {
+                    if (strArray2[index2].Contains("H|") && !strArray2[index2].Contains("O|") && !strArray2[index2].Contains("R|"))
+                    {
+                        string[] strArray3 = strArray2[index2].Split(chArray2);
+                        try
+                        {
+                            str1 = strArray3[13].ToString();
+                        }
+                        catch
+                        {
+                        }
+                    }
+                    else if (strArray2[index2].Contains("P|1") && (!strArray2[index2].Contains("O|") || strArray2[index2].IndexOf("P|") < strArray2[index2].IndexOf("O|")) && (!strArray2[index2].Contains("R|") || strArray2[index2].IndexOf("P|") < strArray2[index2].IndexOf("R|")))
+                    {
+                        string[] strArray3 = strArray2[index2].Split(chArray2);
+                        try
+                        {
+                            str3 = strArray3[4].ToString();
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine("Exception on getting Patientid: " + ex.ToString());
+                        }
+                    }
+                    else if (strArray2[index2].Contains("O|") && strArray2[index2].Contains("R|") && strArray2[index2].IndexOf("O|") < strArray2[index2].IndexOf("R|"))
+                    {
+                        str2 = strArray2[index2].Split(chArray2)[2].ToString();
+                        if (str2.Contains("^"))
+                            str2 = str2.Split(chArray3)[1].ToString().Trim();
+                    }
+                    else if (strArray2[index2].Length>5 && strArray2[index2].Substring(2,2).Equals("O|"))
+                    {
+                        str2 = strArray2[index2].Split(chArray2)[3].ToString();
+                        if (str2.Contains("^"))
+                            str2 = str2.Split(chArray3)[2].ToString().Trim();
+                    }
+                    else if (strArray2[index2].Contains("R|"))
+                    {
+                        string[] strArray3 = strArray2[index2].Split(chArray2);
+                        string str4 = strArray3[3].ToString();
+                        string[] strArray4 = strArray3[2].Split(chArray3);
+                        string str5 = !(strArray4[3] != "") ? strArray4[4].ToString() : strArray4[3].ToString();
+                        if (str5.Contains("/"))
+                            str5 = str5.Replace("/", "");
+                        if (str5.ToLower() == "wbc" || str5.ToLower() == "plt")
+                        {
+                            try
+                            {
+                                str4 = (Convert.ToDecimal(str4) * new Decimal(1000)).ToString();
+                                if (str4.Contains("."))
+                                    str4 = str4.Substring(0, str4.IndexOf('.'));
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine("Error Converting Result: " + str4);
+                            }
+                        }
+                        else if (str5.ToLower().Equals("900") || str5.ToLower().Equals("999") || str5.ToLower().Equals("102"))
+                        {
+                            if (str4.Contains("-1^"))
+                                str4 = str4.Replace("-1^", "Negative  \r\n");
+                            else if (str4.Contains("1^"))
+                                str4 = str4.Replace("1^", "Positive  \r\n");
+                        }
+                        else if (str5.ToLower().Equals("eo%") || str5.ToLower().Equals("mono%") || str5.ToLower().Equals("neut%") || str5.ToLower().Equals("lymph%"))
+                        {
+                            try
+                            {
+                                str4 = Math.Round(Convert.ToDecimal(str4)).ToString().Trim();
+                                if (str4.Contains("."))
+                                    str4 = str4.Substring(0, str4.IndexOf('.'));
+                            }
+                            catch
+                            {
+                            }
+                        }
+                        if (str2 == "")
+                            str2 = str3;
+                        var x = str2 + "," + str5 + "," + DateTime.Now.ToString("dd/MM/yyyy HH:mm") + "," + str4;
+                        Console.WriteLine(x);
+                        InsertBooking(str2 + "," + str5 + "," + DateTime.Now.ToString("dd/MM/yyyy HH:mm") + "," + str4);
+                    }
+                }
+            }
+        }
+        private static bool IsNaturalNumber(string strNumber)
+        {
+            System.Text.RegularExpressions.Regex objNotNaturalPattern = new System.Text.RegularExpressions.Regex("[^0-9]");
+            System.Text.RegularExpressions.Regex objNaturalPattern = new System.Text.RegularExpressions.Regex("0*[1-9][0-9]*");
+            return !objNotNaturalPattern.IsMatch(strNumber) &&
+                objNaturalPattern.IsMatch(strNumber);
+        }
+        private static void InsertBooking(string Msg)
+        {
+            MySqlConnection objConn = new MySqlConnection("Server = localhost; Port = 3306; Database = mi_sysmex; Uid = root; Pwd = trees");
+            //MySqlConnection objConn = new MySqlConnection("Server = localhost; Port = 3306; Database = MI; Uid = root; Pwd = 123");
+            MySqlCommand objCmd = new MySqlCommand();
+            MySqlDataAdapter da = new MySqlDataAdapter(objCmd);
+            DataSet DS = new DataSet();
+            string myquerystring = "";
+            string EnteredOn = DateTime.Now.ToString("dd/MM/yyyy hh:mm tt");
+
+            string[] str = { "", "", "", "", "", "", "" };//BookingID,LABID,SendOn,ReceivedOn,Result,AttributeCode,AttributeID
+
+            str[3] = DateTime.Now.ToString("dd/MM/yyyy hh:mm tt");
+            ///
+            /// Create Quries for Selected Machine
+            /// 
+            try
+            {
+                objConn.Open();
+                objCmd.Connection = objConn;
+
+
+
+
+
+                string[] Delimeter = { "," };
+                string[] Tmp = Msg.Split(Delimeter, StringSplitOptions.RemoveEmptyEntries);
+
+                str[1] = Tmp[0].Trim();//Labid
+                str[4] = Tmp[3].Trim();//Result
+                str[5] = Tmp[1].Trim();//AttributeCode
+                str[2] = Tmp[2];//sendon
+
+
+
+                if (!IsNaturalNumber(str[1].Trim()))
+                {
+                    return;
+                }
+
+                myquerystring = "SELECT a.attributeid,a.MachineAttributeCode,t.Machine_Test_name, t.Machine_testid,t.MachineTestCode, t.Instrumentid,b.bookingid FROM mi_ttestattribute a,mi_ttests t left outer join mi_tbooking b on b.Machine_TestID=t.Machine_TestID and b.labid='" + str[1].Trim() + "' and b.Test_code='" + str[5].Trim() + "' where a.Machine_TestID=t.Machine_TestID and a.MachineAttributeCode='" + str[5].Trim() + "'  and t.Instrumentid=" + 20 + "";
+
+                objCmd.CommandText = myquerystring;
+                da.Fill(DS, "TestInfo");
+
+                if (DS.Tables[0].Rows.Count > 0)
+                {
+                    str[0] = DS.Tables["TestInfo"].Rows[0]["BookingID"].ToString();
+                    if (str[0].Equals(""))
+                    {
+                        myquerystring = "INSERT INTO mi_tbooking(LABID,Test_Code,Machine_TestID,Test_name,InstrumentID,EnteredBy,EnteredOn,ClientID";
+                        if (!str[2].Equals(""))
+                        {
+                            myquerystring += ",SendON";
+                        }
+                        if (!str[3].Equals(""))
+                        {
+                            myquerystring += ",ReceivedON";
+                        }
+                        myquerystring += ",Active) VALUES('" + str[1].Trim() + "','" + DS.Tables["TestInfo"].Rows[0]["MachineTestCode"].ToString() + "','" + DS.Tables["TestInfo"].Rows[0]["Machine_testid"].ToString() + "','" + DS.Tables["TestInfo"].Rows[0]["Machine_Test_name"].ToString() + "','" + DS.Tables["TestInfo"].Rows[0]["Instrumentid"].ToString() + "'," + 1 + ",str_to_date('" + EnteredOn + "','%d/%m/%Y %h:%i %p')  ,'" + 005 + "'";
+                        if (!str[2].Equals(""))
+                        {
+                            myquerystring += ",str_to_date('" + str[2].Trim() + "','%d/%m/%Y %h:%i %p')";
+                        }
+                        if (!str[3].Equals(""))
+                        {
+                            myquerystring += ",str_to_date('" + str[3].Trim() + "','%d/%m/%Y %h:%i %p')";
+                        }
+                        myquerystring += ",'Y')";
+                    }
+                    str[6] = DS.Tables["TestInfo"].Rows[0]["attributeid"].ToString();
+                }
+
+                if (!str[6].Equals(""))
+                {
+                    if (str[0].Equals(""))
+                    {
+                        objCmd.CommandText = myquerystring;
+                        objCmd.ExecuteNonQuery();
+
+                        myquerystring = "SELECT ifnull(max(bookingid),1) as bookingid FROM mi_tbooking m";
+                        objCmd.CommandText = myquerystring;
+
+                        da.Fill(DS, "BookingID");
+                        str[0] = DS.Tables["BookingID"].Rows[0]["bookingid"].ToString();
+                    }
+                    myquerystring = "SELECT Resultid FROM mi_tresult m where bookingID=" + str[0] + " and AttributeID=" + str[6];
+                    objCmd.CommandText = myquerystring;
+
+                    da.Fill(DS, "ResultDup");
+
+                    if (DS.Tables["ResultDup"].Rows.Count == 0)
+                    {
+                        myquerystring = "INSERT INTO mi_tresult(BookingID, AttributeID, Result, EnteredBy, EnteredOn, ClientID, Status ) values(" + str[0] + "," + str[6] + ",'" + str[4] + "'," + 1 + ",str_to_date('" + EnteredOn + "','%d/%m/%Y %h:%i %p')  ,'" + 005 + "','0' )";
+
+                        objCmd.CommandText = myquerystring;
+                        objCmd.ExecuteNonQuery();
+
+                        //System.Windows.Forms.Control.CheckForIllegalCrossThreadCalls = false;
+
+                        //GetTodayTotalTest();
+                        //GetTodayDetailTest();
+                        // WeeklyGraph();
+                        // MonthlyGraph();
+
+                        //System.Windows.Forms.Control.CheckForIllegalCrossThreadCalls = true ;
+                    }
+                }
+            }
+            catch (Exception exc)
+            {
+                //writeLog(DateTime.Now.ToString("yyyyMMddhhmmss") + " : Insert Booking : " + exc.Message);
+                // MessageBox.Show(exc.Message);
+            }
+            finally
+            {
+                objConn.Close();
+                //lblToday.Tag = "";
+            }
         }
         static private void serialPort1_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
@@ -431,7 +662,11 @@ namespace OtherTests
         static void ParseAu480(string data)
         {
             var text = System.IO.File.ReadAllText(@"E:\TestData.txt");
-            var splitter1 = new char[1] { Convert.ToChar(3) };
+            //if (text.Contains(Convert.ToChar(3).ToString()))
+            //{
+            //    Console.WriteLine("Found");
+            //}
+            var splitter1 = new string[] { "D ", "DR", "DH", "DQ", "d ", "DA", "dH" } ;
             var splitter2 = new string[] { " " };
             var arrayafter1stseperator = text.Split(splitter1, StringSplitOptions.RemoveEmptyEntries);
             string labid = "";
@@ -444,9 +679,9 @@ namespace OtherTests
                         continue;
 
                     var arrayafter2ndseperator = str1.Substring(0, 40).Split(splitter2, StringSplitOptions.RemoveEmptyEntries);
-                    if (arrayafter2ndseperator.Length > 3)
+                    if (arrayafter2ndseperator.Length > 2)
                     {
-                        labid = arrayafter2ndseperator[3];
+                        labid = arrayafter2ndseperator[2];
 
                         string testsandresults = str1.Substring(40).TrimStart().Replace("E","");
 

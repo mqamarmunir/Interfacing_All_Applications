@@ -50,7 +50,8 @@ namespace TestService
             this.timer = new System.Timers.Timer(60000D);  // 30000 milliseconds = 30 seconds
             this.timer.AutoReset = true;
             this.timer.Elapsed += new System.Timers.ElapsedEventHandler(this.Main);
-            this.timer.Start();
+            if(System.Configuration.ConfigurationSettings.AppSettings["IsUpdateRemoteDatabase"].ToString().Trim()=="Y")
+                this.timer.Start();
 
             this.timer_deleteolddata = new System.Timers.Timer(24 * 60 * 60 * 1000);//Run this timer method after one day
             this.timer_deleteolddata.AutoReset = true;
@@ -73,18 +74,30 @@ namespace TestService
                     sb_port1.Append(data);
                     //eventLog1.WriteEntry(data);
                     System.IO.File.AppendAllText(System.Configuration.ConfigurationSettings.AppSettings["ReceivedDataLogFile"].ToString().Trim(), data);
-                    if (sb_port1.ToString().Contains(thismachinesettings.RecordTerminator))//L|1 is a terminator record according to astm standards
+                    if (sb_port1.ToString().Split(new string[] { "D ", "DR", "DH", "DQ", "d ", "DA", "dH", "DE" }, StringSplitOptions.RemoveEmptyEntries).Length>0)//For Au480 temporary//L|1 is a terminator record according to astm standards
                     {
                         ///if the recieved string contains the terminator
                         ///then parse the record and Clear the string
                         ///Builder for next Record.
                         ///
 
-                        Parsethisandinsert(sb_port1.ToString(), thismachinesettings.ParsingAlgorithm, MachineID);
+                        eventLog1.WriteEntry("data after Terminator: " + sb_port1.ToString());
+                        string parsingdata = sb_port1.ToString();
                         sb_port1.Clear();
+                         
+                       // System.Threading.Thread t = new System.Threading.Thread(Parsethisandinsert(parsingdata,thismachinesettings.ParsingAlgorithm,MachineID));
+                        Parsethisandinsert(parsingdata, thismachinesettings.ParsingAlgorithm, MachineID);
+                       // parsingdata = string.Empty;
 
 
                     }
+                    //else if (sb_port1.ToString().Split(new char[1] { Convert.ToChar(3) }).Length > 0)
+                    //{
+                    //
+                    //    eventLog1.WriteEntry("data after Terminator2: " + sb_port1.ToString());
+                    //    Parsethisandinsert(sb_port1.ToString().Substring(0, sb_port1.ToString().LastIndexOf(Convert.ToChar(3))), thismachinesettings.ParsingAlgorithm, MachineID);
+                    //}
+
                 }
 
 
@@ -271,23 +284,25 @@ namespace TestService
         {
 
             var text = data;
-            var splitter1 = new char[1] { Convert.ToChar(3) };
+            var splitter1 = new string[] { "D ", "DR", "DH", "DQ", "d ", "DA", "dH", "DE" };
             var splitter2 = new string[] { " " };
             var arrayafter1stseperator = text.Split(splitter1, StringSplitOptions.RemoveEmptyEntries);
             string labid = "";
+
             //List<DataModel.mi_tresult> result = new List<DataModel.mi_tresult>();
             foreach (string str1 in arrayafter1stseperator)
             {
                 try
                 {
-                    if (str1.Contains("DB") || str1.Contains("DE") || string.IsNullOrEmpty(str1))//skip start and end strings
+                    eventLog1.WriteEntry("this is going to be parsed after first seperator: " + str1);
+                    if (str1.Contains("DB") || str1.Contains("DE") || string.IsNullOrEmpty(str1.Trim()) || str1.Length < 41)//skip start and end strings
                         continue;
 
                     var arrayafter2ndseperator = str1.Substring(0, 40).Split(splitter2, StringSplitOptions.RemoveEmptyEntries);
                     //eventLog1.WriteEntry(str1.Substring(0,40));
-                    if (arrayafter2ndseperator.Length > 3)
+                    if (arrayafter2ndseperator.Length == 3)
                     {
-                        labid = arrayafter2ndseperator[3];
+                        labid = arrayafter2ndseperator[2];
                         //eventLog1.WriteEntry(str1.Substring(0, 40));
                         string testsandresults = str1.Substring(40).TrimStart().Replace("E", "");
 
@@ -303,35 +318,50 @@ namespace TestService
                         foreach (string thistestandresult in indtestanditsresult)
                         {
 
+
                             if (thistestandresult.Length > 1)
                             {
                                 string machinetestcode = thistestandresult.Substring(0, 3).Trim();
                                 string resultsingle = thistestandresult.Substring(3, 6).Trim();
-                                var objresult = new DataModel.mi_tresult
+
+                                clsBLMain objMain = new clsBLMain();
+                                objMain.BookingID = labid;
+                                objMain.AttributeID = machinetestcode;
+                                objMain.Result = resultsingle;
+                                DataView dv = objMain.GetAll(8);
+                                if (dv.Count > 0)
+                                    continue;
+                                else
                                 {
-                                    BookingID = labid,
-                                    AttributeID = machinetestcode,
-                                    ClientID = System.Configuration.ConfigurationSettings.AppSettings["BranchID"].ToString().Trim(),
-                                    EnteredBy = 1,
-                                    EnteredOn = System.DateTime.Now,//.ToString("yyyy-MM-dd hh:mm:ss tt"),
-                                    machinename = MachineID,
-                                    Result = resultsingle,
-                                    Status = "N"
-                                };
-                                //var resultserialized=Newtonsoft.Json.JsonConvert.SerializeObject(objresult);
-                                //eventLog1.WriteEntry(resultserialized);
-                                _unitOfWork.ResultsRepository.Insert(objresult);
+                                    var objresult = new DataModel.mi_tresult
+                                    {
+                                        BookingID = labid,
+                                        AttributeID = machinetestcode,
+                                        ClientID = System.Configuration.ConfigurationSettings.AppSettings["BranchID"].ToString().Trim(),
+                                        EnteredBy = 1,
+                                        EnteredOn = System.DateTime.Now,//.ToString("yyyy-MM-dd hh:mm:ss tt"),
+                                        machinename = MachineID,
+                                        Result = resultsingle,
+                                        Status = "N"
+                                    };
+                                    var resultserialized = Newtonsoft.Json.JsonConvert.SerializeObject(objresult);
+                                    eventLog1.WriteEntry("Serialized result: " + resultserialized);
+                                    _unitOfWork.ResultsRepository.Insert(objresult);
 
-
+                                }
                             }
                         }
 
                     }
+                    else
+                    {
+                        eventLog1.WriteEntry("String not correct. It can not be processed: " + str1);
+                    }
                 }
 
-                catch
+                catch (Exception ee)
                 {
-                    eventLog1.WriteEntry("Error in following line: " + str1, EventLogEntryType.Error);
+                    eventLog1.WriteEntry("Error in following line: " + str1 + "-----------" + ee.ToString(), EventLogEntryType.Error);
                 }
 
             }
@@ -506,7 +536,7 @@ namespace TestService
             }
         }
 
-       
+
 
     }
 }

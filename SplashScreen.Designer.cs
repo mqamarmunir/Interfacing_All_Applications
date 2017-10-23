@@ -58,9 +58,8 @@
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(17, 344);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(196, 13);
+            this.label1.Size = new System.Drawing.Size(0, 13);
             this.label1.TabIndex = 1;
-            this.label1.Text = "ad.aslkdaslda;sdkas;dka;sdka;sdkas;dk";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // pictureBox1

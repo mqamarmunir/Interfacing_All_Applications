@@ -42,7 +42,7 @@ namespace WindowsApplication5
                     instance.ReportProgress(i);
 
                 }
-                string content = Helper.CallCliqApi("http://192.168.22.16:818/ricapi/site/TestAtt/bid/2/did/13").Result;
+                string content = Helper.CallCliqApi(System.Configuration.ConfigurationSettings.AppSettings["WebServicebasePath"].ToString().Trim() + "/ricapi/site/TestAtt/bid/"+System.Configuration.ConfigurationSettings.AppSettings["BranchID"].ToString().Trim()+"/did/5").Result;
                 for (int i = 31; i <= 70; i++)
                 {
                     System.Threading.Thread.Sleep(10);

@@ -25,7 +25,26 @@ namespace BusinessLayer
         private string Strmaxid = Default;
         private string StrFailreason = Default;
         private string _ResultID = Default;
+        private string _BookingID = Default;
+        private string _AttributeID = Default;
+        private string _Result = Default;
 
+        public string Result
+        {
+            get { return _Result; }
+            set { _Result = value; }
+        }
+
+        public string AttributeID
+        {
+            get { return _AttributeID; }
+            set { _AttributeID = value; }
+        }
+        public string BookingID
+        {
+            get { return _BookingID; }
+            set { _BookingID = value; }
+        }
         public string ResultID
         {
             get { return _ResultID; }
@@ -132,6 +151,10 @@ namespace BusinessLayer
 //                                        FROM mi_tresult m inner join cliqmachinemappings c on c.machineattributecode=m.attributeid
 //                                        Where m.Status='N'
 //                                        limit 20";
+                    break;
+                case 8:
+
+                    objdbhims.Query = @"Select resultid from mi_tresult where bookingid='" + this._BookingID + "' and Attributeid='" + this._AttributeID + "' and Result='" + this._Result + "'";
                     break;
             }
 
