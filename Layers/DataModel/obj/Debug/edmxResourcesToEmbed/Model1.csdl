@@ -259,7 +259,7 @@
     <Property Name="id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
     <Property Name="BranchID" Type="Int64" Nullable="false" />
     <Property Name="Test_ID" Type="Int64" Nullable="false" />
-    <Property Name="TestName" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="false" />
+    <Property Name="TestName" Type="String" Nullable="true" MaxLength="200" FixedLength="false" Unicode="false" />
     <Property Name="CliqAttributeID" Type="Int64" Nullable="false" />
     <Property Name="AttributeName" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
     <Property Name="MachineAttributeCode" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />

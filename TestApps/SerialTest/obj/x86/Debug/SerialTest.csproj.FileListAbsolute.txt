@@ -11,6 +11,8 @@ E:\Projects\Trees\SerialTest\SerialTest\obj\x86\Debug\SerialTest.csprojResolveAs
 E:\Projects\Trees\InterfacingAllApps\TestApps\SerialTest\bin\Debug\SerialTest.exe.config
 E:\Projects\Trees\InterfacingAllApps\TestApps\SerialTest\bin\Debug\SerialTest.exe
 E:\Projects\Trees\InterfacingAllApps\TestApps\SerialTest\bin\Debug\SerialTest.pdb
-E:\Projects\Trees\InterfacingAllApps\TestApps\SerialTest\obj\x86\Debug\SerialTest.csprojResolveAssemblyReference.cache
 E:\Projects\Trees\InterfacingAllApps\TestApps\SerialTest\obj\x86\Debug\SerialTest.exe
 E:\Projects\Trees\InterfacingAllApps\TestApps\SerialTest\obj\x86\Debug\SerialTest.pdb
+E:\Projects\Trees\InterfacingAllApps\TestApps\SerialTest\obj\x86\Debug\SerialTest.csprojResolveAssemblyReference.cache
+E:\Projects\Trees\InterfacingAllApps\TestApps\SerialTest\bin\Debug\Newtonsoft.Json.dll
+E:\Projects\Trees\InterfacingAllApps\TestApps\SerialTest\bin\Debug\Newtonsoft.Json.xml

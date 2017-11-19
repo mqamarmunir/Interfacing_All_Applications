@@ -600,84 +600,84 @@ namespace WindowsApplication5
 
         private async void button1_Click(object sender, EventArgs e)
         {
-            clsBLMain objMai = new clsBLMain();
-            DataView dv = objMai.GetAll(7);
-            if(dv.Count>0)
-            {
-                List<cliqresults> lstresults = new List<cliqresults>();
-                for (int i = 0; i < dv.Count; i++)
-                {
-                    try
-                    {
-                        lstresults.Add(new cliqresults
-                        {
-                            ResultID = Convert.ToInt32(dv[i]["ResultID"].ToString().Trim()),
-                            BookingID = dv[i]["BookingID"].ToString().Trim(),
-                            ClientID = dv[i]["ClientID"].ToString().Trim(),
-                            CliqAttributeID = dv[i]["CliqAttributeID"].ToString().Trim(),
-                            CliqTestID = dv[i]["CliqTestID"].ToString().Trim(),
-                            MachineID = dv[i]["MachineID"].ToString().Trim(),
-                            Result = dv[i]["Result"].ToString().Trim(),
-                            MachineAttributeCode = dv[i]["MachineAttributeCode"].ToString().Trim()
+        //    clsBLMain objMai = new clsBLMain();
+        //    DataView dv = objMai.GetAll(7);
+        //    if(dv.Count>0)
+        //    {
+        //        List<cliqresults> lstresults = new List<cliqresults>();
+        //        for (int i = 0; i < dv.Count; i++)
+        //        {
+        //            try
+        //            {
+        //                lstresults.Add(new cliqresults
+        //                {
+        //                    ResultID = Convert.ToInt32(dv[i]["ResultID"].ToString().Trim()),
+        //                    BookingID = dv[i]["BookingID"].ToString().Trim(),
+        //                    ClientID = dv[i]["ClientID"].ToString().Trim(),
+        //                    CliqAttributeID = dv[i]["CliqAttributeID"].ToString().Trim(),
+        //                    CliqTestID = dv[i]["CliqTestID"].ToString().Trim(),
+        //                    MachineID = dv[i]["MachineID"].ToString().Trim(),
+        //                    Result = dv[i]["Result"].ToString().Trim(),
+        //                    MachineAttributeCode = dv[i]["MachineAttributeCode"].ToString().Trim()
 
-                        });
-                    }
-                    catch (Exception ee)
-                    {
+        //                });
+        //            }
+        //            catch (Exception ee)
+        //            {
  
-                    }
-                }
+        //            }
+        //        }
                 
 
 
-               // var jsonSerialiser = new JavaScriptSerializer();
+        //       // var jsonSerialiser = new JavaScriptSerializer();
                 
-                try
-                {
-                    //var json = jsonSerialiser.Serialize(lstresults.Select(x => new { BookingID=x.BookingID,ClientID=x.ClientID,CliqAttributeID=x.CliqAttributeID,CliqTestID=x.CliqTestID,MachineID=x.MachineID,Result=x.Result}).ToList());
-                    var json = Newtonsoft.Json.JsonConvert.SerializeObject(lstresults.Select(x => new { BookingID = x.BookingID, ClientID = x.ClientID, CliqAttributeID = x.CliqAttributeID, CliqTestID = x.CliqTestID, MachineID = x.MachineID, Result = x.Result }).ToList());
+        //        try
+        //        {
+        //            //var json = jsonSerialiser.Serialize(lstresults.Select(x => new { BookingID=x.BookingID,ClientID=x.ClientID,CliqAttributeID=x.CliqAttributeID,CliqTestID=x.CliqTestID,MachineID=x.MachineID,Result=x.Result}).ToList());
+        //            var json = Newtonsoft.Json.JsonConvert.SerializeObject(lstresults.Select(x => new { BookingID = x.BookingID, ClientID = x.ClientID, CliqAttributeID = x.CliqAttributeID, CliqTestID = x.CliqTestID, MachineID = x.MachineID, Result = x.Result }).ToList());
                     
-                    //if (!System.IO.File.Exists("E:\\TreesJSON.json"))
-                    //    System.IO.File.Create("E:\\TreesJSON.json");
-                    //System.IO.File.WriteAllText("E:\\TreesJSON.json", json);
-                    var content = await Helper.CallCliqApi(System.Configuration.ConfigurationSettings.AppSettings["WebServicebasePath"].ToString().Trim() + "/ricapi/site/curl_data?str=" + json.ToString().Trim());
+        //            //if (!System.IO.File.Exists("E:\\TreesJSON.json"))
+        //            //    System.IO.File.Create("E:\\TreesJSON.json");
+        //            //System.IO.File.WriteAllText("E:\\TreesJSON.json", json);
+        //            var content = await Helper.CallCliqApi(System.Configuration.ConfigurationSettings.AppSettings["WebServicebasePath"].ToString().Trim() + "/ricapi/site/curl_data?str=" + json.ToString().Trim());
                     
-                    if (content.Length > 0)
-                    {
-                        var cliqresultresponse = Newtonsoft.Json.JsonConvert.DeserializeObject<List<CliqResultResponse>>(content);
-                        if (cliqresultresponse != null && (cliqresultresponse.FirstOrDefault().Code=="3"|| cliqresultresponse.FirstOrDefault().Code=="1"))
-                        {
-                            foreach (var result in lstresults)
-                            {
-                                mi_tresult res = new mi_tresult
-                                {
-                                    ResultID = result.ResultID,
-                                    Status = "Y",
-                                    senton = System.DateTime.Now,
-                                    BookingID=result.BookingID,
-                                    machinename=result.MachineID,
-                                    Result=result.Result,
-                                    AttributeID=result.MachineAttributeCode,
-                                    EnteredBy=1,
-                                    EnteredOn=System.DateTime.Now,
-                                    ClientID=System.Configuration.ConfigurationManager.AppSettings["BranchID"].ToString().Trim(),
-                                  //  AttributeID=result.Attribut
+        //            if (content.Length > 0)
+        //            {
+        //                var cliqresultresponse = Newtonsoft.Json.JsonConvert.DeserializeObject<List<CliqResultResponse>>(content);
+        //                if (cliqresultresponse != null && (cliqresultresponse.FirstOrDefault().Code=="3"|| cliqresultresponse.FirstOrDefault().Code=="1"))
+        //                {
+        //                    foreach (var result in lstresults)
+        //                    {
+        //                        mi_tresult res = new mi_tresult
+        //                        {
+        //                            ResultID = result.ResultID,
+        //                            Status = "Y",
+        //                            senton = System.DateTime.Now,
+        //                            BookingID=result.BookingID,
+        //                            machinename=result.MachineID,
+        //                            Result=result.Result,
+        //                            AttributeID=result.MachineAttributeCode,
+        //                            EnteredBy=1,
+        //                            EnteredOn=System.DateTime.Now,
+        //                            ClientID=System.Configuration.ConfigurationManager.AppSettings["BranchID"].ToString().Trim(),
+        //                          //  AttributeID=result.Attribut
 
-                                    sentto = System.Configuration.ConfigurationSettings.AppSettings["WebServicebasePath"].ToString().Trim() + "/ricapi/site/curl_data"
-                                };
-                                _unitOfWork.ResultsRepository.Update(res,x=>Convert.ToInt32(x.ResultID));
-                            }
-                            _unitOfWork.Save();
-                        }
-                    }
-                }
-                catch (Exception ee)
-                {
-                    MessageBox.Show(ee.Message);
-                }
+        //                            sentto = System.Configuration.ConfigurationSettings.AppSettings["WebServicebasePath"].ToString().Trim() + "/ricapi/site/curl_data"
+        //                        };
+        //                        _unitOfWork.ResultsRepository.Update(res,x=>Convert.ToInt32(x.ResultID));
+        //                    }
+        //                    _unitOfWork.Save();
+        //                }
+        //            }
+        //        }
+        //        catch (Exception ee)
+        //        {
+        //            MessageBox.Show(ee.Message);
+        //        }
 
                 
-            }
+        //    }
         }
 
 	}

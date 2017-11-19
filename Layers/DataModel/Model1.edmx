@@ -11,8 +11,8 @@
           </Key>
           <Property Name="id" Type="uint" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="BranchID" Type="uint" Nullable="false" />
-          <Property Name="Test_ID" Type="uint" Nullable="false" />
-          <Property Name="TestName" Type="varchar" MaxLength="200" Nullable="false" />
+          <Property Name="Test_ID" Type="uint" />
+          <Property Name="TestName" Type="varchar" MaxLength="200" />
           <Property Name="CliqAttributeID" Type="uint" Nullable="false" />
           <Property Name="AttributeName" Type="varchar" MaxLength="100" Nullable="false" />
           <Property Name="MachineAttributeCode" Type="varchar" MaxLength="30" Nullable="false" />
@@ -538,7 +538,7 @@
           <Property Name="id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="BranchID" Type="Int64" Nullable="false" />
           <Property Name="Test_ID" Type="Int64" Nullable="false" />
-          <Property Name="TestName" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="TestName" Type="String" Nullable="true" MaxLength="200" FixedLength="false" Unicode="false" />
           <Property Name="CliqAttributeID" Type="Int64" Nullable="false" />
           <Property Name="AttributeName" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="MachineAttributeCode" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />

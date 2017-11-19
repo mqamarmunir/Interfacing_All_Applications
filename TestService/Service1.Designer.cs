@@ -31,11 +31,17 @@
             this.components = new System.ComponentModel.Container();
             this.eventLog1 = new System.Diagnostics.EventLog();
             this.serialPort1 = new System.IO.Ports.SerialPort(this.components);
+            this.serialPort2 = new System.IO.Ports.SerialPort(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.eventLog1)).BeginInit();
             // 
             // serialPort1
             // 
             this.serialPort1.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.serialPort1_DataReceived);
+            // 
+            // serialPort2
+            // 
+            this.serialPort2.PortName = "COM8";
+            this.serialPort2.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.serialPort2_DataReceived);
             // 
             // Service1
             // 
@@ -48,5 +54,6 @@
 
         private System.Diagnostics.EventLog eventLog1;
         private System.IO.Ports.SerialPort serialPort1;
+        private System.IO.Ports.SerialPort serialPort2;
     }
 }

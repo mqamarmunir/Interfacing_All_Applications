@@ -15,24 +15,25 @@ namespace SerialTest
         {
             //string abc="H|\\^&||||||||||P||\rP|1||||||||||||||||||||||||||||||||||\r O|1|000004|40^0^5^^SAMPLE^NORMAL|ALL|R|20051220095504|||||X ||||||||||||||O\r R|1|^^^10^^0|1.25|ulU/ml|0.270^4.20|N||F|||20051220095534| 20051220101604|\r R|2|^^^30^2^1|1.52|ng/dl|1.01^1.79|N||F|||20051220103034| 20051220105004|\r R|3|^^^40^^0|1.17|ulU/ml|0.846^2.02|N||F|||20051220110034| 20051220112004|\r L|1";
             //string replaced = abc.Replace('\r', Convert.ToChar(13));
-           // serial port comm settings
-            //_serial.PortName = System.Configuration.ConfigurationSettings.AppSettings["PortName"].ToString();
-            //_serial.BaudRate = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["BaudRate"].ToString());
-            //_serial.StopBits = System.Configuration.ConfigurationSettings.AppSettings["StopBits"].ToString() == "1" ? StopBits.One : StopBits.None;
-            //_serial.DataBits = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["DataBits"].ToString());
-            //_serial.Parity = Parity.None;
-            //try
-            //{
-            //    _serial.Open();
-            //}
-            //catch (Exception ee)
-            //{
-            //    Console.WriteLine(ee.ToString().Trim());
-            //}
-            //_serial.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(serialPort1_DataReceived);
-            MyNewParser("003 27.52r 006      / 007  72.3r 014  1.59nr016    14nr018    76nr019114.29r 023 102.7r 026103.19r 031  0.81r 034    24nr035282.49r 061 24.83r 062 12.86r 063 20.64r 097   139r 098  3.43r 099   100r");
-          // string alldata = File.ReadAllText("E:\\TetData.txt");
-           // Parsethisandinsert(alldata, 2);
+            // serial port comm settings
+            _serial.PortName = System.Configuration.ConfigurationSettings.AppSettings["PortName"].ToString();
+            _serial.BaudRate = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["BaudRate"].ToString());
+            _serial.StopBits = System.Configuration.ConfigurationSettings.AppSettings["StopBits"].ToString() == "1" ? StopBits.One : StopBits.None;
+            _serial.DataBits = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["DataBits"].ToString());
+            _serial.Parity = Parity.None;
+            try
+            {
+                _serial.Open();
+                Console.WriteLine("Port Opened");
+            }
+            catch (Exception ee)
+            {
+                Console.WriteLine(ee.ToString().Trim());
+            }
+            _serial.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(serialPort2_DataReceived);
+            // MyNewParser("003 27.52r 006      / 007  72.3r 014  1.59nr016    14nr018    76nr019114.29r 023 102.7r 026103.19r 031  0.81r 034    24nr035282.49r 061 24.83r 062 12.86r 063 20.64r 097   139r 098  3.43r 099   100r");
+            // string alldata = File.ReadAllText("E:\\TetData.txt");
+            // Parsethisandinsert(alldata, 2);
             Console.ReadLine();
 
         }
@@ -50,94 +51,106 @@ namespace SerialTest
             }
 
         }
-        static private void serialPort1_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        static bool is_FirstSYN = true;
+        static bool ReceiveBlockCount = false;
+        static int BlocksCount = 0;
+        static StringBuilder sb_Blocks = new StringBuilder();
+        static StringBuilder sb_thisBlock = new StringBuilder();
+        static Boolean startBlockReceiving = false;
+        static void serialPort2_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            //if (!_serial.IsOpen)
-            //{
-            //    _serial.Open();
-            //}
-            //string data = _serial.ReadExisting();
-            //if (data.Length > 0)
-            //{
-                
-            //    _serial.Write(new byte[1] { 0x06 }, 0, 1);
-            //    int _totalbytesrecieved = data.Length;
-            //    Console.WriteLine("Total bytes Recieved: " + data.Length);
-            //    Console.WriteLine(data);
-            //    Writedatatofile(data);
-
-            //}
-
-            //string sb = "";// new StringBuilder();
             string data = "";
-            string dataType = "BCAU480";
-            if (dataType == "ASTM")
+            try
             {
-                
-                try
+                string PortName = ((SerialPort)sender).PortName;
+                Console.WriteLine("Data received from Port:" + PortName);
+                data = _serial.ReadExisting();
+                System.IO.File.AppendAllText(System.Configuration.ConfigurationSettings.AppSettings["WriteFilePath"].ToString().Trim(), data);
+                if (data.Length > 0)
                 {
-                    data = _serial.ReadExisting();
-                    Console.WriteLine(data);
-                    // Writedatatofile(data);
-                    if (data.Length > 0)
-                    {
-                        sb.Append(data);
-                        _serial.Write(new byte[] { 0x06 }, 0, 1);
+                    // var thismachinesettings = _unitOfWork.InstrumentsRepository.GetSingle(x => x.Active == "Y" && x.PORT == "COM1");
+                    //string MachineID = thismachinesettings.CliqInstrumentID.ToString().Trim();
+                    // if (!String.IsNullOrEmpty(thismachinesettings.Acknowledgement_code))
 
-                        if (sb.ToString().Contains("L|1"))
+                    if (data[0] == Convert.ToChar(22))
+                    {
+                        if (is_FirstSYN)
                         {
-                            data = sb.ToString();
-                            //Parsethisandinsert(data,2);
-                            Writedatatofile(data);
-                            // StreamWriter sw = new StreamWriter("myfile.txt", false);
-                            // sw.Write(data);
-                            sb.Clear();
+                            _serial.Write(new byte[] { 0x16 }, 0, 1);
+                            ReceiveBlockCount=true;
+                            is_FirstSYN = false;
+                        }
+                        else
+                        {
+                            _serial.Write(new byte[] { 0x06 }, 0, 1);
+                            Parsethisandinsert(sb_Blocks.ToString(), 3);
+                            sb_Blocks.Clear();
+                            is_FirstSYN = true;
                         }
                     }
-
-
-                }
-                catch (Exception ee)
-                {
-                    Console.WriteLine("Following Exception occured in serialport datarecieved method please check." + ee.ToString());
-                }
-            }
-            else
-            {
-                Console.WriteLine("In datareceived method");
-                try
-                {
-                    data = _serial.ReadExisting();
-                    Console.WriteLine(data);
-                    // Writedatatofile(data);
-                    if (data.Length > 0)
+                    else
                     {
-                        sb.Append(data);
-                       // _serial.Write(new byte[] { 0x06 }, 0, 1);
 
-                        if (sb.ToString().Contains("DE"))
+                        if (ReceiveBlockCount)
                         {
-                            data = sb.ToString();
-                            //Parsethisandinsert(data,2);
-                            Writedatatofile(data);
-                            // StreamWriter sw = new StreamWriter("myfile.txt", false);
-                            // sw.Write(data);
-                            sb.Clear();
+                            if (int.Parse(data) > 0)
+                            {
+                                BlocksCount = int.Parse(data);
+                                ReceiveBlockCount = false;
+                                startBlockReceiving = true;
+                                _serial.Write(new byte[] { 0x06 }, 0, 1);//send Ack to machine
+                                return;
+                            }
+                            else
+                                return;
+                            
+
                         }
+                        if (startBlockReceiving)
+                        {
+                            if (data.IndexOf(Convert.ToChar(3)) == -1)
+                            {
+                                sb_thisBlock.Append(data);
+                                return;
+                            }
+                            sb_thisBlock.Append(data);
+                            sb_Blocks.Append(sb_thisBlock.ToString().Substring(0,sb_thisBlock.ToString().Length-4));
+                            if (sb_thisBlock.ToString().StartsWith(Convert.ToChar(2) + BlocksCount.ToString().PadLeft(2, '0')))
+                            {
+                                System.IO.File.AppendAllText("E:\\AllBlocks.txt", sb_Blocks.ToString());
+                               
+                                
+                                startBlockReceiving = false;
+                            }
+                            sb_thisBlock.Clear();
+                            _serial.Write(new byte[] { 0x06 }, 0, 1);
+
+
+                        }
+
+                        //send Ack to machine
+
                     }
-
+                    sb.Append(data);
+                    Console.WriteLine(data);
+                    
+                 
 
                 }
-                catch (Exception ee)
-                {
-                    Console.WriteLine("Following Exception occured in serialport datarecieved method please check." + ee.ToString());
-                }
-            
+
 
             }
+            catch (Exception ee)
+            {
+                Console.WriteLine("Following Exception occured in serialport datarecieved method please check." + ee.ToString());
+            }
+
 
 
         }
+
+
+
 
         private static void Parsethisandinsert(string data, int Parsingalgorithm)
         {
@@ -160,7 +173,7 @@ namespace SerialTest
                 ///tested on 
                 ///sysmex xs800i,cobase411,cobasu411(urine analyzer)
                 case 1:
-                    
+
                     for (int i = 0; i <= abc.GetUpperBound(0); i++)
                     {
                         string[] def = abc[i].Split(sep2);
@@ -275,7 +288,7 @@ namespace SerialTest
 
                 #region 2nd parser
                 case 2:
-                   
+
                     for (int i = 0; i <= abc.GetUpperBound(0); i++)
                     {
                         string[] def = abc[i].Split(sep2);
@@ -401,17 +414,51 @@ namespace SerialTest
                     }//case 2 ends here
                     break;
                 #endregion
+                #region 3rd parser
+                case 3:
+                    ParseBeckmanHematology(data);
+                    break;
+                #endregion
+
             }
 
         }
+
+        private static void ParseBeckmanHematology(string data)
+        {
+            var x = data.Split(new string[1]{"\r\n"}, StringSplitOptions.RemoveEmptyEntries);
+            var validentries=new string[]{"ID1 ","WBC","LY#","MO#","BA#","EO#","RBC","HGB","HCT","MCV","MCH","MCHC","RDW","PLT","MPV","PCT","RDW","LY%","MO%","EO%","BA%"};
+            foreach (string s in x)
+            {
+                bool isprocessingrequired = false;
+                foreach (string validattribute in validentries)
+                {
+                    if (s.StartsWith(validattribute))
+                    {
+                        isprocessingrequired = true;
+                        break;
+                    }
+                }
+                if (isprocessingrequired)
+                {
+
+                    var attrib = s.Substring(0, 4);
+                    var res = s.Length>10?s.Substring(4,6):s.Substring(4);
+
+                    var xxxx=    Newtonsoft.Json.JsonConvert.SerializeObject(new {attribute=attrib,result=res });
+                    System.IO.File.AppendAllText("E:\\Parsedresults.txt", xxxx+"\r\n");
+
+                }
+            }
+        }
         private static void Writedatatofile(string data)
         {
-            StreamWriter sw=new StreamWriter(System.Configuration.ConfigurationSettings.AppSettings["WriteFilePath"].ToString(),true);
+            StreamWriter sw = new StreamWriter(System.Configuration.ConfigurationSettings.AppSettings["WriteFilePath"].ToString(), true);
             sw.Write(data);
             sw.Dispose();
 
-            
-         //   throw new NotImplementedException();
+
+            //   throw new NotImplementedException();
         }
 
     }

@@ -14,6 +14,7 @@ using System.Data.OleDb;
 using DataModel;
 using BusinessEntities;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace TestService
 {
@@ -46,16 +47,25 @@ namespace TestService
             eventLog1.ModifyOverflowPolicy(OverflowAction.OverwriteAsNeeded, 1);
 
             serialPort1.Open();
+            try
+            {
+                serialPort2.Open();
+            }
+            catch(Exception ee) {
+                eventLog1.WriteEntry("Unable to Open Port 2. Please check port number.",EventLogEntryType.Error);
+            }
             //   Main(null, null);
             this.timer = new System.Timers.Timer(60000D);  // 30000 milliseconds = 30 seconds
             this.timer.AutoReset = true;
             this.timer.Elapsed += new System.Timers.ElapsedEventHandler(this.Main);
-            if(System.Configuration.ConfigurationSettings.AppSettings["IsUpdateRemoteDatabase"].ToString().Trim()=="Y")
+            if (System.Configuration.ConfigurationSettings.AppSettings["IsUpdateRemoteDatabase"].ToString().Trim() == "Y")
                 this.timer.Start();
+
 
             this.timer_deleteolddata = new System.Timers.Timer(24 * 60 * 60 * 1000);//Run this timer method after one day
             this.timer_deleteolddata.AutoReset = true;
             this.timer_deleteolddata.Elapsed += new System.Timers.ElapsedEventHandler(this.Deleteolddate);
+            this.timer_deleteolddata.Start();
         }
 
         private void serialPort1_DataReceived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
@@ -64,7 +74,9 @@ namespace TestService
             string data = "";
             try
             {
-                data = serialPort1.ReadExisting();
+
+                data = ((System.IO.Ports.SerialPort)sender).ReadExisting();
+
                 if (data.Length > 0)
                 {
                     var thismachinesettings = _unitOfWork.InstrumentsRepository.GetSingle(x => x.Active == "Y" && x.PORT == "COM1");
@@ -73,8 +85,9 @@ namespace TestService
                         serialPort1.Write(new byte[] { 0x06 }, 0, 1);//send Ack to machine
                     sb_port1.Append(data);
                     //eventLog1.WriteEntry(data);
+                    LogReceivedData(MachineID, data);
                     System.IO.File.AppendAllText(System.Configuration.ConfigurationSettings.AppSettings["ReceivedDataLogFile"].ToString().Trim(), data);
-                    if (sb_port1.ToString().Split(new string[] { "D ", "DR", "DH", "DQ", "d ", "DA", "dH", "DE" }, StringSplitOptions.RemoveEmptyEntries).Length>0)//For Au480 temporary//L|1 is a terminator record according to astm standards
+                    if (sb_port1.ToString().Contains("DE"))//.Split(new string[] { "D ", "DR", "DH", "DQ", "d ", "DA", "dH", "DE" }, StringSplitOptions.RemoveEmptyEntries).Length>0//For Au480 temporary//L|1 is a terminator record according to astm standards
                     {
                         ///if the recieved string contains the terminator
                         ///then parse the record and Clear the string
@@ -84,19 +97,24 @@ namespace TestService
                         eventLog1.WriteEntry("data after Terminator: " + sb_port1.ToString());
                         string parsingdata = sb_port1.ToString();
                         sb_port1.Clear();
-                         
-                       // System.Threading.Thread t = new System.Threading.Thread(Parsethisandinsert(parsingdata,thismachinesettings.ParsingAlgorithm,MachineID));
                         Parsethisandinsert(parsingdata, thismachinesettings.ParsingAlgorithm, MachineID);
-                       // parsingdata = string.Empty;
+                        //t.Start();
+                        //Parsethisandinsert(parsingdata, thismachinesettings.ParsingAlgorithm, MachineID);
+                        // parsingdata = string.Empty;
 
 
                     }
-                    //else if (sb_port1.ToString().Split(new char[1] { Convert.ToChar(3) }).Length > 0)
-                    //{
-                    //
-                    //    eventLog1.WriteEntry("data after Terminator2: " + sb_port1.ToString());
-                    //    Parsethisandinsert(sb_port1.ToString().Substring(0, sb_port1.ToString().LastIndexOf(Convert.ToChar(3))), thismachinesettings.ParsingAlgorithm, MachineID);
-                    //}
+                    else if (sb_port1.ToString().Contains("D ") && sb_port1.ToString().Contains(Convert.ToChar(3)) && sb_port1.ToString().Contains("          "))
+                    {
+
+                        eventLog1.WriteEntry("data after Terminator2: " + sb_port1.ToString());
+                        string data_tobeparsed = sb_port1.ToString().Substring(sb_port1.ToString().LastIndexOf(Convert.ToChar(3)));
+                        Parsethisandinsert(sb_port1.ToString().Substring(0, sb_port1.ToString().LastIndexOf(Convert.ToChar(3))), thismachinesettings.ParsingAlgorithm, MachineID);
+                        sb_port1.Clear();
+                        sb_port1.Append(data_tobeparsed);
+                        //t.Start();
+                        //  Parsethisandinsert(sb_port1.ToString().Substring(0, sb_port1.ToStripng().LastIndexOf(Convert.ToChar(3))), thismachinesettings.ParsingAlgorithm, MachineID);
+                    }
 
                 }
 
@@ -107,6 +125,69 @@ namespace TestService
                 eventLog1.WriteEntry("Following Exception occured in serialport datarecieved method please check." + ee.ToString());
             }
 
+        }
+        private void serialPort2_DataReceived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
+        {
+            string data = "";
+            try
+            {
+
+                data = serialPort2.ReadExisting();
+
+                if (data.Length > 0)
+                {
+                    var thismachinesettings = _unitOfWork.InstrumentsRepository.GetSingle(x => x.Active == "Y" && x.PORT == "COM8");
+                    string MachineID = thismachinesettings.CliqInstrumentID.ToString().Trim();
+                    if (!String.IsNullOrEmpty(thismachinesettings.Acknowledgement_code))
+                        serialPort1.Write(new byte[] { 0x06 }, 0, 1);//send Ack to machine
+                    sb_port2.Append(data);
+                    //eventLog1.WriteEntry(data);
+                    LogReceivedData(MachineID, data);
+                    System.IO.File.AppendAllText(System.Configuration.ConfigurationSettings.AppSettings["ReceivedDataLogFile"].ToString().Trim(), data);
+                    if (sb_port2.ToString().Contains("DE"))//.Split(new string[] { "D ", "DR", "DH", "DQ", "d ", "DA", "dH", "DE" }, StringSplitOptions.RemoveEmptyEntries).Length>0//For Au480 temporary//L|1 is a terminator record according to astm standards
+                    {
+                        ///if the recieved string contains the terminator
+                        ///then parse the record and Clear the string
+                        ///Builder for next Record.
+                        ///
+
+                       eventLog1.WriteEntry("COM 8 data after Terminator: " + sb_port2.ToString());
+                        string parsingdata = sb_port2.ToString();
+                        sb_port2.Clear();
+                        Parsethisandinsert(parsingdata, thismachinesettings.ParsingAlgorithm, MachineID);
+                        //t.Start();
+                        //Parsethisandinsert(parsingdata, thismachinesettings.ParsingAlgorithm, MachineID);
+                        // parsingdata = string.Empty;
+
+
+                    }
+                    else if (sb_port2.ToString().Contains("D ") && sb_port2.ToString().Contains(Convert.ToChar(3)) && sb_port2.ToString().Contains("          "))
+                    {
+
+                        eventLog1.WriteEntry("COM8 data after Terminator2: " + sb_port2.ToString());
+                        string data_tobeparsed = sb_port2.ToString().Substring(sb_port2.ToString().LastIndexOf(Convert.ToChar(3)));
+                        Parsethisandinsert(sb_port2.ToString().Substring(0, sb_port2.ToString().LastIndexOf(Convert.ToChar(3))), thismachinesettings.ParsingAlgorithm, MachineID);
+                        sb_port2.Clear();
+                        sb_port2.Append(data_tobeparsed);
+                    }
+
+                }
+
+
+            }
+            catch (Exception ee)
+            {
+                eventLog1.WriteEntry("Following Exception occured in serialport datarecieved method please check." + ee.ToString());
+            }
+
+        }
+        private void LogReceivedData(string MachineID, string data)
+        {
+            string DirInfo = AppDomain.CurrentDomain.BaseDirectory;
+
+            if (!Directory.Exists(Path.Combine(DirInfo, "ReceivedDataLogFiles")))
+                Directory.CreateDirectory(Path.Combine(DirInfo, "ReceivedDataLogFiles"));
+            File.AppendAllText(Path.Combine(Path.Combine(DirInfo, "ReceivedDataLogFiles"), MachineID + ".txt"), data);
         }
         private void Parsethisandinsert(string data, int Parsingalgorithm, string MachineID)
         {
@@ -284,7 +365,7 @@ namespace TestService
         {
 
             var text = data;
-            var splitter1 = new string[] { "D ", "DR", "DH", "DQ", "d ", "DA", "dH", "DE" };
+            var splitter1 = new char[] { Convert.ToChar(3) };// "D ", "DR", "DH", "DQ", "d ", "DA", "dH", "DE" 
             var splitter2 = new string[] { " " };
             var arrayafter1stseperator = text.Split(splitter1, StringSplitOptions.RemoveEmptyEntries);
             string labid = "";
@@ -300,12 +381,12 @@ namespace TestService
 
                     var arrayafter2ndseperator = str1.Substring(0, 40).Split(splitter2, StringSplitOptions.RemoveEmptyEntries);
                     //eventLog1.WriteEntry(str1.Substring(0,40));
-                    if (arrayafter2ndseperator.Length == 3)
+                    if (arrayafter2ndseperator.Length > 3)
                     {
-                        labid = arrayafter2ndseperator[2];
+                        labid = arrayafter2ndseperator[3];
                         //eventLog1.WriteEntry(str1.Substring(0, 40));
-                        string testsandresults = str1.Substring(40).TrimStart().Replace("E", "");
-
+                        //string testsandresults = str1.Substring(40).TrimStart().Replace("E", "");
+                        string testsandresults = str1.Substring(45);
                         int thisordertestscount = Convert.ToInt32(Math.Round(testsandresults.Length / 11.0));
                         string[] indtestanditsresult = new string[thisordertestscount];
                         for (int i = 0; i < thisordertestscount; i++)
@@ -345,7 +426,7 @@ namespace TestService
                                         Status = "N"
                                     };
                                     var resultserialized = Newtonsoft.Json.JsonConvert.SerializeObject(objresult);
-                                    eventLog1.WriteEntry("Serialized result: " + resultserialized);
+                                    eventLog1.WriteEntry(MachineID+" Serialized result: " + resultserialized);
                                     _unitOfWork.ResultsRepository.Insert(objresult);
 
                                 }
@@ -423,7 +504,7 @@ namespace TestService
 
                     if (content.Length > 0)
                     {
-
+                        eventLog1.WriteEntry("Post call response: " + content);
                         var cliqresultresponse = Newtonsoft.Json.JsonConvert.DeserializeObject<List<CliqResultResponse>>(content);
 
                         clsBLMain objMain = null;
@@ -535,6 +616,8 @@ namespace TestService
                 eventLog1.WriteEntry("Error while deleting old data: " + _main.Error);
             }
         }
+
+        
 
 
 

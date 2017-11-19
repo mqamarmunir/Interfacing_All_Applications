@@ -6,8 +6,8 @@
     </Key>
     <Property Name="id" Type="uint" StoreGeneratedPattern="Identity" Nullable="false" />
     <Property Name="BranchID" Type="uint" Nullable="false" />
-    <Property Name="Test_ID" Type="uint" Nullable="false" />
-    <Property Name="TestName" Type="varchar" MaxLength="200" Nullable="false" />
+    <Property Name="Test_ID" Type="uint" />
+    <Property Name="TestName" Type="varchar" MaxLength="200" />
     <Property Name="CliqAttributeID" Type="uint" Nullable="false" />
     <Property Name="AttributeName" Type="varchar" MaxLength="100" Nullable="false" />
     <Property Name="MachineAttributeCode" Type="varchar" MaxLength="30" Nullable="false" />
