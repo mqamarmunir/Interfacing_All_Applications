@@ -176,7 +176,7 @@ namespace TestService
                                     return;
                                 }
                                 sb_thisBlock.Append(data);
-                                sb_Blocks.Append(sb_thisBlock.ToString().Substring(0, sb_thisBlock.ToString().Length - 5));
+                                sb_Blocks.Append(sb_thisBlock.ToString().Substring(3, sb_thisBlock.ToString().Length - 8));//Remove initial and trailing block headers
                                 if (sb_thisBlock.ToString().StartsWith(Convert.ToChar(2) + BlocksCount.ToString().PadLeft(2, '0')))
                                 {
                                     //System.IO.File.AppendAllText("E:\\AllBlocks.txt", sb_Blocks.ToString());
@@ -292,9 +292,16 @@ namespace TestService
 
         private void ParseBeckManLH750(string data, string MachineID)
         {
+            string DirInfo = AppDomain.CurrentDomain.BaseDirectory;
+
+            if (!Directory.Exists(Path.Combine(DirInfo, "ReceivedDataLogFiles")))
+                Directory.CreateDirectory(Path.Combine(DirInfo, "ReceivedDataLogFiles"));
+            File.AppendAllText(Path.Combine(Path.Combine(DirInfo, "ReceivedDataLogFiles"), "AllBlocksCombined.txt"), data);
+
+
             var x = data.Split(new string[1] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
-            var validentries = new string[] { "WBC", "LY#", "MO#", "BA#", "EO#", "RBC", "HGB", "HCT", "MCV", "MCH", "MCHC", "RDW", "PLT", "MPV", "PCT", "RDW", "LY%", "MO%", "EO%", "BA%" };
-            string labid = x.Where(v => v.StartsWith("PID ")).FirstOrDefault().Substring(4);
+            var validentries = new string[] { "WBC", "LY#", "MO#", "BA#", "EO#", "RBC", "HGB", "HCT", "MCV", "MCH", "MCHC", "RDW", "PLT", "MPV", "PCT", "RDW", "LY%", "MO%", "EO%", "BA%", "NE%", "NE#" };
+            string labid = x.Where(v => v.StartsWith("PID ")).Count()>0?x.Where(v => v.StartsWith("PID ")).FirstOrDefault().Substring(4):"";
             foreach (string s in x)
             {
                 try

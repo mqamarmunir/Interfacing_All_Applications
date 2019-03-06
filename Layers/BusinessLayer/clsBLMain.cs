@@ -145,8 +145,11 @@ namespace BusinessLayer
                     objdbhims.Query = "SELECT Attributeid,LimsAttributeName FROM mi_ttestattribute m where m.Active='Y' and Machine_testid=" + this._TestID;
                     break;
                 case 7:
-                    objdbhims.Query = @"SELECT m.resultid,m.BookingID,(Select c.test_id from cliqmachinemappings c where c.machineattributecode=m.attributeid and c.Active=1 limit 1) as cliqtestid,(Select c.CliqAttributeID from cliqmachinemappings c where c.machineattributecode=m.attributeid and c.active=1 limit 1) as CliqAttributeid,m.result,m.clientid,m.machineName MachineID,m.attributeid machineAttributeCode
-                                        FROM mi_tresult m where m.Status='N' order by resultid asc limit 20";
+                    objdbhims.Query = @"SELECT m.resultid,m.BookingID,
+                                        (Select c.test_id from cliqmachinemappings c where c.machineattributecode=m.attributeid and c.Active=1 limit 1) as cliqtestid,
+                                        (Select c.CliqAttributeID from cliqmachinemappings c where c.machineattributecode=m.attributeid and c.active=1 limit 1) as CliqAttributeid,
+                                        m.result,m.clientid,m.machineName MachineID,m.attributeid machineAttributeCode
+                                        FROM mi_tresult m where m.Status='N' and enteredon between date_sub(now(),interval 1 hour) and now() order by resultid asc limit 20";
 //                    objdbhims.Query = @"SELECT m.resultid,m.BookingID,c.Test_ID cliqtestid,c.CliqAttributeID,m.result,m.clientid,m.machineName MachineID,m.attributeid MachineAttributeCode
 //                                        FROM mi_tresult m inner join cliqmachinemappings c on c.machineattributecode=m.attributeid
 //                                        Where m.Status='N'
