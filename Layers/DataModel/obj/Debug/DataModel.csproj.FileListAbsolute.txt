@@ -17,3 +17,10 @@ E:\Projects\Trees\InterfacingAllApps\Layers\DataModel\bin\Debug\DataModel.pdb
 E:\Projects\Trees\InterfacingAllApps\Layers\DataModel\obj\Debug\DataModel.dll
 E:\Projects\Trees\InterfacingAllApps\Layers\DataModel\obj\Debug\DataModel.pdb
 E:\Projects\Trees\InterfacingAllApps\Layers\DataModel\obj\Debug\DataModel.csprojResolveAssemblyReference.cache
+E:\Qamar\Personal\Projects\Trees\InterfacingAllApps\Layers\DataModel\bin\Debug\DataModel.dll.config
+E:\Qamar\Personal\Projects\Trees\InterfacingAllApps\Layers\DataModel\bin\Debug\DataModel.dll
+E:\Qamar\Personal\Projects\Trees\InterfacingAllApps\Layers\DataModel\bin\Debug\DataModel.pdb
+E:\Qamar\Personal\Projects\Trees\InterfacingAllApps\Layers\DataModel\obj\Debug\DataModel.csproj.CoreCompileInputs.cache
+E:\Qamar\Personal\Projects\Trees\InterfacingAllApps\Layers\DataModel\obj\Debug\DataModel.csproj.CopyComplete
+E:\Qamar\Personal\Projects\Trees\InterfacingAllApps\Layers\DataModel\obj\Debug\DataModel.dll
+E:\Qamar\Personal\Projects\Trees\InterfacingAllApps\Layers\DataModel\obj\Debug\DataModel.pdb

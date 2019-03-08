@@ -153,3 +153,13 @@ E:\Projects\Trees\InterfacingAllApps\Layers\DataLayer\bin\Debug\DataLayer.pdb
 E:\Projects\Trees\InterfacingAllApps\Layers\DataLayer\obj\Debug\DataLayer.dll
 E:\Projects\Trees\InterfacingAllApps\Layers\DataLayer\obj\Debug\DataLayer.pdb
 E:\Projects\Trees\InterfacingAllApps\Layers\DataLayer\obj\Debug\DataLayer.csprojResolveAssemblyReference.cache
+E:\Qamar\Personal\Projects\Trees\InterfacingAllApps\Layers\DataLayer\bin\Debug\DataLayer.dll
+E:\Qamar\Personal\Projects\Trees\InterfacingAllApps\Layers\DataLayer\bin\Debug\DataLayer.pdb
+E:\Qamar\Personal\Projects\Trees\InterfacingAllApps\Layers\DataLayer\bin\Debug\MySql.Data.dll
+E:\Qamar\Personal\Projects\Trees\InterfacingAllApps\Layers\DataLayer\bin\Debug\Google.Protobuf.dll
+E:\Qamar\Personal\Projects\Trees\InterfacingAllApps\Layers\DataLayer\bin\Debug\MySql.Data.xml
+E:\Qamar\Personal\Projects\Trees\InterfacingAllApps\Layers\DataLayer\obj\Debug\DataLayer.csprojAssemblyReference.cache
+E:\Qamar\Personal\Projects\Trees\InterfacingAllApps\Layers\DataLayer\obj\Debug\DataLayer.csproj.CoreCompileInputs.cache
+E:\Qamar\Personal\Projects\Trees\InterfacingAllApps\Layers\DataLayer\obj\Debug\DataLayer.csproj.CopyComplete
+E:\Qamar\Personal\Projects\Trees\InterfacingAllApps\Layers\DataLayer\obj\Debug\DataLayer.dll
+E:\Qamar\Personal\Projects\Trees\InterfacingAllApps\Layers\DataLayer\obj\Debug\DataLayer.pdb
