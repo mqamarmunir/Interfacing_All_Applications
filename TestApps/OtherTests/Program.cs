@@ -3,6 +3,8 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.IO;
+using DataModel;
 
 // State object for reading client data asynchronously  
 public class StateObject
@@ -19,11 +21,13 @@ public class StateObject
 
 public class AsynchronousSocketListener
 {
+    private static UnitOfWork _unitOfWork;
     // Thread signal.  
     public static ManualResetEvent allDone = new ManualResetEvent(false);
 
     public AsynchronousSocketListener()
     {
+        _unitOfWork = new UnitOfWork();
     }
 
     public static void StartListening()
@@ -35,10 +39,15 @@ public class AsynchronousSocketListener
         // The DNS name of the computer  
         // running the listener is "host.contoso.com".  
         IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
-        
-        IPAddress ipAddress = ipHostInfo.AddressList.Length>1?ipHostInfo.AddressList[1]:ipHostInfo.AddressList[0];
+
+        IPAddress ipAddress = IPAddress.Parse(System.Configuration.ConfigurationSettings.AppSettings["IpAddress"].ToString().Trim());//ipHostInfo.AddressList.Length>1?ipHostInfo.AddressList[1]:ipHostInfo.AddressList[0];
         Console.WriteLine("Listening on IP:"+ ipAddress.ToString());
-        IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 11000);
+        int Port = 0;
+        bool x = int.TryParse(System.Configuration.ConfigurationSettings.AppSettings["Port"].ToString().Trim(), out Port);
+        if (!x)
+            Console.WriteLine("Port not correct");
+
+        IPEndPoint localEndPoint = new IPEndPoint(ipAddress, Port);
 
         // Create a TCP/IP socket.  
         Socket listener = new Socket(ipAddress.AddressFamily,
@@ -122,6 +131,9 @@ public class AsynchronousSocketListener
                 // client. Display it on the console.  
                 Console.WriteLine("Read {0} bytes from socket. \n Data : {1}",
                     content.Length, content);
+                if(!File.Exists(System.Configuration.ConfigurationSettings.AppSettings["WriteFilePath"]))
+                    File.Create(System.Configuration.ConfigurationSettings.AppSettings["WriteFilePath"]);
+                File.AppendAllText(System.Configuration.ConfigurationSettings.AppSettings["WriteFilePath"].ToString(), content);
                 Parsethisandinsert(content, 1, "3");
                 // Echo the data back to the client.  
                 Send(handler, new byte[] { 0x06 });//send ack
@@ -188,6 +200,7 @@ public class AsynchronousSocketListener
     {
         var data = System.IO.File.ReadAllText("E:\\WriteMe.txt");
         var x = data.Split(new char[]{Convert.ToChar(3)});
+        Parsethisandinsert(data, 1, "1");
         Console.WriteLine("abc");
         //foreach (char c in data.ToCharArray())
         //{
@@ -220,6 +233,7 @@ public class AsynchronousSocketListener
         string attribresult = "";
         string attribcode = "";
         string patid = "";
+        string machineName = "";
 
         string[] sep1 = { "L|1" };
 
@@ -240,6 +254,7 @@ public class AsynchronousSocketListener
                     string[] header = def[j].Split(sep3);
                     try
                     {
+                        machineName = header[4].Split(sep4)[0].Trim();
                         datetime = header[13].ToString();
                     }
                     catch { }
@@ -261,11 +276,17 @@ public class AsynchronousSocketListener
                     ///Get lab ID
                     string[] order = def[j].Split(sep3);
                     labid = order[2].ToString();
+                    if (String.IsNullOrEmpty(labid))
+                    {
+                        labid = order[3];
+                    }
                     if (labid.Contains("^"))
                     {
                         string[] splitlabid = labid.Split(sep4);
-                        labid = splitlabid[1].ToString().Trim();
+                        labid = splitlabid[1].ToString().Trim().Length<4 ? splitlabid[2].Trim():splitlabid[1].Trim();
+
                     }
+                   
                 }
                 else if (def[j].Length > 5 && def[j].Substring(3, 2).Equals("O|"))
                 {
@@ -355,7 +376,7 @@ public class AsynchronousSocketListener
                     };
                     var resultserialized = Newtonsoft.Json.JsonConvert.SerializeObject(objresult);
                     Console.WriteLine(MachineID + " Serialized result: " + resultserialized);
-                 //   _unitOfWork.ResultsRepository.Insert(objresult);
+                    _unitOfWork.ResultsRepository.Insert(objresult);
                     //string pars = labid + "," + attribcode + "," + System.DateTime.Now.ToString("dd/MM/yyyy HH:mm") + "," + attribresult;
                     ////writeLog("parsed data: " + pars);
                     ////Console.WriteLine("parsed string:" + pars);

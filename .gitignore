@@ -154,3 +154,10 @@ $RECYCLE.BIN/
 
 # Mac desktop service store files
 .DS_Store
+/packages/Newtonsoft.Json.10.0.3
+/packages/MySql.Data.6.8.8
+/packages/log4net.2.0.8
+/packages/Google.Protobuf.3.5.1
+/packages/EntityFramework.6.2.0
+/packages/EntityFramework.5.0.0
+/packages/AutoMapper.6.1.1

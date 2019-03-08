@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.271
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsApplication5", "WindowsApplication5.csproj", "{43CFE3AF-2288-4F68-AF81-356EA2D64856}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -15,8 +15,16 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataLayer", "Layers\DataLayer\DataLayer.csproj", "{637233D8-D88F-45C4-93E5-CE52AD0E7480}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessLayer", "Layers\BusinessLayer\BusinessLayer.csproj", "{E4F39E83-8E76-46FF-A4BE-0D58B1400544}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C726A49D-2041-4498-B2A8-7D0762B08FA0} = {C726A49D-2041-4498-B2A8-7D0762B08FA0}
+		{6B60B3B4-BD60-44EB-943A-D1E2146D88CB} = {6B60B3B4-BD60-44EB-943A-D1E2146D88CB}
+		{637233D8-D88F-45C4-93E5-CE52AD0E7480} = {637233D8-D88F-45C4-93E5-CE52AD0E7480}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessEntities", "Layers\BusinessEntities\BusinessEntities.csproj", "{C726A49D-2041-4498-B2A8-7D0762B08FA0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6B60B3B4-BD60-44EB-943A-D1E2146D88CB} = {6B60B3B4-BD60-44EB-943A-D1E2146D88CB}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestService", "TestService\TestService.csproj", "{E7BB421C-84D7-49FF-9CB9-E200E7F9E522}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -30,6 +38,11 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SerialTest", "TestApps\SerialTest\SerialTest.csproj", "{D66EF136-FD2E-4482-A857-9F4C002E3D75}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OtherTests", "TestApps\OtherTests\OtherTests.csproj", "{78EC4ADD-3450-41AB-9515-BB3A2409888E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E4F39E83-8E76-46FF-A4BE-0D58B1400544} = {E4F39E83-8E76-46FF-A4BE-0D58B1400544}
+		{C726A49D-2041-4498-B2A8-7D0762B08FA0} = {C726A49D-2041-4498-B2A8-7D0762B08FA0}
+		{6B60B3B4-BD60-44EB-943A-D1E2146D88CB} = {6B60B3B4-BD60-44EB-943A-D1E2146D88CB}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -128,5 +141,8 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{D66EF136-FD2E-4482-A857-9F4C002E3D75} = {A1BA0D97-5831-4DD9-BD49-409B118964C8}
 		{78EC4ADD-3450-41AB-9515-BB3A2409888E} = {A1BA0D97-5831-4DD9-BD49-409B118964C8}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {291FD78D-976E-48B5-805F-683559D4F60D}
 	EndGlobalSection
 EndGlobal
