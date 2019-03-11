@@ -5,7 +5,13 @@ using System.Text;
 using System.Threading;
 using System.IO;
 using DataModel;
+using System.Timers;
 
+using BusinessLayer;
+using BusinessEntities;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 // State object for reading client data asynchronously  
 public class StateObject
 {
@@ -21,13 +27,16 @@ public class StateObject
 
 public class AsynchronousSocketListener
 {
-    private static UnitOfWork _unitOfWork;
+    private static System.Timers.Timer timer;//=new System.Timers.Timer(60000D);
+    private static UnitOfWork _unitOfWork = new UnitOfWork();
     // Thread signal.  
+
+    //private static Timer timer_deleteolddata;
     public static ManualResetEvent allDone = new ManualResetEvent(false);
 
     public AsynchronousSocketListener()
     {
-        _unitOfWork = new UnitOfWork();
+
     }
 
     public static void StartListening()
@@ -38,10 +47,10 @@ public class AsynchronousSocketListener
         // Establish the local endpoint for the socket.  
         // The DNS name of the computer  
         // running the listener is "host.contoso.com".  
-        IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
+        // IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
 
         IPAddress ipAddress = IPAddress.Parse(System.Configuration.ConfigurationSettings.AppSettings["IpAddress"].ToString().Trim());//ipHostInfo.AddressList.Length>1?ipHostInfo.AddressList[1]:ipHostInfo.AddressList[0];
-        Console.WriteLine("Listening on IP:"+ ipAddress.ToString());
+        Console.WriteLine("Listening on IP:" + ipAddress.ToString());
         int Port = 0;
         bool x = int.TryParse(System.Configuration.ConfigurationSettings.AppSettings["Port"].ToString().Trim(), out Port);
         if (!x)
@@ -66,7 +75,8 @@ public class AsynchronousSocketListener
 
                 // Start an asynchronous socket to listen for connections.  
                 Console.WriteLine("Waiting for a connection...");
-                listener.BeginAccept(
+                if (!listener.Connected)
+                    listener.BeginAccept(
                     new AsyncCallback(AcceptCallback),
                     listener);
 
@@ -109,9 +119,13 @@ public class AsynchronousSocketListener
         // from the asynchronous state object.  
         StateObject state = (StateObject)ar.AsyncState;
         Socket handler = state.workSocket;
-
+        SocketError errorCode;
         // Read data from the client socket.   
-        int bytesRead = handler.EndReceive(ar);
+        int bytesRead = handler.EndReceive(ar, out errorCode);
+        if (errorCode != SocketError.Success)
+        {
+            bytesRead = 0;
+        }
 
         if (bytesRead > 0)
         {
@@ -120,23 +134,39 @@ public class AsynchronousSocketListener
                 state.buffer, 0, bytesRead));
 
             //byte[] ack=;
-            
+
 
             // Check for end-of-file tag. If it is not there, read   
             // more data.  
-            content = state.sb.ToString();
-            if (content.IndexOf("L|1") > -1)
+            Send(handler, new byte[] { 0x06 });//send ack
+
+            if (state.sb.ToString().IndexOf("L|1") > -1)
             {
+                content = state.sb.ToString();
+                state.sb.Clear();
+                var machineSettings = _unitOfWork.InstrumentsRepository.GetAll().Where(x => x.IpAddress == (state.workSocket.RemoteEndPoint as IPEndPoint).Address.ToString()).FirstOrDefault();
+                if (machineSettings != null && machineSettings.CliqInstrumentID.HasValue)
+                {
+                    Console.WriteLine("Read {0} bytes from socket. \n Data : {1}",
+                   content.Length, content);
+                    //if(!File.Exists(System.Configuration.ConfigurationSettings.AppSettings["WriteFilePath"]))
+                    //    File.Create(System.Configuration.ConfigurationSettings.AppSettings["WriteFilePath"]);
+                    File.AppendAllText(System.Configuration.ConfigurationSettings.AppSettings["WriteFilePath"].ToString(), content);
+                    Parsethisandinsert(content, 1, machineSettings.InstrumentID);
+                }
+                else
+                {
+                    ///Log here Invalid Machine
+                    ///
+                    Console.WriteLine("Machine not registered");
+                }
                 // All the data has been read from the   
                 // client. Display it on the console.  
-                Console.WriteLine("Read {0} bytes from socket. \n Data : {1}",
-                    content.Length, content);
-                if(!File.Exists(System.Configuration.ConfigurationSettings.AppSettings["WriteFilePath"]))
-                    File.Create(System.Configuration.ConfigurationSettings.AppSettings["WriteFilePath"]);
-                File.AppendAllText(System.Configuration.ConfigurationSettings.AppSettings["WriteFilePath"].ToString(), content);
-                Parsethisandinsert(content, 1, "3");
+
+                handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
+                new AsyncCallback(ReadCallback), state);
                 // Echo the data back to the client.  
-                Send(handler, new byte[] { 0x06 });//send ack
+
             }
             else
             {
@@ -177,8 +207,8 @@ public class AsynchronousSocketListener
             int bytesSent = handler.EndSend(ar);
             Console.WriteLine("Sent {0} bytes to client.", bytesSent);
 
-            handler.Shutdown(SocketShutdown.Both);
-            handler.Close();
+            //handler.Shutdown(SocketShutdown.Both);
+            //handler.Close();
 
         }
         catch (Exception e)
@@ -189,18 +219,126 @@ public class AsynchronousSocketListener
 
     public static int Main(String[] args)
     {
-        //StartListening();
-        ParseBeckManHematology();
-
+        timer = new System.Timers.Timer(30000D);  // 30000 milliseconds = 30 seconds
+        timer.AutoReset = true;
+        timer.Elapsed += new System.Timers.ElapsedEventHandler(UpdateRemoteDatabase);
+        if (System.Configuration.ConfigurationSettings.AppSettings["IsUpdateRemoteDatabase"].ToString().Trim() == "Y")
+            timer.Start();
+         StartListening();
+        //ParseBeckManHematology();
+        //UpdateRemoteDatabase(null,null);
         Console.ReadLine();
         return 0;
+    }
+
+    private static async void UpdateRemoteDatabase(object sender, ElapsedEventArgs e)
+    {
+        timer.Stop();
+        #region Web Service Methodology
+        clsBLMain objMai = new clsBLMain();
+        DataView dv = objMai.GetAll(9);
+        if (dv.Count > 0)
+        {
+            //Console.WriteLine("Found results:" + dv.Count.ToString());
+            try
+            {
+                List<cliqresultsNew> lstresults = new List<cliqresultsNew>();
+                for (int i = 0; i < dv.Count; i++)
+                {
+                    lstresults.Add(new cliqresultsNew
+                    {
+                        ResultID = Convert.ToInt32(dv[i]["ResultID"].ToString().Trim()),
+                        BookingID = dv[i]["BookingID"].ToString().Trim(),
+                        ClientID = dv[i]["ClientID"].ToString().Trim(),
+
+                        CliqMachineID = dv[i]["CliqInstrumentId"].ToString().Trim(),
+                        Result = dv[i]["Result"].ToString().Trim(),
+                        MachineAttributeCode = dv[i]["AttributeId"].ToString().Trim()
+
+                    });
+                }
+
+                var json = Newtonsoft.Json.JsonConvert.SerializeObject(lstresults);
+                var content = await Helper.CallCliqApi(System.Configuration.ConfigurationSettings.AppSettings["WebServicebasePath"].ToString().Trim() + "/Values?json=" + json.ToString().Trim());
+
+                if (content.Length > 0)
+                {
+                    Console.WriteLine("Post call response: " + content);
+                    var cliqresultresponse = Newtonsoft.Json.JsonConvert.DeserializeObject<CliqResultResponseNew>(content);
+
+                    clsBLMain objMain = null;
+                    foreach (var result in lstresults)
+                    {
+                        objMain = new clsBLMain();
+                        objMain.status = "Y";
+                        objMain.Sentto = System.Configuration.ConfigurationSettings.AppSettings["WebServicebasePath"].ToString().Trim() + "/Values";
+                        objMain.Senton = System.DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss tt");
+                        objMain.ResultID = result.ResultID.ToString();
+                        try
+                        {
+                            objMain.Update();
+
+                        }
+                        catch (Exception ee)
+                        {
+                            Console.WriteLine("Error while updating local record id: " + result.ResultID.ToString() + "-------" + ee.ToString());
+                        }
+
+                    }
+
+
+                }
+                else
+                {
+                    clsBLMain objMain = null;
+                    Console.WriteLine("Some Problem occured in remote call. Call: " + System.Configuration.ConfigurationSettings.AppSettings["WebServicebasePath"].ToString().Trim() + "/ricapi/site/curl_data?str=" + json.ToString().Trim());
+                    foreach (var result in lstresults)
+                    {
+                        objMain = new clsBLMain();
+                        objMain.status = "X";
+                        objMain.Sentto = System.Configuration.ConfigurationSettings.AppSettings["WebServicebasePath"].ToString().Trim() + "/values";
+                        objMain.Senton = System.DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss tt");
+                        objMain.ResultID = result.ResultID.ToString();
+                        try
+                        {
+                            objMain.Update();
+
+                        }
+                        catch (Exception ee)
+                        {
+                            Console.WriteLine("Error while updating local record id: " + result.ResultID.ToString() + "-------" + ee.ToString());
+                        }
+
+                    }
+                }
+            }
+            catch (Exception ee)
+            {
+                Console.WriteLine(ee.Message.ToString());
+                //Console.WriteLine(ee.ToString(), EventLogEntryType.Error);
+                // MessageBox.Show(ee.Message);
+            }
+            finally
+            {
+                timer.Start();
+            }
+
+
+        }
+        else
+        {
+            Console.WriteLine("No pending results");
+            timer.Start();
+        }
+
+        #endregion
     }
 
     private static void ParseBeckManHematology()
     {
         var data = System.IO.File.ReadAllText("E:\\WriteMe.txt");
-        var x = data.Split(new char[]{Convert.ToChar(3)});
-        Parsethisandinsert(data, 1, "1");
+        var x = data.Split(new char[] { Convert.ToChar(3) });
+        Parsethisandinsert(data, 1, 1);
         Console.WriteLine("abc");
         //foreach (char c in data.ToCharArray())
         //{
@@ -209,7 +347,7 @@ public class AsynchronousSocketListener
         //    System.IO.File.AppendAllText("E:\\writebytes.txt",c + "      " + Convert.ToByte(c)+"\n");
         //}
     }
-    private static void Parsethisandinsert(string data, int Parsingalgorithm, string MachineID)
+    private static void Parsethisandinsert(string data, int Parsingalgorithm, long MachineID)
     {
 
         switch (Parsingalgorithm)
@@ -226,7 +364,7 @@ public class AsynchronousSocketListener
                 break;
         }
     }
-    private static void ParseASTMData(string data, string MachineID)
+    private static void ParseASTMData(string data, long MachineID)
     {
         string datetime = "";
         string labid = "";
@@ -276,17 +414,17 @@ public class AsynchronousSocketListener
                     ///Get lab ID
                     string[] order = def[j].Split(sep3);
                     labid = order[2].ToString();
-                    if (String.IsNullOrEmpty(labid))
+                    if (String.IsNullOrEmpty(labid) && order.Length > 3)
                     {
                         labid = order[3];
                     }
                     if (labid.Contains("^"))
                     {
                         string[] splitlabid = labid.Split(sep4);
-                        labid = splitlabid[1].ToString().Trim().Length<4 ? splitlabid[2].Trim():splitlabid[1].Trim();
+                        labid = splitlabid[1].ToString().Trim().Length < 4 ? splitlabid[2].Trim() : splitlabid[1].Trim();
 
                     }
-                   
+
                 }
                 else if (def[j].Length > 5 && def[j].Substring(3, 2).Equals("O|"))
                 {
@@ -363,6 +501,17 @@ public class AsynchronousSocketListener
                         labid = patid;
                     }
 
+                    clsBLMain objMain = new clsBLMain();
+                    objMain.BookingID = labid;
+                    objMain.AttributeID = attribcode;
+                    objMain.Result = attribresult;
+                    objMain.InstrumentID = MachineID;
+
+                    DataView dv = objMain.GetAll(8);
+                    if (dv.Count > 0)
+                        continue;
+
+
                     var objresult = new DataModel.mi_tresult
                     {
                         BookingID = labid,
@@ -370,13 +519,14 @@ public class AsynchronousSocketListener
                         ClientID = "1",//System.Configuration.ConfigurationSettings.AppSettings["BranchID"].ToString().Trim(),
                         EnteredBy = 1,
                         EnteredOn = System.DateTime.Now,//.ToString("yyyy-MM-dd hh:mm:ss tt"),
-                        machinename = MachineID,
+                        InstrumentId = MachineID,
                         Result = attribresult,
                         Status = "N"
                     };
-                    var resultserialized = Newtonsoft.Json.JsonConvert.SerializeObject(objresult);
-                    Console.WriteLine(MachineID + " Serialized result: " + resultserialized);
+                    //var resultserialized = Newtonsoft.Json.JsonConvert.SerializeObject(objresult);
+                    //Console.WriteLine(MachineID + " Serialized result: " + resultserialized);
                     _unitOfWork.ResultsRepository.Insert(objresult);
+
                     //string pars = labid + "," + attribcode + "," + System.DateTime.Now.ToString("dd/MM/yyyy HH:mm") + "," + attribresult;
                     ////writeLog("parsed data: " + pars);
                     ////Console.WriteLine("parsed string:" + pars);
@@ -384,15 +534,16 @@ public class AsynchronousSocketListener
                 }
 
 
+
             }
         }
         try
         {
-           // _unitOfWork.Save();
+            _unitOfWork.Save();
         }
         catch (Exception ee)
         {
-            //Console.WriteLine("On Saving to local results table: " + ee.ToString(), EventLogEntryType.Error);
+            Console.WriteLine("On Saving to local results table: " + ee.ToString());//, EventLogEntryType.Error);
         }
 
     }

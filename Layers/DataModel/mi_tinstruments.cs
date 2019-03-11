@@ -17,10 +17,11 @@ namespace DataModel
         public mi_tinstruments()
         {
             this.cliqmachinemappings = new HashSet<cliqmachinemapping>();
+            this.mi_tresult = new HashSet<mi_tresult>();
         }
     
         public long InstrumentID { get; set; }
-        public long Supplierid { get; set; }
+        public Nullable<long> Supplierid { get; set; }
         public string Instrument_Name { get; set; }
         public string Model { get; set; }
         public string I_Release { get; set; }
@@ -43,9 +44,11 @@ namespace DataModel
         public string ClientID { get; set; }
         public string Active { get; set; }
         public string RecordTerminator { get; set; }
-        public byte ParsingAlgorithm { get; set; }
-        public long CliqInstrumentID { get; set; }
+        public int ParsingAlgorithm { get; set; }
+        public Nullable<long> CliqInstrumentID { get; set; }
+        public string IpAddress { get; set; }
     
         public virtual ICollection<cliqmachinemapping> cliqmachinemappings { get; set; }
+        public virtual ICollection<mi_tresult> mi_tresult { get; set; }
     }
 }

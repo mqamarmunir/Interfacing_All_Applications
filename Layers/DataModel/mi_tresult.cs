@@ -24,13 +24,14 @@ namespace DataModel
         public string AttributeID { get; set; }
         public string Result { get; set; }
         public long EnteredBy { get; set; }
-        public Nullable<System.DateTime> EnteredOn { get; set; }
+        public System.DateTime EnteredOn { get; set; }
         public string ClientID { get; set; }
         public string Status { get; set; }
-        public string machinename { get; set; }
+        public long InstrumentId { get; set; }
         public Nullable<System.DateTime> senton { get; set; }
         public string sentto { get; set; }
     
         public virtual ICollection<mi_taudit> mi_taudit { get; set; }
+        public virtual mi_tinstruments mi_tinstruments { get; set; }
     }
 }

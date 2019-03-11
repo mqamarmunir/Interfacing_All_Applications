@@ -17,4 +17,13 @@ namespace BusinessEntities
         public string CliqAttributeID { get; set; }
         public string Result { get; set; }
     }
+    public class CliqResultResponseNew
+    {
+        public List<ResponseNew> response { get; set; }
+    }
+    public class ResponseNew
+    {
+        public int ResultID { get; set; }
+        public string StatusCode { get; set; }
+    }
 }

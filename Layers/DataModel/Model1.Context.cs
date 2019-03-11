@@ -25,6 +25,8 @@ namespace DataModel
             throw new UnintentionalCodeFirstException();
         }
     
+        public DbSet<cliqmachinemapping> cliqmachinemappings { get; set; }
+        public DbSet<cliqtestsandattribute> cliqtestsandattributes { get; set; }
         public DbSet<mi_setting> mi_setting { get; set; }
         public DbSet<mi_taudit> mi_taudit { get; set; }
         public DbSet<mi_tbooking> mi_tbooking { get; set; }
@@ -35,7 +37,5 @@ namespace DataModel
         public DbSet<mi_tsuppliers> mi_tsuppliers { get; set; }
         public DbSet<mi_ttestattribute> mi_ttestattribute { get; set; }
         public DbSet<mi_ttests> mi_ttests { get; set; }
-        public DbSet<cliqmachinemapping> cliqmachinemappings { get; set; }
-        public DbSet<cliqtestsandattribute> cliqtestsandattributes { get; set; }
     }
 }

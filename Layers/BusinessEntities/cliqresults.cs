@@ -16,4 +16,14 @@ namespace BusinessEntities
         public string MachineID { get; set; }
         public string MachineAttributeCode { get; set; }
     }
+    public class cliqresultsNew
+    {
+        public int ResultID { get; set; }
+        public string BookingID { get; set; }
+
+        public string Result { get; set; }
+        public string ClientID { get; set; }
+        public string CliqMachineID { get; set; }
+        public string MachineAttributeCode { get; set; }
+    }
 }

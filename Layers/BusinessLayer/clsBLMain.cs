@@ -157,8 +157,14 @@ namespace BusinessLayer
                     break;
                 case 8:
 
-                    objdbhims.Query = @"Select resultid from mi_tresult where bookingid='" + this._BookingID + "' and Attributeid='" + this._AttributeID + "' and Result='" + this._Result + "'";
+                    objdbhims.Query = @"Select resultid from mi_tresult where bookingid='" + this._BookingID + "' and Attributeid='" + this._AttributeID + "' and Result='" + this._Result + "' and InstrumentId="+InstrumentID;
                     break;
+                case 9:
+                   
+                    objdbhims.Query = @"Select i.CliqInstrumentId, m.* from mi_tresult m inner join mi_tinstruments i on i.instrumentid=m.InstrumentId where m.Status='N' and length(Result)<20 and m.enteredon between date_sub(now(),interval 2 hour) and now() order by resultid asc limit 200";
+                    break;
+                
+
             }
 
             return objTrans.DataTrigger_Get_All(objdbhims);
@@ -279,6 +285,7 @@ namespace BusinessLayer
 
 
         public string _TestID { get; set; }
+        public long InstrumentID { get; set; }// => _InstrumentID; set => _InstrumentID = value; }
     }
         #endregion
 }

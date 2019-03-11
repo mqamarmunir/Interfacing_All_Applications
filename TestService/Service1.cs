@@ -87,8 +87,8 @@ namespace TestService
                 if (data.Length > 0)
                 {
                     var thismachinesettings = _unitOfWork.InstrumentsRepository.GetSingle(x => x.Active == "Y" && x.PORT == "COM1");
-                    string MachineID = thismachinesettings.CliqInstrumentID.ToString().Trim();
-                    LogReceivedData(MachineID, data);
+                    long MachineID = thismachinesettings.CliqInstrumentID.Value;//.ToString().Trim();
+                    LogReceivedData(MachineID.ToString(), data);
                     if (thismachinesettings.Communication_Stnadard == "ASTM")
                     { }
                     else if (thismachinesettings.Communication_Stnadard == "Other")
@@ -217,13 +217,13 @@ namespace TestService
                 if (data.Length > 0)
                 {
                     var thismachinesettings = _unitOfWork.InstrumentsRepository.GetSingle(x => x.Active == "Y" && x.PORT == "COM8");
-                    string MachineID = thismachinesettings.CliqInstrumentID.ToString().Trim();
+                    long MachineID = thismachinesettings.CliqInstrumentID.Value;//.ToString().Trim();
                     if (!String.IsNullOrEmpty(thismachinesettings.Acknowledgement_code))
                         serialPort1.Write(new byte[] { 0x06 }, 0, 1);//send Ack to machine
                     sb_port2.Append(data);
                     //eventLog1.WriteEntry(data);
-                    LogReceivedData(MachineID, data);
-                    System.IO.File.AppendAllText(System.Configuration.ConfigurationSettings.AppSettings["ReceivedDataLogFile"].ToString().Trim(), data);
+                    LogReceivedData(MachineID.ToString(), data);
+                    //System.IO.File.AppendAllText(System.Configuration.ConfigurationSettings.AppSettings["ReceivedDataLogFile"].ToString().Trim(), data);
                     if (sb_port2.ToString().Contains("DE"))//.Split(new string[] { "D ", "DR", "DH", "DQ", "d ", "DA", "dH", "DE" }, StringSplitOptions.RemoveEmptyEntries).Length>0//For Au480 temporary//L|1 is a terminator record according to astm standards
                     {
                         ///if the recieved string contains the terminator
@@ -269,7 +269,7 @@ namespace TestService
                 Directory.CreateDirectory(Path.Combine(DirInfo, "ReceivedDataLogFiles"));
             File.AppendAllText(Path.Combine(Path.Combine(DirInfo, "ReceivedDataLogFiles"), MachineID + ".txt"), data);
         }
-        private void Parsethisandinsert(string data, int Parsingalgorithm, string MachineID)
+        private void Parsethisandinsert(string data, int Parsingalgorithm, long MachineID)
         {
 
             switch (Parsingalgorithm)
@@ -290,7 +290,7 @@ namespace TestService
             }
         }
 
-        private void ParseBeckManLH750(string data, string MachineID)
+        private void ParseBeckManLH750(string data, long MachineID)
         {
             string DirInfo = AppDomain.CurrentDomain.BaseDirectory;
 
@@ -325,6 +325,7 @@ namespace TestService
                         clsBLMain objMain = new clsBLMain();
                         objMain.BookingID = labid;
                         objMain.AttributeID = attrib;
+                        objMain.InstrumentID = MachineID;
                         objMain.Result = res.Length>0?Convert.ToString(Regex.Split(res, @"[^0-9\.-]+").Where(c => c != "." && c.Trim() != "").FirstOrDefault()):"";
                         DataView dv = objMain.GetAll(8);
                         if (dv.Count > 0)
@@ -336,7 +337,7 @@ namespace TestService
                             ClientID = System.Configuration.ConfigurationSettings.AppSettings["BranchID"].ToString().Trim(),
                             EnteredBy = 1,
                             EnteredOn = System.DateTime.Now,//.ToString("yyyy-MM-dd hh:mm:ss tt"),
-                            machinename = MachineID,
+                            InstrumentId = MachineID,
                             Result = res.Length > 0 ? Convert.ToString(Regex.Split(res, @"[^0-9\.-]+").Where(c => c != "." && c.Trim() != "").FirstOrDefault()).Trim() : "",
                             Status = "N"
                         };
@@ -369,13 +370,14 @@ namespace TestService
                 //log.Error("On Saving:", ee);
             }
         }
-        private void ParseASTMData(string data, string MachineID)
+        private static void ParseASTMData(string data, long MachineID)
         {
             string datetime = "";
             string labid = "";
             string attribresult = "";
             string attribcode = "";
             string patid = "";
+            string machineName = "";
 
             string[] sep1 = { "L|1" };
 
@@ -396,6 +398,7 @@ namespace TestService
                         string[] header = def[j].Split(sep3);
                         try
                         {
+                            machineName = header[4].Split(sep4)[0].Trim();
                             datetime = header[13].ToString();
                         }
                         catch { }
@@ -409,7 +412,7 @@ namespace TestService
                         }
                         catch (Exception ee)
                         {
-                            eventLog1.WriteEntry("Exception on getting Patientid: " + ee.ToString());
+                            Console.WriteLine("Exception on getting Patientid: " + ee.ToString());
                         }
                     }
                     else if (def[j].Contains("O|") && def[j].Contains("R|") && def[j].IndexOf("O|") < def[j].IndexOf("R|"))
@@ -417,11 +420,23 @@ namespace TestService
                         ///Get lab ID
                         string[] order = def[j].Split(sep3);
                         labid = order[2].ToString();
+                        if (String.IsNullOrEmpty(labid) && order.Length > 3)
+                        {
+                            labid = order[3];
+                        }
                         if (labid.Contains("^"))
                         {
                             string[] splitlabid = labid.Split(sep4);
-                            labid = splitlabid[1].ToString().Trim();
+                            labid = splitlabid[1].ToString().Trim().Length < 4 ? splitlabid[2].Trim() : splitlabid[1].Trim();
+
                         }
+
+                    }
+                    else if (def[j].Length > 5 && def[j].Substring(3, 2).Equals("O|"))
+                    {
+                        labid = def[j].Split(sep3)[3].ToString();
+                        if (labid.Contains("^"))
+                            labid = labid.Split(sep4)[2].ToString().Trim();
                     }
                     else if (def[j].Contains("R|"))
                     {
@@ -455,7 +470,7 @@ namespace TestService
                             }
                             catch (Exception ee)
                             {
-                                eventLog1.WriteEntry("Error Converting Result: " + attribresult);
+                                Console.WriteLine("Error Converting Result: " + attribresult);
                             }
 
 
@@ -496,35 +511,38 @@ namespace TestService
                         {
                             BookingID = labid,
                             AttributeID = attribcode,
-                            ClientID = System.Configuration.ConfigurationSettings.AppSettings["BranchID"].ToString().Trim(),
+                            ClientID = "1",//System.Configuration.ConfigurationSettings.AppSettings["BranchID"].ToString().Trim(),
                             EnteredBy = 1,
                             EnteredOn = System.DateTime.Now,//.ToString("yyyy-MM-dd hh:mm:ss tt"),
-                            machinename = MachineID,
+                            InstrumentId = MachineID,
                             Result = attribresult,
                             Status = "N"
                         };
+                        var resultserialized = Newtonsoft.Json.JsonConvert.SerializeObject(objresult);
+                        Console.WriteLine(MachineID + " Serialized result: " + resultserialized);
+                       // unit.ResultsRepository.Insert(objresult);
 
-                        _unitOfWork.ResultsRepository.Insert(objresult);
                         //string pars = labid + "," + attribcode + "," + System.DateTime.Now.ToString("dd/MM/yyyy HH:mm") + "," + attribresult;
                         ////writeLog("parsed data: " + pars);
-                        ////eventLog1.WriteEntry("parsed string:" + pars);
+                        ////Console.WriteLine("parsed string:" + pars);
                         //InsertBooking(pars);
                     }
+
 
 
                 }
             }
             try
             {
-                _unitOfWork.Save();
+               // _unitOfWork.Save();
             }
             catch (Exception ee)
             {
-                eventLog1.WriteEntry("On Saving to local results table: " + ee.ToString(), EventLogEntryType.Error);
+                Console.WriteLine("On Saving to local results table: " + ee.ToString());//, EventLogEntryType.Error);
             }
 
         }
-        private void ParseAu480(string data, string MachineID)
+        private void ParseAu480(string data, long MachineID)
         {
 
             var text = data;
@@ -584,7 +602,7 @@ namespace TestService
                                         ClientID = System.Configuration.ConfigurationSettings.AppSettings["BranchID"].ToString().Trim(),
                                         EnteredBy = 1,
                                         EnteredOn = System.DateTime.Now,//.ToString("yyyy-MM-dd hh:mm:ss tt"),
-                                        machinename = MachineID,
+                                        InstrumentId = MachineID,
                                         Result = resultsingle,
                                         Status = "N"
                                     };

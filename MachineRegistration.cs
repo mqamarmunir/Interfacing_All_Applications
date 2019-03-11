@@ -72,7 +72,10 @@ namespace WindowsApplication5
         private DataGridViewTextBoxColumn flowControlDataGridViewTextBoxColumn;
         private DataGridViewTextBoxColumn activeDataGridViewTextBoxColumn;
         private DataGridViewButtonColumn AddTests;
-
+        private TextBox txtCliqId;
+        private Label label14;
+        private TextBox txtIpAddress;
+        private Label label13;
         private readonly UnitOfWork _unitOfWork;
 		public MachineRegistration()
 		{
@@ -136,6 +139,20 @@ namespace WindowsApplication5
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.grdMachines = new System.Windows.Forms.DataGridView();
+            this.instrumentID = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.instrumentNameDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.modelDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.communicationStnadardDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.communicationmethodDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.pORTDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.baudRateDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.parityDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.stopbitDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dataBitDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.flowControlDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.activeDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.AddTests = new System.Windows.Forms.DataGridViewButtonColumn();
+            this.mitinstrumentsBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.panel1 = new System.Windows.Forms.Panel();
             this.btnSetDefaults = new System.Windows.Forms.Button();
             this.txtRecordTerminator = new System.Windows.Forms.TextBox();
@@ -163,24 +180,14 @@ namespace WindowsApplication5
             this.btnReset = new System.Windows.Forms.Button();
             this.btnSave = new System.Windows.Forms.Button();
             this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
-            this.AddTests = new System.Windows.Forms.DataGridViewButtonColumn();
-            this.instrumentID = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.instrumentNameDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.modelDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.communicationStnadardDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.communicationmethodDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.pORTDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.baudRateDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.parityDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.stopbitDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataBitDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.flowControlDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.activeDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.mitinstrumentsBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.txtIpAddress = new System.Windows.Forms.TextBox();
+            this.label13 = new System.Windows.Forms.Label();
+            this.txtCliqId = new System.Windows.Forms.TextBox();
+            this.label14 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.grdMachines)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.mitinstrumentsBindingSource)).BeginInit();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.mitinstrumentsBindingSource)).BeginInit();
             this.SuspendLayout();
             // 
             // label1
@@ -237,17 +244,118 @@ namespace WindowsApplication5
             this.activeDataGridViewTextBoxColumn,
             this.AddTests});
             this.grdMachines.DataSource = this.mitinstrumentsBindingSource;
-            this.grdMachines.Location = new System.Drawing.Point(4, 162);
+            this.grdMachines.Location = new System.Drawing.Point(4, 191);
             this.grdMachines.Name = "grdMachines";
             this.grdMachines.ReadOnly = true;
-            this.grdMachines.Size = new System.Drawing.Size(881, 248);
+            this.grdMachines.Size = new System.Drawing.Size(881, 219);
             this.grdMachines.TabIndex = 7;
             this.grdMachines.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.grdMachines_CellContentClick);
+            // 
+            // instrumentID
+            // 
+            this.instrumentID.DataPropertyName = "InstrumentID";
+            this.instrumentID.HeaderText = "InstrumentID";
+            this.instrumentID.Name = "instrumentID";
+            this.instrumentID.ReadOnly = true;
+            this.instrumentID.Visible = false;
+            // 
+            // instrumentNameDataGridViewTextBoxColumn
+            // 
+            this.instrumentNameDataGridViewTextBoxColumn.DataPropertyName = "Instrument_Name";
+            this.instrumentNameDataGridViewTextBoxColumn.HeaderText = "Name";
+            this.instrumentNameDataGridViewTextBoxColumn.Name = "instrumentNameDataGridViewTextBoxColumn";
+            this.instrumentNameDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // modelDataGridViewTextBoxColumn
+            // 
+            this.modelDataGridViewTextBoxColumn.DataPropertyName = "Model";
+            this.modelDataGridViewTextBoxColumn.HeaderText = "Model";
+            this.modelDataGridViewTextBoxColumn.Name = "modelDataGridViewTextBoxColumn";
+            this.modelDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // communicationStnadardDataGridViewTextBoxColumn
+            // 
+            this.communicationStnadardDataGridViewTextBoxColumn.DataPropertyName = "Communication_Stnadard";
+            this.communicationStnadardDataGridViewTextBoxColumn.HeaderText = "Standard";
+            this.communicationStnadardDataGridViewTextBoxColumn.Name = "communicationStnadardDataGridViewTextBoxColumn";
+            this.communicationStnadardDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // communicationmethodDataGridViewTextBoxColumn
+            // 
+            this.communicationmethodDataGridViewTextBoxColumn.DataPropertyName = "Communication_method";
+            this.communicationmethodDataGridViewTextBoxColumn.HeaderText = "Comm Method";
+            this.communicationmethodDataGridViewTextBoxColumn.Name = "communicationmethodDataGridViewTextBoxColumn";
+            this.communicationmethodDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // pORTDataGridViewTextBoxColumn
+            // 
+            this.pORTDataGridViewTextBoxColumn.DataPropertyName = "PORT";
+            this.pORTDataGridViewTextBoxColumn.HeaderText = "PORT";
+            this.pORTDataGridViewTextBoxColumn.Name = "pORTDataGridViewTextBoxColumn";
+            this.pORTDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // baudRateDataGridViewTextBoxColumn
+            // 
+            this.baudRateDataGridViewTextBoxColumn.DataPropertyName = "BaudRate";
+            this.baudRateDataGridViewTextBoxColumn.HeaderText = "BaudRate";
+            this.baudRateDataGridViewTextBoxColumn.Name = "baudRateDataGridViewTextBoxColumn";
+            this.baudRateDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // parityDataGridViewTextBoxColumn
+            // 
+            this.parityDataGridViewTextBoxColumn.DataPropertyName = "Parity";
+            this.parityDataGridViewTextBoxColumn.HeaderText = "Parity";
+            this.parityDataGridViewTextBoxColumn.Name = "parityDataGridViewTextBoxColumn";
+            this.parityDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // stopbitDataGridViewTextBoxColumn
+            // 
+            this.stopbitDataGridViewTextBoxColumn.DataPropertyName = "Stopbit";
+            this.stopbitDataGridViewTextBoxColumn.HeaderText = "Stopbit";
+            this.stopbitDataGridViewTextBoxColumn.Name = "stopbitDataGridViewTextBoxColumn";
+            this.stopbitDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // dataBitDataGridViewTextBoxColumn
+            // 
+            this.dataBitDataGridViewTextBoxColumn.DataPropertyName = "DataBit";
+            this.dataBitDataGridViewTextBoxColumn.HeaderText = "DataBit";
+            this.dataBitDataGridViewTextBoxColumn.Name = "dataBitDataGridViewTextBoxColumn";
+            this.dataBitDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // flowControlDataGridViewTextBoxColumn
+            // 
+            this.flowControlDataGridViewTextBoxColumn.DataPropertyName = "FlowControl";
+            this.flowControlDataGridViewTextBoxColumn.HeaderText = "FlowControl";
+            this.flowControlDataGridViewTextBoxColumn.Name = "flowControlDataGridViewTextBoxColumn";
+            this.flowControlDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // activeDataGridViewTextBoxColumn
+            // 
+            this.activeDataGridViewTextBoxColumn.DataPropertyName = "Active";
+            this.activeDataGridViewTextBoxColumn.HeaderText = "Active";
+            this.activeDataGridViewTextBoxColumn.Name = "activeDataGridViewTextBoxColumn";
+            this.activeDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // AddTests
+            // 
+            this.AddTests.HeaderText = "";
+            this.AddTests.Name = "AddTests";
+            this.AddTests.ReadOnly = true;
+            this.AddTests.Text = "Add Tests";
+            this.AddTests.UseColumnTextForButtonValue = true;
+            // 
+            // mitinstrumentsBindingSource
+            // 
+            this.mitinstrumentsBindingSource.DataSource = typeof(DataModel.mi_tinstruments);
             // 
             // panel1
             // 
             this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.panel1.Controls.Add(this.txtCliqId);
+            this.panel1.Controls.Add(this.label14);
+            this.panel1.Controls.Add(this.txtIpAddress);
+            this.panel1.Controls.Add(this.label13);
             this.panel1.Controls.Add(this.btnSetDefaults);
             this.panel1.Controls.Add(this.txtRecordTerminator);
             this.panel1.Controls.Add(this.label12);
@@ -278,13 +386,13 @@ namespace WindowsApplication5
             this.panel1.Controls.Add(this.label3);
             this.panel1.Location = new System.Drawing.Point(4, 3);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(881, 153);
+            this.panel1.Size = new System.Drawing.Size(881, 182);
             this.panel1.TabIndex = 8;
             // 
             // btnSetDefaults
             // 
             this.btnSetDefaults.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnSetDefaults.Location = new System.Drawing.Point(590, 125);
+            this.btnSetDefaults.Location = new System.Drawing.Point(590, 154);
             this.btnSetDefaults.Name = "btnSetDefaults";
             this.btnSetDefaults.Size = new System.Drawing.Size(75, 23);
             this.btnSetDefaults.TabIndex = 13;
@@ -502,7 +610,7 @@ namespace WindowsApplication5
             this.chkActive.AutoSize = true;
             this.chkActive.Checked = true;
             this.chkActive.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkActive.Location = new System.Drawing.Point(508, 131);
+            this.chkActive.Location = new System.Drawing.Point(508, 160);
             this.chkActive.Name = "chkActive";
             this.chkActive.Size = new System.Drawing.Size(56, 17);
             this.chkActive.TabIndex = 12;
@@ -512,7 +620,7 @@ namespace WindowsApplication5
             // btnReset
             // 
             this.btnReset.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnReset.Location = new System.Drawing.Point(754, 125);
+            this.btnReset.Location = new System.Drawing.Point(754, 154);
             this.btnReset.Name = "btnReset";
             this.btnReset.Size = new System.Drawing.Size(75, 23);
             this.btnReset.TabIndex = 15;
@@ -523,7 +631,7 @@ namespace WindowsApplication5
             // btnSave
             // 
             this.btnSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnSave.Location = new System.Drawing.Point(671, 125);
+            this.btnSave.Location = new System.Drawing.Point(671, 154);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(75, 23);
             this.btnSave.TabIndex = 14;
@@ -535,102 +643,37 @@ namespace WindowsApplication5
             // 
             this.errorProvider1.ContainerControl = this;
             // 
-            // AddTests
+            // txtIpAddress
             // 
-            this.AddTests.HeaderText = "";
-            this.AddTests.Name = "AddTests";
-            this.AddTests.ReadOnly = true;
-            this.AddTests.Text = "Add Tests";
-            this.AddTests.UseColumnTextForButtonValue = true;
+            this.txtIpAddress.Location = new System.Drawing.Point(554, 109);
+            this.txtIpAddress.Name = "txtIpAddress";
+            this.txtIpAddress.Size = new System.Drawing.Size(111, 20);
+            this.txtIpAddress.TabIndex = 45;
             // 
-            // instrumentID
+            // label13
             // 
-            this.instrumentID.DataPropertyName = "InstrumentID";
-            this.instrumentID.HeaderText = "InstrumentID";
-            this.instrumentID.Name = "instrumentID";
-            this.instrumentID.ReadOnly = true;
-            this.instrumentID.Visible = false;
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(505, 112);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(17, 13);
+            this.label13.TabIndex = 46;
+            this.label13.Text = "IP";
             // 
-            // instrumentNameDataGridViewTextBoxColumn
+            // txtCliqId
             // 
-            this.instrumentNameDataGridViewTextBoxColumn.DataPropertyName = "Instrument_Name";
-            this.instrumentNameDataGridViewTextBoxColumn.HeaderText = "Name";
-            this.instrumentNameDataGridViewTextBoxColumn.Name = "instrumentNameDataGridViewTextBoxColumn";
-            this.instrumentNameDataGridViewTextBoxColumn.ReadOnly = true;
+            this.txtCliqId.Location = new System.Drawing.Point(724, 109);
+            this.txtCliqId.Name = "txtCliqId";
+            this.txtCliqId.Size = new System.Drawing.Size(111, 20);
+            this.txtCliqId.TabIndex = 47;
             // 
-            // modelDataGridViewTextBoxColumn
+            // label14
             // 
-            this.modelDataGridViewTextBoxColumn.DataPropertyName = "Model";
-            this.modelDataGridViewTextBoxColumn.HeaderText = "Model";
-            this.modelDataGridViewTextBoxColumn.Name = "modelDataGridViewTextBoxColumn";
-            this.modelDataGridViewTextBoxColumn.ReadOnly = true;
-            // 
-            // communicationStnadardDataGridViewTextBoxColumn
-            // 
-            this.communicationStnadardDataGridViewTextBoxColumn.DataPropertyName = "Communication_Stnadard";
-            this.communicationStnadardDataGridViewTextBoxColumn.HeaderText = "Standard";
-            this.communicationStnadardDataGridViewTextBoxColumn.Name = "communicationStnadardDataGridViewTextBoxColumn";
-            this.communicationStnadardDataGridViewTextBoxColumn.ReadOnly = true;
-            // 
-            // communicationmethodDataGridViewTextBoxColumn
-            // 
-            this.communicationmethodDataGridViewTextBoxColumn.DataPropertyName = "Communication_method";
-            this.communicationmethodDataGridViewTextBoxColumn.HeaderText = "Comm Method";
-            this.communicationmethodDataGridViewTextBoxColumn.Name = "communicationmethodDataGridViewTextBoxColumn";
-            this.communicationmethodDataGridViewTextBoxColumn.ReadOnly = true;
-            // 
-            // pORTDataGridViewTextBoxColumn
-            // 
-            this.pORTDataGridViewTextBoxColumn.DataPropertyName = "PORT";
-            this.pORTDataGridViewTextBoxColumn.HeaderText = "PORT";
-            this.pORTDataGridViewTextBoxColumn.Name = "pORTDataGridViewTextBoxColumn";
-            this.pORTDataGridViewTextBoxColumn.ReadOnly = true;
-            // 
-            // baudRateDataGridViewTextBoxColumn
-            // 
-            this.baudRateDataGridViewTextBoxColumn.DataPropertyName = "BaudRate";
-            this.baudRateDataGridViewTextBoxColumn.HeaderText = "BaudRate";
-            this.baudRateDataGridViewTextBoxColumn.Name = "baudRateDataGridViewTextBoxColumn";
-            this.baudRateDataGridViewTextBoxColumn.ReadOnly = true;
-            // 
-            // parityDataGridViewTextBoxColumn
-            // 
-            this.parityDataGridViewTextBoxColumn.DataPropertyName = "Parity";
-            this.parityDataGridViewTextBoxColumn.HeaderText = "Parity";
-            this.parityDataGridViewTextBoxColumn.Name = "parityDataGridViewTextBoxColumn";
-            this.parityDataGridViewTextBoxColumn.ReadOnly = true;
-            // 
-            // stopbitDataGridViewTextBoxColumn
-            // 
-            this.stopbitDataGridViewTextBoxColumn.DataPropertyName = "Stopbit";
-            this.stopbitDataGridViewTextBoxColumn.HeaderText = "Stopbit";
-            this.stopbitDataGridViewTextBoxColumn.Name = "stopbitDataGridViewTextBoxColumn";
-            this.stopbitDataGridViewTextBoxColumn.ReadOnly = true;
-            // 
-            // dataBitDataGridViewTextBoxColumn
-            // 
-            this.dataBitDataGridViewTextBoxColumn.DataPropertyName = "DataBit";
-            this.dataBitDataGridViewTextBoxColumn.HeaderText = "DataBit";
-            this.dataBitDataGridViewTextBoxColumn.Name = "dataBitDataGridViewTextBoxColumn";
-            this.dataBitDataGridViewTextBoxColumn.ReadOnly = true;
-            // 
-            // flowControlDataGridViewTextBoxColumn
-            // 
-            this.flowControlDataGridViewTextBoxColumn.DataPropertyName = "FlowControl";
-            this.flowControlDataGridViewTextBoxColumn.HeaderText = "FlowControl";
-            this.flowControlDataGridViewTextBoxColumn.Name = "flowControlDataGridViewTextBoxColumn";
-            this.flowControlDataGridViewTextBoxColumn.ReadOnly = true;
-            // 
-            // activeDataGridViewTextBoxColumn
-            // 
-            this.activeDataGridViewTextBoxColumn.DataPropertyName = "Active";
-            this.activeDataGridViewTextBoxColumn.HeaderText = "Active";
-            this.activeDataGridViewTextBoxColumn.Name = "activeDataGridViewTextBoxColumn";
-            this.activeDataGridViewTextBoxColumn.ReadOnly = true;
-            // 
-            // mitinstrumentsBindingSource
-            // 
-            this.mitinstrumentsBindingSource.DataSource = typeof(DataModel.mi_tinstruments);
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(675, 112);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(36, 13);
+            this.label14.TabIndex = 48;
+            this.label14.Text = "Cliq Id";
             // 
             // MachineRegistration
             // 
@@ -645,10 +688,10 @@ namespace WindowsApplication5
             this.Closing += new System.ComponentModel.CancelEventHandler(this.MDIChild_Closing);
             this.Load += new System.EventHandler(this.TestAttributes_Load);
             ((System.ComponentModel.ISupportInitialize)(this.grdMachines)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.mitinstrumentsBindingSource)).EndInit();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.mitinstrumentsBindingSource)).EndInit();
             this.ResumeLayout(false);
 
 		}
@@ -732,9 +775,19 @@ namespace WindowsApplication5
                     Parity = cmbParity.Text.Trim(),
                     PORT = cmbPort.Text.Trim(),
                     Stopbit = cmbStopBits.Text.Trim(),
-                    RecordTerminator=txtRecordTerminator.Text.Trim(),
-                    ParsingAlgorithm=1
+                    RecordTerminator = txtRecordTerminator.Text.Trim(),
+                    ParsingAlgorithm = 1,
+                    IpAddress = txtIpAddress.Text.Trim()
+
                 };
+                int cliqInstrumentid = 0;
+            
+                bool x=int.TryParse(txtCliqId.Text.Trim(), out cliqInstrumentid);
+                if (x)
+                {
+                    _instrument.CliqInstrumentID = cliqInstrumentid;
+                }
+                //1_instrument.
                 _unitOfWork.InstrumentsRepository.Insert(_instrument);
                 _unitOfWork.Save();
                 BindInstrumentsToGrid();

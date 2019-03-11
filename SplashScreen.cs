@@ -42,7 +42,8 @@ namespace WindowsApplication5
                     instance.ReportProgress(i);
 
                 }
-                string content = Helper.CallCliqApi(System.Configuration.ConfigurationSettings.AppSettings["WebServicebasePath"].ToString().Trim() + "/ricapi/site/TestAtt/bid/"+System.Configuration.ConfigurationSettings.AppSettings["BranchID"].ToString().Trim()+"/tname/CBC").Result;
+                string content = "";
+               // content = Helper.CallCliqApi(System.Configuration.ConfigurationSettings.AppSettings["WebServicebasePath"].ToString().Trim() + "/ricapi/site/TestAtt/bid/"+System.Configuration.ConfigurationSettings.AppSettings["BranchID"].ToString().Trim()+"/tname/CBC").Result;
                 for (int i = 31; i <= 70; i++)
                 {
                     System.Threading.Thread.Sleep(10);
