@@ -74,7 +74,7 @@ public class AsynchronousSocketListener
                 allDone.Reset();
 
                 // Start an asynchronous socket to listen for connections.  
-                Console.WriteLine("Waiting for a connection...");
+                Console.WriteLine("Waiting for a connection at: "+localEndPoint.Address.ToString()+":"+localEndPoint.Port.ToString());
                 if (!listener.Connected)
                     listener.BeginAccept(
                     new AsyncCallback(AcceptCallback),
@@ -104,7 +104,7 @@ public class AsynchronousSocketListener
         // Get the socket that handles the client request.  
         Socket listener = (Socket)ar.AsyncState;
         Socket handler = listener.EndAccept(ar);
-
+        Console.WriteLine("Connected To: " + (handler.RemoteEndPoint as IPEndPoint).Address.ToString());
         // Create the state object.  
         StateObject state = new StateObject();
         state.workSocket = handler;
@@ -551,7 +551,7 @@ public class AsynchronousSocketListener
                     {
                         BookingID = labid,
                         AttributeID = attribcode,
-                        ClientID = "1",//System.Configuration.ConfigurationSettings.AppSettings["BranchID"].ToString().Trim(),
+                        ClientID = System.Configuration.ConfigurationSettings.AppSettings["BranchID"].ToString().Trim(),
                         EnteredBy = 1,
                         EnteredOn = System.DateTime.Now,//.ToString("yyyy-MM-dd hh:mm:ss tt"),
                         InstrumentId = MachineID,
