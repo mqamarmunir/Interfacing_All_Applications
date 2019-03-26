@@ -238,7 +238,7 @@ public class AsynchronousSocketListener
             timer.Start();
         StartListening();
         //ParseBeckManHematology();
-        // UpdateRemoteDatabase(null,null);
+         //UpdateRemoteDatabase(null,null);
         Console.ReadLine();
         return 0;
     }
@@ -248,27 +248,27 @@ public class AsynchronousSocketListener
         timer.Stop();
         #region Web Service Methodology
         clsBLMain objMai = new clsBLMain();
-        DataView dv = objMai.GetAll(9);
-        if (dv.Count > 0)
+        var lstresults = objMai.GetAll<cliqresultsNew>(1);
+        if (lstresults.ToList().Count > 0)
         {
             //Console.WriteLine("Found results:" + dv.Count.ToString());
             try
             {
-                List<cliqresultsNew> lstresults = new List<cliqresultsNew>();
-                for (int i = 0; i < dv.Count; i++)
-                {
-                    lstresults.Add(new cliqresultsNew
-                    {
-                        ResultID = Convert.ToInt32(dv[i]["ResultID"].ToString().Trim()),
-                        BookingID = Convert.ToInt64(dv[i]["BookingID"].ToString().Trim()),
-                        ClientID = Convert.ToInt32(dv[i]["ClientID"].ToString().Trim()),
+                //List<cliqresultsNew> lstresults = new List<cliqresultsNew>();
+                //for (int i = 0; i < dv.Count; i++)
+                //{
+                //    lstresults.Add(new cliqresultsNew
+                //    {
+                //        ResultID = Convert.ToInt32(dv[i]["ResultID"].ToString().Trim()),
+                //        BookingID = Convert.ToInt64(dv[i]["BookingID"].ToString().Trim()),
+                //        ClientID = Convert.ToInt32(dv[i]["ClientID"].ToString().Trim()),
 
-                        CliqMachineID = Convert.ToInt32(dv[i]["CliqInstrumentId"].ToString().Trim()),
-                        Result = dv[i]["Result"].ToString().Trim(),
-                        MachineAttributeCode = dv[i]["AttributeId"].ToString().Trim()
+                //        CliqMachineID = Convert.ToInt32(dv[i]["CliqInstrumentId"].ToString().Trim()),
+                //        Result = dv[i]["Result"].ToString().Trim(),
+                //        MachineAttributeCode = dv[i]["AttributeId"].ToString().Trim()
 
-                    });
-                }
+                //    });
+                //}
 
                 var groupedresults = (from p in lstresults
                                       group p by new { p.BookingID, p.ClientID } into g

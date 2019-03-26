@@ -1,6 +1,9 @@
 using System;
 using MySql.Data.MySqlClient;
 using System.Data;
+using Dapper;
+using BusinessEntities;
+using System.Collections.Generic;
 
 namespace DataLayer
 {
@@ -186,10 +189,11 @@ namespace DataLayer
 
         public DataView DataTrigger_Get_All(Iinterface Entity)
         {
-
+            
             Conn = Objconn.Odbc_SQL_Connection;
             ObjCmd = Entity.Get_All();
             ObjCmd.Connection = Conn;
+            var list=SqlMapper.Query<cliqresultsNew>(Conn, ObjCmd.CommandText);
             MySqlDataAdapter da = new MySqlDataAdapter(ObjCmd);
             DataSet DS = new DataSet();
             da.Fill(DS);
@@ -209,6 +213,27 @@ namespace DataLayer
             ObjCmd = null;			//null
 
             return DV;
+        }
+        public IEnumerable<T> DataTrigger_Get_All<T>(Iinterface Entity) where T:class
+        {
+            
+            Conn = Objconn.Odbc_SQL_Connection;
+            ObjCmd = Entity.Get_All();
+            ObjCmd.Connection = Conn;
+            var list = SqlMapper.Query<T>(Conn, ObjCmd.CommandText);
+            
+            ObjCmd.Connection.Close();
+            ObjCmd.Connection.Dispose();
+            ObjCmd.Connection = null;
+
+        
+            Objconn.Dispose();		//null
+            Conn.Close();			//null
+            Conn.Dispose();			//null
+            Conn = null;			//null
+            ObjCmd = null;			//null
+
+            return list;
         }
 
         //		public DataView Transaction_Get_All(Iinterface Entity)

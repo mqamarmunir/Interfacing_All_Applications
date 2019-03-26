@@ -14,9 +14,11 @@ namespace SerialTest
         static SerialPort _serial = new SerialPort();
         static void Main(string[] args)
         {
-            var doubleArray = Regex.Split(Convert.ToChar(32)+" Ac", @"[^0-9\.-]+")
-    .Where(c => c != "." && c.Trim() != "").FirstOrDefault();
-            Console.WriteLine(Convert.ToString(doubleArray));
+            //        var doubleArray = Regex.Split(Convert.ToChar(32)+" Ac", @"[^0-9\.-]+")
+            //.Where(c => c != "." && c.Trim() != "").FirstOrDefault();
+            //        Console.WriteLine(Convert.ToString(doubleArray));
+            string data = File.ReadAllText(@"D:\MachineData.txt");
+            ParseASTMData(data, 1);
             //string abc="H|\\^&||||||||||P||\rP|1||||||||||||||||||||||||||||||||||\r O|1|000004|40^0^5^^SAMPLE^NORMAL|ALL|R|20051220095504|||||X ||||||||||||||O\r R|1|^^^10^^0|1.25|ulU/ml|0.270^4.20|N||F|||20051220095534| 20051220101604|\r R|2|^^^30^2^1|1.52|ng/dl|1.01^1.79|N||F|||20051220103034| 20051220105004|\r R|3|^^^40^^0|1.17|ulU/ml|0.846^2.02|N||F|||20051220110034| 20051220112004|\r L|1";
             //string replaced = abc.Replace('\r', Convert.ToChar(13));
             // serial port comm settings
@@ -153,7 +155,192 @@ namespace SerialTest
 
         }
 
+        private static void ParseASTMData(string data, long MachineID)
+        {
+            string datetime = "";
+            string labid = "";
+            string attribresult = "";
+            string attribcode = "";
+            string patid = "";
+            string machineName = "";
 
+            string[] sep1 = { "L|1" };
+
+            char[] sep2 = { Convert.ToChar(13) };
+            string[] abc = data.Split(sep1, StringSplitOptions.RemoveEmptyEntries);
+            char[] sep3 = { '|' };
+            char[] sep4 = { '^' };
+            for (int i = 0; i <= abc.GetUpperBound(0); i++)
+            {
+                string[] def = abc[i].Split(sep2);
+                for (int j = 0; j < def.GetUpperBound(0); j++)
+                {
+                    if (def[j].Contains("H|") && !def[j].Contains("O|") && !def[j].Contains("R|"))
+                    {
+                        // Get date time
+                        // def[j] = def[j].Replace("||", "");
+
+                        string[] header = def[j].Split(sep3);
+                        try
+                        {
+                            machineName = header[4].Split(sep4)[0].Trim();
+                            datetime = header[13].ToString();
+                        }
+                        catch { }
+                    }
+                    else if (def[j].Contains("P|1") && (!def[j].Contains("O|") || def[j].IndexOf("P|") < def[j].IndexOf("O|")) && (!def[j].Contains("R|") || def[j].IndexOf("P|") < def[j].IndexOf("R|")))
+                    {
+                        string[] patinfo = def[j].Split(sep3);
+                        try
+                        {
+                            patid = patinfo[4].ToString();
+                        }
+                        catch (Exception ee)
+                        {
+                            //LogExceptions("\r\n" + ee.ToString());
+                            Console.WriteLine("Exception on getting Patientid: " + ee.ToString());
+                        }
+                    }
+                    else if (def[j].Contains("O|") && def[j].Contains("R|") && def[j].IndexOf("O|") < def[j].IndexOf("R|"))
+                    {
+                        ///Get lab ID
+                        string[] order = def[j].Split(sep3);
+                        labid = order[2].ToString();
+                        if (String.IsNullOrEmpty(labid) && order.Length > 3)
+                        {
+                            labid = order[3];
+                        }
+                        if (labid.Contains("^"))
+                        {
+                            string[] splitlabid = labid.Split(sep4);
+                            labid = splitlabid[1].ToString().Trim().Length < 4 ? splitlabid[2].Trim() : splitlabid[1].Trim();
+
+                        }
+
+                    }
+                    else if (def[j].Length > 5 && (def[j].Substring(3, 2).Equals("O|") || def[j].StartsWith("O|")))
+                    {
+                        labid = def[j].Split(sep3)[3].ToString();
+                        if (labid.Contains("^"))
+                            labid = labid.Split(sep4)[2].ToString().Trim();
+                    }
+                    else if (def[j].Contains("R|"))
+                    {
+                        //Get Result
+                        string[] result = def[j].Split(sep3);
+                        attribresult = result[3].ToString();
+                        string[] attcode = result[2].Split(sep4);
+                        //writeLog("Result[2]: " + result[2]);
+                        if (attcode[3] != "")
+                        {
+                            attribcode = attcode[3].ToString();
+                        }
+                        else
+                        {
+                            attribcode = attcode[4].ToString();
+                        }
+                        if (attribcode.Contains(@"/"))
+                        {
+                            attribcode = attribcode.Replace(@"/", "");
+                        }
+                        if (attribcode.ToLower() == "wbc" || attribcode.ToLower() == "plt")
+                        {
+
+                            try
+                            {
+                                attribresult = ((Convert.ToDecimal(attribresult)) * 1000).ToString();
+                                if (attribresult.Contains("."))
+                                {
+                                    attribresult = attribresult.Substring(0, attribresult.IndexOf('.'));
+                                }
+                            }
+                            catch (Exception ee)
+                            {
+                                //LogExceptions("\r\n" + ee.ToString());
+                                Console.WriteLine("Error Converting Result: " + attribresult);
+                            }
+
+
+                        }
+                        else if (attribcode.ToLower().Equals("900") || attribcode.ToLower().Equals("999") || attribcode.ToLower().Equals("102"))
+                        {
+                            if (attribresult.Contains("-1^"))
+                            {
+                                attribresult = attribresult.Replace("-1^", "Negative  \r\n");
+
+                            }
+                            else if (attribresult.Contains("1^"))
+                            {
+                                attribresult = attribresult.Replace("1^", "Positive  \r\n");
+
+                            }
+
+                        }
+                        else if (attribcode.ToLower().Equals("eo%") || attribcode.ToLower().Equals("mono%") || attribcode.ToLower().Equals("neut%") || attribcode.ToLower().Equals("lymph%"))
+                        {
+                            try
+                            {
+                                attribresult = Math.Round(Convert.ToDecimal(attribresult)).ToString().Trim();
+                                if (attribresult.Contains("."))
+                                {
+                                    attribresult = attribresult.Substring(0, attribresult.IndexOf('.'));
+                                }
+                            }
+                            catch
+                            { }
+                        }
+                        if (labid == "")
+                        {
+                            labid = patid;
+                        }
+
+                        //clsBLMain objMain = new clsBLMain();
+                        //objMain.BookingID = labid;
+                        //objMain.AttributeID = attribcode;
+                        //objMain.Result = attribresult;
+                        //objMain.InstrumentID = MachineID;
+
+                        //DataView dv = objMain.GetAll(8);
+                        //if (dv.Count > 0)
+                        //    continue;
+
+
+                        //var objresult = new DataModel.mi_tresult
+                        //{
+                        //    BookingID = labid,
+                        //    AttributeID = attribcode,
+                        //    ClientID = System.Configuration.ConfigurationSettings.AppSettings["BranchID"].ToString().Trim(),
+                        //    EnteredBy = 1,
+                        //    EnteredOn = System.DateTime.Now,//.ToString("yyyy-MM-dd hh:mm:ss tt"),
+                        //    InstrumentId = MachineID,
+                        //    Result = attribresult,
+                        //    Status = "N"
+                        //};
+                        ////var resultserialized = Newtonsoft.Json.JsonConvert.SerializeObject(objresult);
+                        ////Console.WriteLine(MachineID + " Serialized result: " + resultserialized);
+                        //_unitOfWork.ResultsRepository.Insert(objresult);
+
+                        string pars = labid + "," + attribcode + "," + System.DateTime.Now.ToString("dd/MM/yyyy HH:mm") + "," + attribresult;
+                        ////writeLog("parsed data: " + pars);
+                        ////Console.WriteLine("parsed string:" + pars);
+                        //InsertBooking(pars);
+                    }
+
+
+
+                }
+            }
+            try
+            {
+                //_unitOfWork.Save();
+            }
+            catch (Exception ee)
+            {
+               // LogExceptions("\r\n" + ee.ToString());
+                Console.WriteLine("On Saving to local results table: " + ee.ToString());//, EventLogEntryType.Error);
+            }
+
+        }
 
 
         private static void Parsethisandinsert(string data, int Parsingalgorithm)
