@@ -236,9 +236,9 @@ public class AsynchronousSocketListener
         timer.Elapsed += new System.Timers.ElapsedEventHandler(UpdateRemoteDatabase);
         if (System.Configuration.ConfigurationSettings.AppSettings["IsUpdateRemoteDatabase"].ToString().Trim() == "Y")
             timer.Start();
-        StartListening();
+        //StartListening();
         //ParseBeckManHematology();
-         //UpdateRemoteDatabase(null,null);
+         UpdateRemoteDatabase(null,null);
         Console.ReadLine();
         return 0;
     }
@@ -331,7 +331,11 @@ public class AsynchronousSocketListener
                         objMain.ResultID = result.ResultID.ToString();
                         try
                         {
-                            objMain.Update();
+                            if (!objMain.Update())
+                            {
+                                LogExceptions(objMain.Error);
+
+                            }
 
                         }
                         catch (Exception ee)
