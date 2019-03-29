@@ -236,9 +236,9 @@ public class AsynchronousSocketListener
         timer.Elapsed += new System.Timers.ElapsedEventHandler(UpdateRemoteDatabase);
         if (System.Configuration.ConfigurationSettings.AppSettings["IsUpdateRemoteDatabase"].ToString().Trim() == "Y")
             timer.Start();
-        //StartListening();
+        StartListening();
         //ParseBeckManHematology();
-         UpdateRemoteDatabase(null,null);
+         //UpdateRemoteDatabase(null,null);
         Console.ReadLine();
         return 0;
     }
@@ -489,26 +489,26 @@ public class AsynchronousSocketListener
                     {
                         attribcode = attribcode.Replace(@"/", "");
                     }
-                    if (attribcode.ToLower() == "wbc" || attribcode.ToLower() == "plt")
-                    {
+                    //if (attribcode.ToLower() == "wbc" || attribcode.ToLower() == "plt")
+                    //{
 
-                        try
-                        {
-                            attribresult = ((Convert.ToDecimal(attribresult)) * 1000).ToString();
-                            if (attribresult.Contains("."))
-                            {
-                                attribresult = attribresult.Substring(0, attribresult.IndexOf('.'));
-                            }
-                        }
-                        catch (Exception ee)
-                        {
-                            LogExceptions("\r\n" + ee.ToString());
-                            Console.WriteLine("Error Converting Result: " + attribresult);
-                        }
+                    //    try
+                    //    {
+                    //        attribresult = ((Convert.ToDecimal(attribresult)) * 1000).ToString();
+                    //        if (attribresult.Contains("."))
+                    //        {
+                    //            attribresult = attribresult.Substring(0, attribresult.IndexOf('.'));
+                    //        }
+                    //    }
+                    //    catch (Exception ee)
+                    //    {
+                    //        LogExceptions("\r\n" + ee.ToString());
+                    //        Console.WriteLine("Error Converting Result: " + attribresult);
+                    //    }
 
 
-                    }
-                    else if (attribcode.ToLower().Equals("900") || attribcode.ToLower().Equals("999") || attribcode.ToLower().Equals("102"))
+                    //}
+                    if (attribcode.ToLower().Equals("900") || attribcode.ToLower().Equals("999") || attribcode.ToLower().Equals("102"))
                     {
                         if (attribresult.Contains("-1^"))
                         {
@@ -522,19 +522,19 @@ public class AsynchronousSocketListener
                         }
 
                     }
-                    else if (attribcode.ToLower().Equals("eo%") || attribcode.ToLower().Equals("mono%") || attribcode.ToLower().Equals("neut%") || attribcode.ToLower().Equals("lymph%"))
-                    {
-                        try
-                        {
-                            attribresult = Math.Round(Convert.ToDecimal(attribresult)).ToString().Trim();
-                            if (attribresult.Contains("."))
-                            {
-                                attribresult = attribresult.Substring(0, attribresult.IndexOf('.'));
-                            }
-                        }
-                        catch
-                        { }
-                    }
+                    //else if (attribcode.ToLower().Equals("eo%") || attribcode.ToLower().Equals("mono%") || attribcode.ToLower().Equals("neut%") || attribcode.ToLower().Equals("lymph%"))
+                    //{
+                    //    try
+                    //    {
+                    //        attribresult = Math.Round(Convert.ToDecimal(attribresult)).ToString().Trim();
+                    //        if (attribresult.Contains("."))
+                    //        {
+                    //            attribresult = attribresult.Substring(0, attribresult.IndexOf('.'));
+                    //        }
+                    //    }
+                    //    catch
+                    //    { }
+                    //}
                     if (labid == "")
                     {
                         labid = patid;
