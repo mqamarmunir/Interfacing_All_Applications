@@ -128,13 +128,13 @@ namespace DataModel
                         outputLines.Add(string.Format("- Property: \"{0}\", Error: \"{1}\"", ve.PropertyName, ve.ErrorMessage));
                     }
                 }
-                System.IO.File.AppendAllLines(@"E:\errors.txt", outputLines);
+                //System.IO.File.AppendAllLines(@"E:\errors.txt", outputLines);
 
                 throw e;
             }
             catch (Exception ee)
             {
-                System.IO.File.AppendAllText(@"E:\errors.txt", ee.ToString());
+                //System.IO.File.AppendAllText(@"E:\errors.txt", ee.ToString());
                 throw ee;
             }
 

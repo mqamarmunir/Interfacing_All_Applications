@@ -238,7 +238,7 @@ public class AsynchronousSocketListener
             timer.Start();
         StartListening();
         //ParseBeckManHematology();
-         //UpdateRemoteDatabase(null,null);
+         // UpdateRemoteDatabase(null,null);
         Console.ReadLine();
         return 0;
     }
@@ -443,6 +443,12 @@ public class AsynchronousSocketListener
                         Console.WriteLine("Exception on getting Patientid: " + ee.ToString());
                     }
                 }
+                else if (def[j].Length > 5 && (def[j].Substring(3, 2).Equals("O|") || def[j].StartsWith("O|")))
+                {
+                    labid = def[j].Split(sep3)[3].ToString();
+                    if (labid.Contains("^"))
+                        labid = labid.Split(sep4)[2].ToString().Trim();
+                }
                 else if (def[j].Contains("O|") && def[j].Contains("R|") && def[j].IndexOf("O|") < def[j].IndexOf("R|"))
                 {
                     ///Get lab ID
@@ -460,12 +466,7 @@ public class AsynchronousSocketListener
                     }
 
                 }
-                else if (def[j].Length > 5 && def[j].Substring(3, 2).Equals("O|"))
-                {
-                    labid = def[j].Split(sep3)[3].ToString();
-                    if (labid.Contains("^"))
-                        labid = labid.Split(sep4)[2].ToString().Trim();
-                }
+                
                 else if (def[j].Contains("R|"))
                 {
                     //Get Result
@@ -531,7 +532,7 @@ public class AsynchronousSocketListener
                         catch
                         { }
                     }
-                    if (labid == "")
+                    if (string.IsNullOrEmpty(labid) && !string.IsNullOrEmpty(patid))
                     {
                         labid = patid;
                     }
@@ -558,11 +559,13 @@ public class AsynchronousSocketListener
                         Result = attribresult,
                         Status = "N"
                     };
-                    //var resultserialized = Newtonsoft.Json.JsonConvert.SerializeObject(objresult);
+                   // var resultserialized = Newtonsoft.Json.JsonConvert.SerializeObject(objresult);
+                    string parsedData = labid + "," + attribcode + "," + System.DateTime.Now.ToString("dd/MM/yyyy HH:mm") + "," + attribresult;
+                    LogParsedData(parsedData + "\r\n");
                     //Console.WriteLine(MachineID + " Serialized result: " + resultserialized);
                     _unitOfWork.ResultsRepository.Insert(objresult);
 
-                    //string pars = labid + "," + attribcode + "," + System.DateTime.Now.ToString("dd/MM/yyyy HH:mm") + "," + attribresult;
+                    
                     ////writeLog("parsed data: " + pars);
                     ////Console.WriteLine("parsed string:" + pars);
                     //InsertBooking(pars);
@@ -583,6 +586,16 @@ public class AsynchronousSocketListener
         }
 
     }
+
+    private static void LogParsedData(string data)
+    {
+        string DirInfo = AppDomain.CurrentDomain.BaseDirectory;
+
+        if (!Directory.Exists(Path.Combine(DirInfo, "ParsedData")))
+            Directory.CreateDirectory(Path.Combine(DirInfo, "ParsedData"));
+        File.AppendAllText(Path.Combine(Path.Combine(DirInfo, "ParsedData"), DateTime.Now.ToString("ddMMyyyy") + ".txt"), data);
+    }
+
     public static void LogReceivedData(string MachineID, string data)
     {
         string DirInfo = AppDomain.CurrentDomain.BaseDirectory;
