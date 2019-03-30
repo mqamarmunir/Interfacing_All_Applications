@@ -178,7 +178,7 @@ namespace BusinessLayer
                 case 1:
                     objdbhims.Query = @"Select i.CliqInstrumentId CliqMachineID,m.AttributeId MachineAttributeCode, m.* from mi_tresult m inner join mi_tinstruments i on i.instrumentid=m.InstrumentId where m.Status='N'
                                         and length(Result)<20 and m.enteredon between date_sub(now(),interval 2 hour) and now()
-                                        order by resultid,bookingid asc limit 200";
+                                        order by resultid,bookingid asc limit "+ConfigurationSettings.AppSettings["ResultsToSendInOneTime"].ToString().Trim();
                     break;
             }
             return objTrans.DataTrigger_Get_All<T>(objdbhims);
