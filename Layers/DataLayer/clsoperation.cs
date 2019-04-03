@@ -189,51 +189,70 @@ namespace DataLayer
 
         public DataView DataTrigger_Get_All(Iinterface Entity)
         {
-            
-            Conn = Objconn.Odbc_SQL_Connection;
-            ObjCmd = Entity.Get_All();
-            ObjCmd.Connection = Conn;
-            var list=SqlMapper.Query<cliqresultsNew>(Conn, ObjCmd.CommandText);
-            MySqlDataAdapter da = new MySqlDataAdapter(ObjCmd);
-            DataSet DS = new DataSet();
-            da.Fill(DS);
-            ObjCmd.Connection.Close();
-            ObjCmd.Connection.Dispose();
-            ObjCmd.Connection = null;
+            try
+            {
+                using (Conn = Objconn.Odbc_SQL_Connection)
+                {
+                    ObjCmd = Entity.Get_All();
+                    ObjCmd.Connection = Conn;
 
-            DataView DV = new DataView(DS.Tables[0]);
+                    using (MySqlDataAdapter da = new MySqlDataAdapter(ObjCmd))
+                    {
+                        DataSet DS = new DataSet();
+                        da.Fill(DS);
+                        ObjCmd.Connection.Close();
+                        ObjCmd.Connection.Dispose();
+                        ObjCmd.Connection = null;
 
-            DS.Dispose();
-            DS = null;				//null
-            da = null;				//null
-            Objconn.Dispose();		//null
-            Conn.Close();			//null
-            Conn.Dispose();			//null
-            Conn = null;			//null
-            ObjCmd = null;			//null
+                        DataView DV = new DataView(DS.Tables[0]);
 
-            return DV;
+                        DS.Dispose();
+                        DS = null;              //null
+                                                // da = null;              //null
+                        Objconn.Dispose();      //null
+                                                //null
+                        ObjCmd = null;          //null
+                        return DV;
+                    }
+
+
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
-        public IEnumerable<T> DataTrigger_Get_All<T>(Iinterface Entity) where T:class
+        public IEnumerable<T> DataTrigger_Get_All<T>(Iinterface Entity) where T : class
         {
-            
-            Conn = Objconn.Odbc_SQL_Connection;
-            ObjCmd = Entity.Get_All();
-            ObjCmd.Connection = Conn;
-            var list = SqlMapper.Query<T>(Conn, ObjCmd.CommandText);
-            
-            ObjCmd.Connection.Close();
-            ObjCmd.Connection.Dispose();
-            ObjCmd.Connection = null;
+            try
+            {
+                using (Conn = Objconn.Odbc_SQL_Connection)
+                {
+                    ObjCmd = Entity.Get_All();
+                    ObjCmd.Connection = Conn;
+                    var list = SqlMapper.Query<T>(Conn, ObjCmd.CommandText);
 
-        
-            Objconn.Dispose();		//null
-            Conn.Close();			//null
-            Conn.Dispose();			//null
-            Conn = null;			//null
-            ObjCmd = null;			//null
+                    ObjCmd.Connection.Close();
+                    ObjCmd.Connection.Dispose();
+                    ObjCmd.Connection = null;
 
-            return list;
+
+                    Objconn.Dispose();      //null
+                    Conn.Close();           //null
+                    Conn.Dispose();         //null
+                    Conn = null;            //null
+                    ObjCmd = null;          //null
+
+                    return list;
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
 
         //		public DataView Transaction_Get_All(Iinterface Entity)
@@ -275,7 +294,7 @@ namespace DataLayer
 
         public DataView Transaction_Get_Single(Iinterface Entity)
         {
-            ObjCmd = Entity.Get_Single();            
+            ObjCmd = Entity.Get_Single();
             //ObjCmd.Connection = Conn;
             ObjCmd.Connection = DbTrans.Connection;
             ObjCmd.Transaction = DbTrans;

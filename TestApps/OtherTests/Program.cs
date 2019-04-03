@@ -3,15 +3,10 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using System.IO;
 using DataModel;
-using System.Timers;
-
-using BusinessLayer;
-using BusinessEntities;
-using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using Common;
 // State object for reading client data asynchronously  
 public class StateObject
 {
@@ -27,11 +22,9 @@ public class StateObject
 
 public class AsynchronousSocketListener
 {
-    private static System.Timers.Timer timer;//=new System.Timers.Timer(60000D);
+    
     private static UnitOfWork _unitOfWork = new UnitOfWork();
-    // Thread signal.  
 
-    //private static Timer timer_deleteolddata;
     public static ManualResetEvent allDone = new ManualResetEvent(false);
 
     public AsynchronousSocketListener()
@@ -87,7 +80,7 @@ public class AsynchronousSocketListener
         }
         catch (Exception e)
         {
-            LogExceptions("\r\n" + e.ToString());
+            Logger.LogExceptions(e.ToString());
             Console.WriteLine(e.ToString());
         }
 
@@ -114,21 +107,25 @@ public class AsynchronousSocketListener
 
     public static void ReadCallback(IAsyncResult ar)
     {
+       
         try
         {
-
+            StateObject state = (StateObject)ar.AsyncState;
+            
+            Socket handler = state.workSocket;
+            Console.WriteLine("In read call back. IP:" + (handler.RemoteEndPoint as IPEndPoint).Address.ToString());
+            SocketError errorCode;
 
             String content = String.Empty;
 
             // Retrieve the state object and the handler socket  
             // from the asynchronous state object.  
-            StateObject state = (StateObject)ar.AsyncState;
-            Socket handler = state.workSocket;
-            SocketError errorCode;
+            
             // Read data from the client socket.   
             int bytesRead = handler.EndReceive(ar, out errorCode);
             if (errorCode != SocketError.Success)
             {
+                Logger.LogExceptions("Socket Error IP: " + (handler.RemoteEndPoint as IPEndPoint).Address.ToString()+" "+errorCode.ToString());
                 bytesRead = 0;
             }
 
@@ -143,21 +140,22 @@ public class AsynchronousSocketListener
 
                 // Check for end-of-file tag. If it is not there, read   
                 // more data.  
-                Send(handler, new byte[] { 0x06 });//send ack
+                var machineSettings = _unitOfWork.InstrumentsRepository.GetAll().Where(x => x.IpAddress == (state.workSocket.RemoteEndPoint as IPEndPoint).Address.ToString()).FirstOrDefault();
 
-                if (state.sb.ToString().IndexOf("L|1") > -1)
+                Send(handler, new byte[] { 0x06 });//send ack
+                if (state.sb.ToString().IndexOf(machineSettings.RecordTerminator) > -1)
                 {
                     content = state.sb.ToString();
                     state.sb.Clear();
-                    var machineSettings = _unitOfWork.InstrumentsRepository.GetAll().Where(x => x.IpAddress == (state.workSocket.RemoteEndPoint as IPEndPoint).Address.ToString()).FirstOrDefault();
+                    
                     if (machineSettings != null && machineSettings.CliqInstrumentID.HasValue)
                     {
                         Console.WriteLine("Read {0} bytes from socket. \n Data : {1}",
                        content.Length, content);
                         //if(!File.Exists(System.Configuration.ConfigurationSettings.AppSettings["WriteFilePath"]))
                         //    File.Create(System.Configuration.ConfigurationSettings.AppSettings["WriteFilePath"]);
-                        LogReceivedData(machineSettings.Instrument_Name, content);
-                        Parsethisandinsert(content, 1, machineSettings.InstrumentID);
+                        Logger.LogReceivedData(machineSettings.Instrument_Name, content);
+                        Parsethisandinsert(content, 1, machineSettings);
                     }
                     else
                     {
@@ -183,9 +181,10 @@ public class AsynchronousSocketListener
         }
         catch (Exception ee)
         {
-            LogExceptions("\r\n" + ee.ToString());
+            Logger.LogExceptions(ee.ToString());
 
         }
+        
     }
 
     private static void Send(Socket handler, String data)
@@ -224,158 +223,30 @@ public class AsynchronousSocketListener
         }
         catch (Exception e)
         {
-            LogExceptions("\r\n" + e.ToString());
+            Logger.LogExceptions(e.ToString());
             Console.WriteLine(e.ToString());
         }
     }
 
     public static int Main(String[] args)
     {
-        timer = new System.Timers.Timer(30000D);  // 30000 milliseconds = 30 seconds
-        timer.AutoReset = true;
-        timer.Elapsed += new System.Timers.ElapsedEventHandler(UpdateRemoteDatabase);
-        if (System.Configuration.ConfigurationSettings.AppSettings["IsUpdateRemoteDatabase"].ToString().Trim() == "Y")
-            timer.Start();
+        //timer = new System.Timers.Timer(30000D);  // 30000 milliseconds = 30 seconds
+        //timer.AutoReset = true;
+        //timer.Elapsed += new System.Timers.ElapsedEventHandler(UpdateRemoteDatabase);
+        //if (System.Configuration.ConfigurationSettings.AppSettings["IsUpdateRemoteDatabase"].ToString().Trim() == "Y")
+        //    timer.Start();
         StartListening();
         //ParseBeckManHematology();
-         //UpdateRemoteDatabase(null,null);
+       //  UpdateRemoteDatabase(null,null);
         Console.ReadLine();
         return 0;
-    }
-
-    private static void UpdateRemoteDatabase(object sender, ElapsedEventArgs e)
-    {
-        timer.Stop();
-        #region Web Service Methodology
-        clsBLMain objMai = new clsBLMain();
-        var lstresults = objMai.GetAll<cliqresultsNew>(1);
-        if (lstresults.ToList().Count > 0)
-        {
-            //Console.WriteLine("Found results:" + dv.Count.ToString());
-            try
-            {
-                //List<cliqresultsNew> lstresults = new List<cliqresultsNew>();
-                //for (int i = 0; i < dv.Count; i++)
-                //{
-                //    lstresults.Add(new cliqresultsNew
-                //    {
-                //        ResultID = Convert.ToInt32(dv[i]["ResultID"].ToString().Trim()),
-                //        BookingID = Convert.ToInt64(dv[i]["BookingID"].ToString().Trim()),
-                //        ClientID = Convert.ToInt32(dv[i]["ClientID"].ToString().Trim()),
-
-                //        CliqMachineID = Convert.ToInt32(dv[i]["CliqInstrumentId"].ToString().Trim()),
-                //        Result = dv[i]["Result"].ToString().Trim(),
-                //        MachineAttributeCode = dv[i]["AttributeId"].ToString().Trim()
-
-                //    });
-                //}
-
-                var groupedresults = (from p in lstresults
-                                      group p by new { p.BookingID, p.ClientID } into g
-                                      select new cliqResultsBookingwise
-                                      {
-                                          branch_id = g.Key.ClientID,
-
-                                          order_no = g.Key.BookingID,
-                                          data = g.Select(c => new cliqResultBookingwiseDetail
-                                          {
-                                              attribute_id = c.MachineAttributeCode,
-                                              attribute_result = c.Result,
-                                              machine_id = c.CliqMachineID
-                                          }).ToList()
-                                      }
-                                    );
-
-                var json = Newtonsoft.Json.JsonConvert.SerializeObject(groupedresults);
-                LogSentDataToServer(json);
-                var content = Helper.PostResultsToCliq(System.Configuration.ConfigurationSettings.AppSettings["WebServicebasePath"].ToString().Trim(), json);
-                LogReceivedDataFromServer(Newtonsoft.Json.JsonConvert.SerializeObject(new { content.StatusCode, content.Content, content.StatusDescription }));
-                if (content.IsSuccessful)
-                {
-
-                    //var cliqresultresponse = Newtonsoft.Json.JsonConvert.DeserializeObject<CliqResultResponseNew>(content.Content);
-
-                    clsBLMain objMain = new clsBLMain();
-                    foreach (var result in lstresults)
-                    {
-                        //objMain = new clsBLMain();
-                        objMain.status = "Y";
-                        objMain.Sentto = System.Configuration.ConfigurationSettings.AppSettings["WebServicebasePath"].ToString().Trim();
-                        objMain.Senton = System.DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss tt");
-                        objMain.ResultID = result.ResultID.ToString();
-                        try
-                        {
-                            objMain.Update();
-
-                        }
-                        catch (Exception ee)
-                        {
-                            LogExceptions(ee.ToString());
-                            Console.WriteLine("Error while updating local record id: " + result.ResultID.ToString() + "-------" + ee.ToString());
-                        }
-
-                    }
-
-
-                }
-                else
-                {
-                    clsBLMain objMain = new clsBLMain();
-                    Console.WriteLine("Some Problem occured in remote call. Call: " + System.Configuration.ConfigurationSettings.AppSettings["WebServicebasePath"].ToString().Trim() + "/ricapi/site/curl_data?str=" + json.ToString().Trim());
-                    foreach (var result in lstresults)
-                    {
-                        //objMain = new clsBLMain();
-                        objMain.status = "X";
-                        objMain.Sentto = System.Configuration.ConfigurationSettings.AppSettings["WebServicebasePath"].ToString().Trim();
-                        objMain.Senton = System.DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss tt");
-                        objMain.ResultID = result.ResultID.ToString();
-                        try
-                        {
-                            if (!objMain.Update())
-                            {
-                                LogExceptions(objMain.Error);
-
-                            }
-
-                        }
-                        catch (Exception ee)
-                        {
-                            LogExceptions(ee.ToString());
-
-                            Console.WriteLine("Error while updating local record id: " + result.ResultID.ToString() + "-------" + ee.ToString());
-                        }
-
-                    }
-                }
-            }
-            catch (Exception ee)
-            {
-                LogExceptions("\r\n" + ee.ToString());
-                Console.WriteLine(ee.Message.ToString());
-                //Console.WriteLine(ee.ToString(), EventLogEntryType.Error);
-                // MessageBox.Show(ee.Message);
-            }
-            finally
-            {
-                timer.Start();
-            }
-
-
-        }
-        else
-        {
-            Console.WriteLine("No pending results");
-            timer.Start();
-        }
-
-        #endregion
     }
 
     private static void ParseBeckManHematology()
     {
         var data = System.IO.File.ReadAllText("E:\\WriteMe.txt");
         var x = data.Split(new char[] { Convert.ToChar(3) });
-        Parsethisandinsert(data, 1, 1);
+        //Parsethisandinsert(data, 1, 1);
         Console.WriteLine("abc");
         //foreach (char c in data.ToCharArray())
         //{
@@ -384,7 +255,7 @@ public class AsynchronousSocketListener
         //    System.IO.File.AppendAllText("E:\\writebytes.txt",c + "      " + Convert.ToByte(c)+"\n");
         //}
     }
-    private static void Parsethisandinsert(string data, int Parsingalgorithm, long MachineID)
+    private static void Parsethisandinsert(string data, int Parsingalgorithm, mi_tinstruments machineSettings)
     {
 
         switch (Parsingalgorithm)
@@ -394,15 +265,16 @@ public class AsynchronousSocketListener
             ///sysmex xs800i,cobase411,cobasu411(urine analyzer)
             ///
             case 1:
-                ParseASTMData(data, MachineID);
+                ParseASTMData(data, machineSettings);
                 break;//case 1 ends here
             case 2://AU480 Beckman
                 //ParseAu480(data, MachineID);
                 break;
         }
     }
-    private static void ParseASTMData(string data, long MachineID)
+    private static void ParseASTMData(string data, mi_tinstruments machineSettings)
     {
+        long MachineID = machineSettings.InstrumentID;
         string datetime = "";
         string labid = "";
         string attribresult = "";
@@ -410,7 +282,7 @@ public class AsynchronousSocketListener
         string patid = "";
         string machineName = "";
 
-        string[] sep1 = { "L|1" };
+        string[] sep1 = { machineSettings.RecordTerminator};
 
         char[] sep2 = { Convert.ToChar(13) };
         string[] abc = data.Split(sep1, StringSplitOptions.RemoveEmptyEntries);
@@ -439,11 +311,11 @@ public class AsynchronousSocketListener
                     string[] patinfo = def[j].Split(sep3);
                     try
                     {
-                        patid = patinfo[4].ToString();
+                        patid = string.IsNullOrEmpty(patinfo[4].ToString()) ? patinfo[3].ToString() : patinfo[4].ToString().Trim();
                     }
                     catch (Exception ee)
                     {
-                        LogExceptions("\r\n" + ee.ToString());
+                        Logger.LogExceptions(ee.ToString());
                         Console.WriteLine("Exception on getting Patientid: " + ee.ToString());
                     }
                 }
@@ -536,20 +408,22 @@ public class AsynchronousSocketListener
                     //    catch
                     //    { }
                     //}
-                    if (labid == "")
+                    if (string.IsNullOrEmpty(labid))
                     {
                         labid = patid;
                     }
-
-                    clsBLMain objMain = new clsBLMain();
-                    objMain.BookingID = labid;
-                    objMain.AttributeID = attribcode;
-                    objMain.Result = attribresult;
-                    objMain.InstrumentID = MachineID;
-
-                    DataView dv = objMain.GetAll(8);
-                    if (dv.Count > 0)
+                    var sameResultExists = _unitOfWork.ResultsRepository.GetManyQueryable(x => x.BookingID == labid && x.AttributeID == attribcode && x.Result == attribresult && x.InstrumentId == MachineID);
+                    if (sameResultExists.Any())
                         continue;
+                    //    clsBLMain objMain = new clsBLMain();
+                    //objMain.BookingID = labid;
+                    //objMain.AttributeID = attribcode;
+                    //objMain.Result = attribresult;
+                    //objMain.InstrumentID = MachineID;
+
+                    //DataView dv = objMain.GetAll(8);
+                    //if (dv.Count > 0)
+                    //    continue;
 
 
                     var objresult = new DataModel.mi_tresult
@@ -565,7 +439,7 @@ public class AsynchronousSocketListener
                     };
                    // var resultserialized = Newtonsoft.Json.JsonConvert.SerializeObject(objresult);
                     string parsedData = labid + "," + attribcode + "," + System.DateTime.Now.ToString("dd/MM/yyyy HH:mm") + "," + attribresult;
-                    LogParsedData(parsedData + "\r\n");
+                    Logger.LogParsedData(parsedData);
                     //Console.WriteLine(MachineID + " Serialized result: " + resultserialized);
                     _unitOfWork.ResultsRepository.Insert(objresult);
 
@@ -585,62 +459,14 @@ public class AsynchronousSocketListener
         }
         catch (Exception ee)
         {
-            LogExceptions("\r\n" + ee.ToString());
+            Logger.LogExceptions(ee.ToString());
             Console.WriteLine("On Saving to local results table: " + ee.ToString());//, EventLogEntryType.Error);
         }
 
     }
+    
 
-    private static void LogParsedData(string data)
-    {
-        string DirInfo = AppDomain.CurrentDomain.BaseDirectory;
-
-        if (!Directory.Exists(Path.Combine(DirInfo, "ParsedData")))
-            Directory.CreateDirectory(Path.Combine(DirInfo, "ParsedData"));
-        File.AppendAllText(Path.Combine(Path.Combine(DirInfo, "ParsedData"), DateTime.Now.ToString("ddMMyyyy") + ".txt"), data);
-    }
-
-    public static void LogReceivedData(string MachineID, string data)
-    {
-        string DirInfo = AppDomain.CurrentDomain.BaseDirectory;
-
-        if (!Directory.Exists(Path.Combine(DirInfo, "ReceivedDataLogFiles")))
-            Directory.CreateDirectory(Path.Combine(DirInfo, "ReceivedDataLogFiles"));
-        File.AppendAllText(Path.Combine(Path.Combine(DirInfo, "ReceivedDataLogFiles"), MachineID + ".txt"), data);
-    }
-    public static void LogSentDataToServer(string data)
-    {
-        string DirInfo = AppDomain.CurrentDomain.BaseDirectory;
-
-        if (!Directory.Exists(Path.Combine(DirInfo, "SentDataToServer")))
-            Directory.CreateDirectory(Path.Combine(DirInfo, "SentDataToServer"));
-        File.AppendAllText(Path.Combine(Path.Combine(DirInfo, "SentDataToServer"), System.DateTime.Now.ToString("ddMMyyyy") + ".txt"), data);
-    }
-    public static void LogReceivedDataFromServer(string data)
-    {
-        string DirInfo = AppDomain.CurrentDomain.BaseDirectory;
-
-        if (!Directory.Exists(Path.Combine(DirInfo, "ReceivedDataFromServer")))
-            Directory.CreateDirectory(Path.Combine(DirInfo, "ReceivedDataFromServer"));
-        File.AppendAllText(Path.Combine(Path.Combine(DirInfo, "ReceivedDataFromServer"), System.DateTime.Now.ToString("ddMMyyyy") + ".txt"), data);
-    }
-    public static void LogExceptions(string data)
-    {
-        try
-        {
+   
 
 
-
-            string DirInfo = AppDomain.CurrentDomain.BaseDirectory;
-
-            if (!Directory.Exists(Path.Combine(DirInfo, "Exceptions")))
-                Directory.CreateDirectory(Path.Combine(DirInfo, "Exceptions"));
-            File.AppendAllText(Path.Combine(Path.Combine(DirInfo, "Exceptions"), System.DateTime.Now.ToString("ddMMyyyy") + ".txt"), data);
-        }
-        catch 
-        {
-
-           
-        }
-    }
 }
