@@ -274,6 +274,10 @@ public class AsynchronousSocketListener
     }
     private static void ParseASTMData(string data, mi_tinstruments machineSettings)
     {
+        try
+        {
+
+        
         long MachineID = machineSettings.InstrumentID;
         string datetime = "";
         string labid = "";
@@ -412,9 +416,16 @@ public class AsynchronousSocketListener
                     {
                         labid = patid;
                     }
-                    var sameResultExists = _unitOfWork.ResultsRepository.GetManyQueryable(x => x.BookingID == labid && x.AttributeID == attribcode && x.Result == attribresult && x.InstrumentId == MachineID);
-                    if (sameResultExists.Any())
-                        continue;
+                    try
+                    {
+                        var sameResultExists = _unitOfWork.ResultsRepository.GetManyQueryable(x => x.BookingID == labid && x.AttributeID == attribcode && x.Result == attribresult && x.InstrumentId == MachineID).Any();
+                        if (sameResultExists)
+                            continue;
+                    }
+                    catch (Exception ee)
+                    {
+                        Logger.LogExceptions(ee.ToString());
+                    }
                     //    clsBLMain objMain = new clsBLMain();
                     //objMain.BookingID = labid;
                     //objMain.AttributeID = attribcode;
@@ -461,6 +472,12 @@ public class AsynchronousSocketListener
         {
             Logger.LogExceptions(ee.ToString());
             Console.WriteLine("On Saving to local results table: " + ee.ToString());//, EventLogEntryType.Error);
+        }
+        }
+        catch (Exception ee)
+        {
+
+            Logger.LogExceptions(ee.ToString());
         }
 
     }
