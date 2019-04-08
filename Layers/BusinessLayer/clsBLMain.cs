@@ -254,7 +254,7 @@ order by resultid,bookingid asc limit " + ConfigurationSettings.AppSettings["Res
             QueryBuilder objQB = new QueryBuilder();
 
             objTrans.Start_Transaction();
-            objdbhims.Query = "Delete from mi_tresult where enteredon<date_sub(Now(), Interval 10 day)";// Will delete 10 days old data
+            objdbhims.Query = "Delete from mi_tresult where Status!='N'";// Will delete 10 days old data
             this.StrErrorMessage = objTrans.DataTrigger_Delete(objdbhims);
             if (StrErrorMessage.Equals("True"))
             {
