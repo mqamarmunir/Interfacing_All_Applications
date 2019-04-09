@@ -145,8 +145,16 @@ public class AsynchronousSocketListener
                 Send(handler, new byte[] { 0x06 });//send ack
                 if (state.sb.ToString().IndexOf(machineSettings.RecordTerminator) > -1)
                 {
-                    content = state.sb.ToString();
+                    string fullText = state.sb.ToString();
+                    content = fullText.Substring(0, fullText.IndexOf(machineSettings.RecordTerminator)+machineSettings.RecordTerminator.Length);
                     state.sb.Clear();
+                    if (fullText.LastIndexOf(@"H|\^&") > 0)
+                    {
+                        string remainingContent = fullText.Substring(fullText.IndexOf(@"H|\^&"));
+
+                        state.sb.Append(remainingContent);
+                    }
+                    
                     
                     if (machineSettings != null && machineSettings.CliqInstrumentID.HasValue)
                     {
