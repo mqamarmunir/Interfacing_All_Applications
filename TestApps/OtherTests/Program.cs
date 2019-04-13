@@ -22,8 +22,8 @@ public class StateObject
 
 public class AsynchronousSocketListener
 {
-    
-    private static UnitOfWork _unitOfWork = new UnitOfWork();
+
+    // private UnitOfWork _unitOfWork = new UnitOfWork();
 
     public static ManualResetEvent allDone = new ManualResetEvent(false);
 
@@ -67,7 +67,7 @@ public class AsynchronousSocketListener
                 allDone.Reset();
 
                 // Start an asynchronous socket to listen for connections.  
-                Console.WriteLine("Waiting for a connection at: "+localEndPoint.Address.ToString()+":"+localEndPoint.Port.ToString());
+                Console.WriteLine("Waiting for a connection at: " + localEndPoint.Address.ToString() + ":" + localEndPoint.Port.ToString());
                 if (!listener.Connected)
                     listener.BeginAccept(
                     new AsyncCallback(AcceptCallback),
@@ -107,11 +107,11 @@ public class AsynchronousSocketListener
 
     public static void ReadCallback(IAsyncResult ar)
     {
-       
+
         try
         {
             StateObject state = (StateObject)ar.AsyncState;
-            
+
             Socket handler = state.workSocket;
             Console.WriteLine("In read call back. IP:" + (handler.RemoteEndPoint as IPEndPoint).Address.ToString());
             SocketError errorCode;
@@ -120,12 +120,12 @@ public class AsynchronousSocketListener
 
             // Retrieve the state object and the handler socket  
             // from the asynchronous state object.  
-            
+
             // Read data from the client socket.   
             int bytesRead = handler.EndReceive(ar, out errorCode);
             if (errorCode != SocketError.Success)
             {
-                Logger.LogExceptions("Socket Error IP: " + (handler.RemoteEndPoint as IPEndPoint).Address.ToString()+" "+errorCode.ToString());
+                Logger.LogExceptions("Socket Error IP: " + (handler.RemoteEndPoint as IPEndPoint).Address.ToString() + " " + errorCode.ToString());
                 bytesRead = 0;
             }
 
@@ -140,6 +140,7 @@ public class AsynchronousSocketListener
 
                 // Check for end-of-file tag. If it is not there, read   
                 // more data.  
+                var _unitOfWork = new UnitOfWork();
                 var machineSettings = _unitOfWork.InstrumentsRepository.GetAll().Where(x => x.IpAddress == (state.workSocket.RemoteEndPoint as IPEndPoint).Address.ToString()).FirstOrDefault();
 
                 Send(handler, new byte[] { 0x06 });//send ack
@@ -192,7 +193,7 @@ public class AsynchronousSocketListener
             Logger.LogExceptions(ee.ToString());
 
         }
-        
+
     }
 
     private static void Send(Socket handler, String data)
@@ -245,7 +246,7 @@ public class AsynchronousSocketListener
         //    timer.Start();
         StartListening();
         //ParseBeckManHematology();
-       //  UpdateRemoteDatabase(null,null);
+        //  UpdateRemoteDatabase(null,null);
         Console.ReadLine();
         return 0;
     }
@@ -284,203 +285,203 @@ public class AsynchronousSocketListener
     {
         try
         {
+            long MachineID = machineSettings.InstrumentID;
+            string datetime = "";
+            string labid = "";
+            string attribresult = "";
+            string attribcode = "";
+            string patid = "";
+            string machineName = "";
 
-        
-        long MachineID = machineSettings.InstrumentID;
-        string datetime = "";
-        string labid = "";
-        string attribresult = "";
-        string attribcode = "";
-        string patid = "";
-        string machineName = "";
+            string[] sep1 = { machineSettings.RecordTerminator };
 
-        string[] sep1 = { machineSettings.RecordTerminator};
-
-        char[] sep2 = { Convert.ToChar(13) };
-        string[] abc = data.Split(sep1, StringSplitOptions.RemoveEmptyEntries);
-        char[] sep3 = { '|' };
-        char[] sep4 = { '^' };
-        for (int i = 0; i <= abc.GetUpperBound(0); i++)
-        {
-            string[] def = abc[i].Split(sep2);
-            for (int j = 0; j < def.GetUpperBound(0); j++)
+            char[] sep2 = { Convert.ToChar(13) };
+            string[] abc = data.Split(sep1, StringSplitOptions.RemoveEmptyEntries);
+            char[] sep3 = { '|' };
+            char[] sep4 = { '^' };
+            var _unitOfWork = new UnitOfWork();
+            for (int i = 0; i <= abc.GetUpperBound(0); i++)
             {
-                if (def[j].Contains("H|") && !def[j].Contains("O|") && !def[j].Contains("R|"))
+                string[] def = abc[i].Split(sep2);
+                for (int j = 0; j < def.GetUpperBound(0); j++)
                 {
-                    // Get date time
-                    // def[j] = def[j].Replace("||", "");
+                    if (def[j].Contains("H|") && !def[j].Contains("O|") && !def[j].Contains("R|"))
+                    {
+                        // Get date time
+                        // def[j] = def[j].Replace("||", "");
 
-                    string[] header = def[j].Split(sep3);
-                    try
-                    {
-                        machineName = header[4].Split(sep4)[0].Trim();
-                        datetime = header[13].ToString();
-                    }
-                    catch { }
-                }
-                else if (def[j].Contains("P|1") && (!def[j].Contains("O|") || def[j].IndexOf("P|") < def[j].IndexOf("O|")) && (!def[j].Contains("R|") || def[j].IndexOf("P|") < def[j].IndexOf("R|")))
-                {
-                    string[] patinfo = def[j].Split(sep3);
-                    try
-                    {
-                        patid = string.IsNullOrEmpty(patinfo[4].ToString()) ? patinfo[3].ToString() : patinfo[4].ToString().Trim();
-                    }
-                    catch (Exception ee)
-                    {
-                        Logger.LogExceptions(ee.ToString());
-                        Console.WriteLine("Exception on getting Patientid: " + ee.ToString());
-                    }
-                }
-                else if (def[j].Length > 5 && (def[j].Substring(3, 2).Equals("O|") || def[j].StartsWith("O|")))
-                {
-                    labid = def[j].Split(sep3)[3].ToString();
-                    if (labid.Contains("^"))
-                        labid = labid.Split(sep4)[2].ToString().Trim();
-                }
-                else if (def[j].Contains("O|") && def[j].Contains("R|") && def[j].IndexOf("O|") < def[j].IndexOf("R|"))
-                {
-                    ///Get lab ID
-                    string[] order = def[j].Split(sep3);
-                    labid = order[2].ToString();
-                    if (String.IsNullOrEmpty(labid) && order.Length > 3)
-                    {
-                        labid = order[3];
-                    }
-                    if (labid.Contains("^"))
-                    {
-                        string[] splitlabid = labid.Split(sep4);
-                        labid = splitlabid[1].ToString().Trim().Length < 4 ? splitlabid[2].Trim() : splitlabid[1].Trim();
-
-                    }
-
-                }
-                
-                else if (def[j].Contains("R|"))
-                {
-                    //Get Result
-                    string[] result = def[j].Split(sep3);
-                    attribresult = result[3].ToString();
-                    string[] attcode = result[2].Split(sep4);
-                    //writeLog("Result[2]: " + result[2]);
-                    if (attcode[3] != "")
-                    {
-                        attribcode = attcode[3].ToString();
-                    }
-                    else
-                    {
-                        attribcode = attcode[4].ToString();
-                    }
-                    if (attribcode.Contains(@"/"))
-                    {
-                        attribcode = attribcode.Replace(@"/", "");
-                    }
-                    //if (attribcode.ToLower() == "wbc" || attribcode.ToLower() == "plt")
-                    //{
-
-                    //    try
-                    //    {
-                    //        attribresult = ((Convert.ToDecimal(attribresult)) * 1000).ToString();
-                    //        if (attribresult.Contains("."))
-                    //        {
-                    //            attribresult = attribresult.Substring(0, attribresult.IndexOf('.'));
-                    //        }
-                    //    }
-                    //    catch (Exception ee)
-                    //    {
-                    //        LogExceptions("\r\n" + ee.ToString());
-                    //        Console.WriteLine("Error Converting Result: " + attribresult);
-                    //    }
-
-
-                    //}
-                    if (attribcode.ToLower().Equals("900") || attribcode.ToLower().Equals("999") || attribcode.ToLower().Equals("102"))
-                    {
-                        if (attribresult.Contains("-1^"))
+                        string[] header = def[j].Split(sep3);
+                        try
                         {
-                            attribresult = attribresult.Replace("-1^", "Negative  \r\n");
-
+                            machineName = header[4].Split(sep4)[0].Trim();
+                            datetime = header[13].ToString();
                         }
-                        else if (attribresult.Contains("1^"))
+                        catch { }
+                    }
+                    else if (def[j].Contains("P|1") && (!def[j].Contains("O|") || def[j].IndexOf("P|") < def[j].IndexOf("O|")) && (!def[j].Contains("R|") || def[j].IndexOf("P|") < def[j].IndexOf("R|")))
+                    {
+                        string[] patinfo = def[j].Split(sep3);
+                        try
                         {
-                            attribresult = attribresult.Replace("1^", "Positive  \r\n");
+                            patid = string.IsNullOrEmpty(patinfo[4].ToString()) ? patinfo[3].ToString() : patinfo[4].ToString().Trim();
+                        }
+                        catch (Exception ee)
+                        {
+                            Logger.LogExceptions(ee.ToString());
+                            Console.WriteLine("Exception on getting Patientid: " + ee.ToString());
+                        }
+                    }
+                    else if (def[j].Length > 5 && (def[j].Substring(3, 2).Equals("O|") || def[j].StartsWith("O|")))
+                    {
+                        labid = def[j].Split(sep3)[3].ToString();
+                        if (labid.Contains("^"))
+                            labid = labid.Split(sep4)[2].ToString().Trim();
+                    }
+                    else if (def[j].Contains("O|") && def[j].Contains("R|") && def[j].IndexOf("O|") < def[j].IndexOf("R|"))
+                    {
+                        ///Get lab ID
+                        string[] order = def[j].Split(sep3);
+                        labid = order[2].ToString();
+                        if (String.IsNullOrEmpty(labid) && order.Length > 3)
+                        {
+                            labid = order[3];
+                        }
+                        if (labid.Contains("^"))
+                        {
+                            string[] splitlabid = labid.Split(sep4);
+                            labid = splitlabid[1].ToString().Trim().Length < 4 ? splitlabid[2].Trim() : splitlabid[1].Trim();
 
                         }
 
                     }
-                    //else if (attribcode.ToLower().Equals("eo%") || attribcode.ToLower().Equals("mono%") || attribcode.ToLower().Equals("neut%") || attribcode.ToLower().Equals("lymph%"))
-                    //{
-                    //    try
-                    //    {
-                    //        attribresult = Math.Round(Convert.ToDecimal(attribresult)).ToString().Trim();
-                    //        if (attribresult.Contains("."))
-                    //        {
-                    //            attribresult = attribresult.Substring(0, attribresult.IndexOf('.'));
-                    //        }
-                    //    }
-                    //    catch
-                    //    { }
-                    //}
-                    if (string.IsNullOrEmpty(labid))
+
+                    else if (def[j].Contains("R|"))
                     {
-                        labid = patid;
+                        //Get Result
+                        string[] result = def[j].Split(sep3);
+                        attribresult = result[3].ToString();
+                        string[] attcode = result[2].Split(sep4);
+                        //writeLog("Result[2]: " + result[2]);
+                        if (attcode[3] != "")
+                        {
+                            attribcode = attcode[3].ToString();
+                        }
+                        else
+                        {
+                            attribcode = attcode[4].ToString();
+                        }
+                        if (attribcode.Contains(@"/"))
+                        {
+                            attribcode = attribcode.Replace(@"/", "");
+                        }
+                        //if (attribcode.ToLower() == "wbc" || attribcode.ToLower() == "plt")
+                        //{
+
+                        //    try
+                        //    {
+                        //        attribresult = ((Convert.ToDecimal(attribresult)) * 1000).ToString();
+                        //        if (attribresult.Contains("."))
+                        //        {
+                        //            attribresult = attribresult.Substring(0, attribresult.IndexOf('.'));
+                        //        }
+                        //    }
+                        //    catch (Exception ee)
+                        //    {
+                        //        LogExceptions("\r\n" + ee.ToString());
+                        //        Console.WriteLine("Error Converting Result: " + attribresult);
+                        //    }
+
+
+                        //}
+                        if (attribcode.ToLower().Equals("900") || attribcode.ToLower().Equals("999") || attribcode.ToLower().Equals("102"))
+                        {
+                            if (attribresult.Contains("-1^"))
+                            {
+                                attribresult = attribresult.Replace("-1^", "Negative  \r\n");
+
+                            }
+                            else if (attribresult.Contains("1^"))
+                            {
+                                attribresult = attribresult.Replace("1^", "Positive  \r\n");
+
+                            }
+
+                        }
+                        //else if (attribcode.ToLower().Equals("eo%") || attribcode.ToLower().Equals("mono%") || attribcode.ToLower().Equals("neut%") || attribcode.ToLower().Equals("lymph%"))
+                        //{
+                        //    try
+                        //    {
+                        //        attribresult = Math.Round(Convert.ToDecimal(attribresult)).ToString().Trim();
+                        //        if (attribresult.Contains("."))
+                        //        {
+                        //            attribresult = attribresult.Substring(0, attribresult.IndexOf('.'));
+                        //        }
+                        //    }
+                        //    catch
+                        //    { }
+                        //}
+                        if (string.IsNullOrEmpty(labid))
+                        {
+                            labid = patid;
+                        }
+                        //try
+                        //{
+
+                        //    var sameResultExists = _unitOfWork.ResultsRepository.GetManyQueryable(x => x.BookingID == labid && x.AttributeID == attribcode && x.Result == attribresult && x.InstrumentId == MachineID).Any();
+                        //    if (sameResultExists)
+                        //        continue;
+                        //}
+                        //catch (Exception ee)
+                        //{
+                        //    Logger.LogExceptions(ee.ToString());
+                        //}
+                        //    clsBLMain objMain = new clsBLMain();
+                        //objMain.BookingID = labid;
+                        //objMain.AttributeID = attribcode;
+                        //objMain.Result = attribresult;
+                        //objMain.InstrumentID = MachineID;
+
+                        //DataView dv = objMain.GetAll(8);
+                        //if (dv.Count > 0)
+                        //    continue;
+
+
+                        var objresult = new DataModel.mi_tresult
+                        {
+                            BookingID = labid,
+                            AttributeID = attribcode,
+                            ClientID = System.Configuration.ConfigurationSettings.AppSettings["BranchID"].ToString().Trim(),
+                            EnteredBy = 1,
+                            EnteredOn = System.DateTime.Now,//.ToString("yyyy-MM-dd hh:mm:ss tt"),
+                            InstrumentId = MachineID,
+                            Result = attribresult,
+                            Status = "N"
+                        };
+                        // var resultserialized = Newtonsoft.Json.JsonConvert.SerializeObject(objresult);
+                        string parsedData = labid + "," + attribcode + "," + System.DateTime.Now.ToString("dd/MM/yyyy HH:mm") + "," + attribresult;
+                        Logger.LogParsedData(parsedData);
+                        //Console.WriteLine(MachineID + " Serialized result: " + resultserialized);
+                        _unitOfWork.ResultsRepository.Insert(objresult);
+
+
+                        ////writeLog("parsed data: " + pars);
+                        ////Console.WriteLine("parsed string:" + pars);
+                        //InsertBooking(pars);
                     }
-                    try
-                    {
-                        var sameResultExists = _unitOfWork.ResultsRepository.GetManyQueryable(x => x.BookingID == labid && x.AttributeID == attribcode && x.Result == attribresult && x.InstrumentId == MachineID).Any();
-                        if (sameResultExists)
-                            continue;
-                    }
-                    catch (Exception ee)
-                    {
-                        Logger.LogExceptions(ee.ToString());
-                    }
-                    //    clsBLMain objMain = new clsBLMain();
-                    //objMain.BookingID = labid;
-                    //objMain.AttributeID = attribcode;
-                    //objMain.Result = attribresult;
-                    //objMain.InstrumentID = MachineID;
-
-                    //DataView dv = objMain.GetAll(8);
-                    //if (dv.Count > 0)
-                    //    continue;
 
 
-                    var objresult = new DataModel.mi_tresult
-                    {
-                        BookingID = labid,
-                        AttributeID = attribcode,
-                        ClientID = System.Configuration.ConfigurationSettings.AppSettings["BranchID"].ToString().Trim(),
-                        EnteredBy = 1,
-                        EnteredOn = System.DateTime.Now,//.ToString("yyyy-MM-dd hh:mm:ss tt"),
-                        InstrumentId = MachineID,
-                        Result = attribresult,
-                        Status = "N"
-                    };
-                   // var resultserialized = Newtonsoft.Json.JsonConvert.SerializeObject(objresult);
-                    string parsedData = labid + "," + attribcode + "," + System.DateTime.Now.ToString("dd/MM/yyyy HH:mm") + "," + attribresult;
-                    Logger.LogParsedData(parsedData);
-                    //Console.WriteLine(MachineID + " Serialized result: " + resultserialized);
-                    _unitOfWork.ResultsRepository.Insert(objresult);
 
-                    
-                    ////writeLog("parsed data: " + pars);
-                    ////Console.WriteLine("parsed string:" + pars);
-                    //InsertBooking(pars);
                 }
-
-
-
             }
-        }
-        try
-        {
-            _unitOfWork.Save();
-        }
-        catch (Exception ee)
-        {
-            Logger.LogExceptions(ee.ToString());
-            Console.WriteLine("On Saving to local results table: " + ee.ToString());//, EventLogEntryType.Error);
-        }
+            try
+            {
+                _unitOfWork.Save();
+            }
+            catch (Exception ee)
+            {
+                Logger.LogExceptions(ee.ToString());
+                Console.WriteLine("On Saving to local results table: " + ee.ToString());//, EventLogEntryType.Error);
+            }
         }
         catch (Exception ee)
         {
@@ -489,9 +490,9 @@ public class AsynchronousSocketListener
         }
 
     }
-    
 
-   
+
+
 
 
 }

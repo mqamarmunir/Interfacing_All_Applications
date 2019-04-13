@@ -18,12 +18,11 @@ namespace ResultsUploadService
     public partial class Service1 : ServiceBase
     {
         private Timer timer;
+        private Timer deleteOldData_Timer;
        
         public Service1()
         {
             InitializeComponent();
-
-            
         }
 
         protected override void OnStart(string[] args)
@@ -34,7 +33,29 @@ namespace ResultsUploadService
             this.timer.Elapsed += new System.Timers.ElapsedEventHandler(this.UpdateRemoteDatabase);
             if (System.Configuration.ConfigurationSettings.AppSettings["IsUpdateRemoteDatabase"].ToString().Trim() == "Y")
                 this.timer.Start();
+
+            DeleteOldData_Timer_Elapsed(null, null);
+            deleteOldData_Timer = new Timer(3600000D);
+            deleteOldData_Timer.AutoReset = true;
+            deleteOldData_Timer.Elapsed += DeleteOldData_Timer_Elapsed;
+            deleteOldData_Timer.Start();
         }
+
+        private void DeleteOldData_Timer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            Logger.LogTimerExecution("Delete Timer called");
+            clsBLMain _main = new clsBLMain();
+            if (_main.Deleteolddata())
+            {
+                Logger.LogTimerExecution("Processed Data deleted");
+
+            }
+            else
+            {
+                Logger.LogTimerExecution("Error Deleting Data: " + _main.Error);
+            }
+        }
+
         private void UpdateRemoteDatabase(object sender, ElapsedEventArgs e)
         {
             //timer.Stop();
