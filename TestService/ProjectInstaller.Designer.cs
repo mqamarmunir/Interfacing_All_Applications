@@ -39,7 +39,8 @@
             // 
             // serviceInstaller1
             // 
-            this.serviceInstaller1.ServiceName = "testservice";
+            this.serviceInstaller1.DisplayName = "Serial Data Reader Trees";
+            this.serviceInstaller1.ServiceName = "SerialReader_Trees";
             this.serviceInstaller1.StartType = System.ServiceProcess.ServiceStartMode.Automatic;
             // 
             // ProjectInstaller

@@ -15,7 +15,7 @@ namespace DataModel
     public class UnitOfWork : IDisposable
     {
         #region Private member variables...
-
+        public string EntityValidationErrors { get; set; }
         private miEntities _context = null;
         private GenericRepository<mi_ttests> _testRepository;
         private GenericRepository<mi_ttestattribute> _attribueRepository;
@@ -128,6 +128,7 @@ namespace DataModel
                         outputLines.Add(string.Format("- Property: \"{0}\", Error: \"{1}\"", ve.PropertyName, ve.ErrorMessage));
                     }
                 }
+                this.EntityValidationErrors = string.Join(", ", outputLines);
                 //System.IO.File.AppendAllLines(@"E:\errors.txt", outputLines);
 
                 throw e;

@@ -19,7 +19,7 @@ namespace ResultsUploadService
     {
         private Timer timer;
         private Timer deleteOldData_Timer;
-       
+
         public Service1()
         {
             InitializeComponent();
@@ -60,16 +60,17 @@ namespace ResultsUploadService
         {
             //timer.Stop();
             #region Web Service Methodology
-            clsBLMain objMai = new clsBLMain();
-           
-            var lstresults = objMai.GetAll<cliqresultsNew>(1).ToList();
-            
-            if (lstresults.Count > 0)
+            try
             {
-                Logger.LogTimerExecution("Found results: " + lstresults.Count.ToString());
-                try
+                clsBLMain objMai = new clsBLMain();
+
+                var lstresults = objMai.GetAll<cliqresultsNew>(1).ToList();
+
+                if (lstresults.Count > 0)
                 {
-                   
+                    Logger.LogTimerExecution("Found results: " + lstresults.Count.ToString());
+
+
 
                     var groupedresults = (from p in lstresults
                                           group p by new { p.BookingID, p.ClientID } into g
@@ -112,7 +113,7 @@ namespace ResultsUploadService
                             catch (Exception ee)
                             {
                                 Logger.LogExceptions(ee.ToString());
-                               // Console.WriteLine("Error while updating local record id: " + result.ResultID.ToString() + "-------" + ee.ToString());
+                                // Console.WriteLine("Error while updating local record id: " + result.ResultID.ToString() + "-------" + ee.ToString());
                             }
 
                         }
@@ -146,37 +147,35 @@ namespace ResultsUploadService
                                 Console.WriteLine("Error while updating local record id: " + result.ResultID.ToString() + "-------" + ee.ToString());
                             }
 
+
                         }
+
                     }
                 }
-                catch (Exception ee)
-                {
-                    Logger.LogExceptions("\r\n" + ee.ToString());
-                    
-                    //Console.WriteLine(ee.ToString(), EventLogEntryType.Error);
-                    // MessageBox.Show(ee.Message);
-                }
-                finally
-                {
-                    //  timer.Start();
-                }
 
 
+
+
+
+                else
+                {
+                    Logger.LogTimerExecution("No pending results");
+                    //timer.Start();
+                }
             }
-            else
+            catch (Exception ee)
             {
-                Logger.LogTimerExecution("No pending results");
-                //timer.Start();
+                Logger.LogExceptions(ee.ToString());
             }
 
-            #endregion
-        }
+    #endregion
+}
 
-        protected override void OnStop()
-        {
-            timer.Stop();
-            timer.Close();
-            GC.Collect();
-        }
+protected override void OnStop()
+{
+    timer.Stop();
+    timer.Close();
+    GC.Collect();
+}
     }
 }

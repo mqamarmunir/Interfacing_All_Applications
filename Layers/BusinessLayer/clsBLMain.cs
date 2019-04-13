@@ -176,12 +176,14 @@ namespace BusinessLayer
             switch (flag)
             {
                 case 1:
-                    objdbhims.Query = @"Select i.CliqInstrumentId CliqMachineID,m.AttributeId MachineAttributeCode, m.*
-from mi_tresult m
-inner join mi_tinstruments i on i.instrumentid=m.InstrumentId where
-length(Result) between 1 and 20 and m.enteredon between date_sub(now(),interval 2 hour) and now()
-and Status='N' and  CAST(Bookingid AS UNSIGNED)>0
-order by resultid,bookingid asc limit " + ConfigurationSettings.AppSettings["ResultsToSendInOneTime"].ToString().Trim();
+                    string bookingIdPrefix = ConfigurationSettings.AppSettings["BranchId"] + DateTime.Now.ToString("yy");
+                    string bookingIdPrefixLastYear = ConfigurationSettings.AppSettings["BranchID"] + DateTime.Now.AddYears(-1).ToString("yy");
+                    objdbhims.Query = @"Select i.CliqInstrumentId CliqMachineID,m.AttributeId MachineAttributeCode, m.ClientID,m.Result,trim(m.BookingId) BookingId,m.ResultId
+                                        from mi_tresult m
+                                        inner join mi_tinstruments i on i.instrumentid=m.InstrumentId where
+                                        length(Result) between 1 and 30 and m.enteredon between date_sub(now(),interval 2 hour) and now()
+                                        and Status='N' and isnumeric(trim(m.bookingid))=1 and (trim(m.bookingid) like('"+bookingIdPrefix+ @"%') or trim(m.bookingid) like('" + bookingIdPrefixLastYear + @"%'))   
+                                        order by resultid,bookingid asc limit " + ConfigurationSettings.AppSettings["ResultsToSendInOneTime"].ToString().Trim();
                     break;
             }
             return objTrans.DataTrigger_Get_All<T>(objdbhims);

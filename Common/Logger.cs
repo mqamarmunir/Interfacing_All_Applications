@@ -59,5 +59,13 @@ namespace Common
                 Directory.CreateDirectory(Path.Combine(DirInfo, "ParsedData"));
             File.AppendAllText(Path.Combine(Path.Combine(DirInfo, "ParsedData"), DateTime.Now.ToString("ddMMyyyy") + ".txt"), data);
         }
+        public static void LogSerialPortRelatedData(string data)
+        {
+            string DirInfo = AppDomain.CurrentDomain.BaseDirectory;
+            data = "-------------" + DateTime.Now.ToString("HH:mm:ss") + "--------------------\r\n" + data + "\r\n";
+            if (!Directory.Exists(Path.Combine(DirInfo, "SerialPortsRelated")))
+                Directory.CreateDirectory(Path.Combine(DirInfo, "SerialPortsRelated"));
+            File.AppendAllText(Path.Combine(Path.Combine(DirInfo, "SerialPortsRelated"), DateTime.Now.ToString("ddMMyyyy") + ".txt"), data);
+        }
     }
 }
