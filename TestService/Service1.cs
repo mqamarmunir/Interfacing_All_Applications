@@ -25,6 +25,7 @@ namespace TestService
     public partial class Service1 : ServiceBase
     {
         #region global variables
+        private List<mi_tinstruments> allInstruments;
         private UnitOfWork _unitOfWork;
 
         private StringBuilder sb_port1 = new StringBuilder();
@@ -54,6 +55,7 @@ namespace TestService
 
         protected override void OnStart(string[] args)
         {
+            allInstruments = StaticCache.GetAllInstruments(true);
             if (ConfigurationManager.AppSettings["RequireOpen_1"] == "Y")
             {
                 serialPort1.PortName = ConfigurationManager.AppSettings["PortName_1"].ToString();
@@ -204,6 +206,7 @@ namespace TestService
 
 
 
+
         }
 
 
@@ -211,20 +214,15 @@ namespace TestService
         {
             try
             {
-
-
                 Logger.LogSerialPortRelatedData("Data received at Port serial port 1");
                 string PortName = ((SerialPort)sender).PortName.ToString();
-                mi_tinstruments thismachinesettings;
-                using (_unitOfWork = new UnitOfWork())
+                mi_tinstruments thismachinesettings = allInstruments.Where(x => x.Active == "Y" && x.PORT == PortName.Trim()).FirstOrDefault();// _unitOfWork.InstrumentsRepository.GetSingle(x => x.Active == "Y" && x.PORT == PortName.Trim());
+                if (thismachinesettings == null)
                 {
-                    thismachinesettings = _unitOfWork.InstrumentsRepository.GetSingle(x => x.Active == "Y" && x.PORT == PortName.Trim());
-                    if (thismachinesettings == null)
-                    {
-                        Logger.LogExceptions("Machine at Port: " + PortName + " not registered");
-                        return;
-                    }
+                    Logger.LogExceptions("Machine at Port: " + PortName + " not registered");
+                    return;
                 }
+
                 //DataReceived(sender, machineSettings);
                 string data = "";
 
@@ -234,7 +232,7 @@ namespace TestService
                 if (data.Length > 0)
                 {
 
-                    
+
                     if (thismachinesettings.Communication_Stnadard == "ASTM")
                     {
                         serialPort1.Write(new byte[] { 0x06 }, 0, 1);
@@ -254,7 +252,7 @@ namespace TestService
                                 sb_port1.Append(remainingContent);
                             }
                             Logger.LogReceivedData(thismachinesettings.Instrument_Name, content);
-                            Parsethisandinsert(content, thismachinesettings);
+                            ParserDecision.Parsethisandinsert(content, thismachinesettings);
                         }
                     }
                     else if (thismachinesettings.Communication_Stnadard == "Other")
@@ -276,9 +274,9 @@ namespace TestService
 
                             string parsingdata = sb_port1.ToString();
                             sb_port1.Clear();
-                            Parsethisandinsert(parsingdata, thismachinesettings);
+                            ParserDecision.Parsethisandinsert(parsingdata, thismachinesettings);
                             //t.Start();
-                            //Parsethisandinsert(parsingdata, thismachinesettings.ParsingAlgorithm, MachineID);
+                            //ParserDecision.Parsethisandinsert(parsingdata, thismachinesettings.ParsingAlgorithm, MachineID);
                             // parsingdata = string.Empty;
 
 
@@ -288,11 +286,11 @@ namespace TestService
 
 
                             string data_tobeparsed = sb_port1.ToString().Substring(sb_port1.ToString().LastIndexOf(Convert.ToChar(3)));
-                            Parsethisandinsert(sb_port1.ToString().Substring(0, sb_port1.ToString().LastIndexOf(Convert.ToChar(3))), thismachinesettings);
+                            ParserDecision.Parsethisandinsert(sb_port1.ToString().Substring(0, sb_port1.ToString().LastIndexOf(Convert.ToChar(3))), thismachinesettings);
                             sb_port1.Clear();
                             sb_port1.Append(data_tobeparsed);
                             //t.Start();
-                            //  Parsethisandinsert(sb_port1.ToString().Substring(0, sb_port1.ToStripng().LastIndexOf(Convert.ToChar(3))), thismachinesettings.ParsingAlgorithm, MachineID);
+                            //  ParserDecision.Parsethisandinsert(sb_port1.ToString().Substring(0, sb_port1.ToStripng().LastIndexOf(Convert.ToChar(3))), thismachinesettings.ParsingAlgorithm, MachineID);
                         }
                     }
                     else if (thismachinesettings.Communication_Stnadard == "LH750")
@@ -313,7 +311,7 @@ namespace TestService
                                 string data_toparse = sb_Blocks.ToString();
                                 sb_Blocks.Clear();
                                 is_FirstSYN = true;
-                                Parsethisandinsert(data_toparse, thismachinesettings);
+                                ParserDecision.Parsethisandinsert(data_toparse, thismachinesettings);
                             }
                         }
                         else
@@ -378,15 +376,11 @@ namespace TestService
         private void serialPort2_DataReceived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
         {
             string PortName = ((SerialPort)sender).PortName.ToString();
-            mi_tinstruments thismachinesettings;
-            using (_unitOfWork = new UnitOfWork())
+            mi_tinstruments thismachinesettings = allInstruments.Where(x => x.Active == "Y" && x.PORT == PortName.Trim()).FirstOrDefault();// _unitOfWork.InstrumentsRepository.GetSingle(x => x.Active == "Y" && x.PORT == PortName.Trim());
+            if (thismachinesettings == null)
             {
-                thismachinesettings = _unitOfWork.InstrumentsRepository.GetSingle(x => x.Active == "Y" && x.PORT == PortName.Trim());
-                if (thismachinesettings == null)
-                {
-                    Logger.LogExceptions("Machine at Port: " + PortName + " not registered");
-                    return;
-                }
+                Logger.LogExceptions("Machine at Port: " + PortName + " not registered");
+                return;
             }
             string data = "";
             try
@@ -416,7 +410,7 @@ namespace TestService
                                 sb_port2.Append(remainingContent);
                             }
                             Logger.LogReceivedData(thismachinesettings.Instrument_Name, content);
-                            Parsethisandinsert(content, thismachinesettings);
+                            ParserDecision.Parsethisandinsert(content, thismachinesettings);
                         }
                     }
                     else if (thismachinesettings.Communication_Stnadard == "Other")
@@ -438,9 +432,9 @@ namespace TestService
 
                             string parsingdata = sb_port1.ToString();
                             sb_port1.Clear();
-                            Parsethisandinsert(parsingdata, thismachinesettings);
+                            ParserDecision.Parsethisandinsert(parsingdata, thismachinesettings);
                             //t.Start();
-                            //Parsethisandinsert(parsingdata, thismachinesettings.ParsingAlgorithm, MachineID);
+                            //ParserDecision.Parsethisandinsert(parsingdata, thismachinesettings.ParsingAlgorithm, MachineID);
                             // parsingdata = string.Empty;
 
 
@@ -450,11 +444,11 @@ namespace TestService
 
 
                             string data_tobeparsed = sb_port1.ToString().Substring(sb_port1.ToString().LastIndexOf(Convert.ToChar(3)));
-                            Parsethisandinsert(sb_port1.ToString().Substring(0, sb_port1.ToString().LastIndexOf(Convert.ToChar(3))), thismachinesettings);
+                            ParserDecision.Parsethisandinsert(sb_port1.ToString().Substring(0, sb_port1.ToString().LastIndexOf(Convert.ToChar(3))), thismachinesettings);
                             sb_port1.Clear();
                             sb_port1.Append(data_tobeparsed);
                             //t.Start();
-                            //  Parsethisandinsert(sb_port1.ToString().Substring(0, sb_port1.ToStripng().LastIndexOf(Convert.ToChar(3))), thismachinesettings.ParsingAlgorithm, MachineID);
+                            //  ParserDecision.Parsethisandinsert(sb_port1.ToString().Substring(0, sb_port1.ToStripng().LastIndexOf(Convert.ToChar(3))), thismachinesettings.ParsingAlgorithm, MachineID);
                         }
                     }
                     else if (thismachinesettings.Communication_Stnadard == "LH750")
@@ -475,7 +469,7 @@ namespace TestService
                                 string data_toparse = sb_Blocks.ToString();
                                 sb_Blocks.Clear();
                                 is_FirstSYN = true;
-                                Parsethisandinsert(data_toparse, thismachinesettings);
+                                ParserDecision.Parsethisandinsert(data_toparse, thismachinesettings);
                             }
                         }
                         else
@@ -538,16 +532,12 @@ namespace TestService
         private void serialPort3_DataReceived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
         {
             string PortName = ((SerialPort)sender).PortName.ToString();
-            mi_tinstruments thismachinesettings;
-            using (_unitOfWork = new UnitOfWork())
+            mi_tinstruments thismachinesettings = allInstruments.Where(x => x.Active == "Y" && x.PORT == PortName.Trim()).FirstOrDefault();// _unitOfWork.InstrumentsRepository.GetSingle(x => x.Active == "Y" && x.PORT == PortName.Trim());
+            if (thismachinesettings == null)
             {
-                thismachinesettings = _unitOfWork.InstrumentsRepository.GetSingle(x => x.Active == "Y" && x.PORT == PortName.Trim());
-                if (thismachinesettings == null)
-                {
-                    Logger.LogExceptions("Machine at Port: " + PortName + " not registered");
-                    return;
-                }
-            }//DataReceived(sender, machineSettings);
+                Logger.LogExceptions("Machine at Port: " + PortName + " not registered");
+                return;
+            }
             string data = "";
             try
             {
@@ -576,7 +566,7 @@ namespace TestService
                                 sb_port3.Append(remainingContent);
                             }
                             Logger.LogReceivedData(thismachinesettings.Instrument_Name, content);
-                            Parsethisandinsert(content, thismachinesettings);
+                            ParserDecision.Parsethisandinsert(content, thismachinesettings);
                         }
                     }
                     else if (thismachinesettings.Communication_Stnadard == "Other")
@@ -598,9 +588,9 @@ namespace TestService
 
                             string parsingdata = sb_port1.ToString();
                             sb_port1.Clear();
-                            Parsethisandinsert(parsingdata, thismachinesettings);
+                            ParserDecision.Parsethisandinsert(parsingdata, thismachinesettings);
                             //t.Start();
-                            //Parsethisandinsert(parsingdata, thismachinesettings.ParsingAlgorithm, MachineID);
+                            //ParserDecision.Parsethisandinsert(parsingdata, thismachinesettings.ParsingAlgorithm, MachineID);
                             // parsingdata = string.Empty;
 
 
@@ -610,11 +600,11 @@ namespace TestService
 
 
                             string data_tobeparsed = sb_port1.ToString().Substring(sb_port1.ToString().LastIndexOf(Convert.ToChar(3)));
-                            Parsethisandinsert(sb_port1.ToString().Substring(0, sb_port1.ToString().LastIndexOf(Convert.ToChar(3))), thismachinesettings);
+                            ParserDecision.Parsethisandinsert(sb_port1.ToString().Substring(0, sb_port1.ToString().LastIndexOf(Convert.ToChar(3))), thismachinesettings);
                             sb_port1.Clear();
                             sb_port1.Append(data_tobeparsed);
                             //t.Start();
-                            //  Parsethisandinsert(sb_port1.ToString().Substring(0, sb_port1.ToStripng().LastIndexOf(Convert.ToChar(3))), thismachinesettings.ParsingAlgorithm, MachineID);
+                            //  ParserDecision.Parsethisandinsert(sb_port1.ToString().Substring(0, sb_port1.ToStripng().LastIndexOf(Convert.ToChar(3))), thismachinesettings.ParsingAlgorithm, MachineID);
                         }
                     }
                     else if (thismachinesettings.Communication_Stnadard == "LH750")
@@ -635,7 +625,7 @@ namespace TestService
                                 string data_toparse = sb_Blocks.ToString();
                                 sb_Blocks.Clear();
                                 is_FirstSYN = true;
-                                Parsethisandinsert(data_toparse, thismachinesettings);
+                                ParserDecision.Parsethisandinsert(data_toparse, thismachinesettings);
                             }
                         }
                         else
@@ -697,15 +687,11 @@ namespace TestService
         private void serialPort4_DataReceived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
         {
             string PortName = ((SerialPort)sender).PortName.ToString();
-            mi_tinstruments thismachinesettings;
-            using (_unitOfWork = new UnitOfWork())
+            mi_tinstruments thismachinesettings = allInstruments.Where(x => x.Active == "Y" && x.PORT == PortName.Trim()).FirstOrDefault();// _unitOfWork.InstrumentsRepository.GetSingle(x => x.Active == "Y" && x.PORT == PortName.Trim());
+            if (thismachinesettings == null)
             {
-                thismachinesettings = _unitOfWork.InstrumentsRepository.GetSingle(x => x.Active == "Y" && x.PORT == PortName.Trim());
-                if (thismachinesettings == null)
-                {
-                    Logger.LogExceptions("Machine at Port: " + PortName + " not registered");
-                    return;
-                }
+                Logger.LogExceptions("Machine at Port: " + PortName + " not registered");
+                return;
             }
             string data = "";
             try
@@ -735,7 +721,7 @@ namespace TestService
                                 sb_port4.Append(remainingContent);
                             }
                             Logger.LogReceivedData(thismachinesettings.Instrument_Name, content);
-                            Parsethisandinsert(content, thismachinesettings);
+                            ParserDecision.Parsethisandinsert(content, thismachinesettings);
                         }
                     }
                     else if (thismachinesettings.Communication_Stnadard == "Other")
@@ -757,9 +743,9 @@ namespace TestService
 
                             string parsingdata = sb_port1.ToString();
                             sb_port1.Clear();
-                            Parsethisandinsert(parsingdata, thismachinesettings);
+                            ParserDecision.Parsethisandinsert(parsingdata, thismachinesettings);
                             //t.Start();
-                            //Parsethisandinsert(parsingdata, thismachinesettings.ParsingAlgorithm, MachineID);
+                            //ParserDecision.Parsethisandinsert(parsingdata, thismachinesettings.ParsingAlgorithm, MachineID);
                             // parsingdata = string.Empty;
 
 
@@ -769,11 +755,11 @@ namespace TestService
 
 
                             string data_tobeparsed = sb_port1.ToString().Substring(sb_port1.ToString().LastIndexOf(Convert.ToChar(3)));
-                            Parsethisandinsert(sb_port1.ToString().Substring(0, sb_port1.ToString().LastIndexOf(Convert.ToChar(3))), thismachinesettings);
+                            ParserDecision.Parsethisandinsert(sb_port1.ToString().Substring(0, sb_port1.ToString().LastIndexOf(Convert.ToChar(3))), thismachinesettings);
                             sb_port1.Clear();
                             sb_port1.Append(data_tobeparsed);
                             //t.Start();
-                            //  Parsethisandinsert(sb_port1.ToString().Substring(0, sb_port1.ToStripng().LastIndexOf(Convert.ToChar(3))), thismachinesettings.ParsingAlgorithm, MachineID);
+                            //  ParserDecision.Parsethisandinsert(sb_port1.ToString().Substring(0, sb_port1.ToStripng().LastIndexOf(Convert.ToChar(3))), thismachinesettings.ParsingAlgorithm, MachineID);
                         }
                     }
                     else if (thismachinesettings.Communication_Stnadard == "LH750")
@@ -794,7 +780,7 @@ namespace TestService
                                 string data_toparse = sb_Blocks.ToString();
                                 sb_Blocks.Clear();
                                 is_FirstSYN = true;
-                                Parsethisandinsert(data_toparse, thismachinesettings);
+                                ParserDecision.Parsethisandinsert(data_toparse, thismachinesettings);
                             }
                         }
                         else
@@ -856,15 +842,11 @@ namespace TestService
         private void serialPort5_DataReceived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
         {
             string PortName = ((SerialPort)sender).PortName.ToString();
-            mi_tinstruments thismachinesettings;
-            using (_unitOfWork = new UnitOfWork())
+            mi_tinstruments thismachinesettings = allInstruments.Where(x => x.Active == "Y" && x.PORT == PortName.Trim()).FirstOrDefault();// _unitOfWork.InstrumentsRepository.GetSingle(x => x.Active == "Y" && x.PORT == PortName.Trim());
+            if (thismachinesettings == null)
             {
-                thismachinesettings = _unitOfWork.InstrumentsRepository.GetSingle(x => x.Active == "Y" && x.PORT == PortName.Trim());
-                if (thismachinesettings == null)
-                {
-                    Logger.LogExceptions("Machine at Port: " + PortName + " not registered");
-                    return;
-                }
+                Logger.LogExceptions("Machine at Port: " + PortName + " not registered");
+                return;
             }
             string data = "";
             try
@@ -894,7 +876,7 @@ namespace TestService
                                 sb_port5.Append(remainingContent);
                             }
                             Logger.LogReceivedData(thismachinesettings.Instrument_Name, content);
-                            Parsethisandinsert(content, thismachinesettings);
+                            ParserDecision.Parsethisandinsert(content, thismachinesettings);
                         }
                     }
                     else if (thismachinesettings.Communication_Stnadard == "Other")
@@ -916,9 +898,9 @@ namespace TestService
 
                             string parsingdata = sb_port1.ToString();
                             sb_port1.Clear();
-                            Parsethisandinsert(parsingdata, thismachinesettings);
+                            ParserDecision.Parsethisandinsert(parsingdata, thismachinesettings);
                             //t.Start();
-                            //Parsethisandinsert(parsingdata, thismachinesettings.ParsingAlgorithm, MachineID);
+                            //ParserDecision.Parsethisandinsert(parsingdata, thismachinesettings.ParsingAlgorithm, MachineID);
                             // parsingdata = string.Empty;
 
 
@@ -928,11 +910,11 @@ namespace TestService
 
 
                             string data_tobeparsed = sb_port1.ToString().Substring(sb_port1.ToString().LastIndexOf(Convert.ToChar(3)));
-                            Parsethisandinsert(sb_port1.ToString().Substring(0, sb_port1.ToString().LastIndexOf(Convert.ToChar(3))), thismachinesettings);
+                            ParserDecision.Parsethisandinsert(sb_port1.ToString().Substring(0, sb_port1.ToString().LastIndexOf(Convert.ToChar(3))), thismachinesettings);
                             sb_port1.Clear();
                             sb_port1.Append(data_tobeparsed);
                             //t.Start();
-                            //  Parsethisandinsert(sb_port1.ToString().Substring(0, sb_port1.ToStripng().LastIndexOf(Convert.ToChar(3))), thismachinesettings.ParsingAlgorithm, MachineID);
+                            //  ParserDecision.Parsethisandinsert(sb_port1.ToString().Substring(0, sb_port1.ToStripng().LastIndexOf(Convert.ToChar(3))), thismachinesettings.ParsingAlgorithm, MachineID);
                         }
                     }
                     else if (thismachinesettings.Communication_Stnadard == "LH750")
@@ -953,7 +935,7 @@ namespace TestService
                                 string data_toparse = sb_Blocks.ToString();
                                 sb_Blocks.Clear();
                                 is_FirstSYN = true;
-                                Parsethisandinsert(data_toparse, thismachinesettings);
+                                ParserDecision.Parsethisandinsert(data_toparse, thismachinesettings);
                             }
                         }
                         else
@@ -1015,15 +997,11 @@ namespace TestService
         private void serialPort6_DataReceived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
         {
             string PortName = ((SerialPort)sender).PortName.ToString();
-            mi_tinstruments thismachinesettings;
-            using (_unitOfWork = new UnitOfWork())
+            mi_tinstruments thismachinesettings = allInstruments.Where(x => x.Active == "Y" && x.PORT == PortName.Trim()).FirstOrDefault();// _unitOfWork.InstrumentsRepository.GetSingle(x => x.Active == "Y" && x.PORT == PortName.Trim());
+            if (thismachinesettings == null)
             {
-                thismachinesettings = _unitOfWork.InstrumentsRepository.GetSingle(x => x.Active == "Y" && x.PORT == PortName.Trim());
-                if (thismachinesettings == null)
-                {
-                    Logger.LogExceptions("Machine at Port: " + PortName + " not registered");
-                    return;
-                }
+                Logger.LogExceptions("Machine at Port: " + PortName + " not registered");
+                return;
             }
             string data = "";
             try
@@ -1053,7 +1031,7 @@ namespace TestService
                                 sb_port6.Append(remainingContent);
                             }
                             Logger.LogReceivedData(thismachinesettings.Instrument_Name, content);
-                            Parsethisandinsert(content, thismachinesettings);
+                            ParserDecision.Parsethisandinsert(content, thismachinesettings);
                         }
                     }
                     else if (thismachinesettings.Communication_Stnadard == "Other")
@@ -1075,9 +1053,9 @@ namespace TestService
 
                             string parsingdata = sb_port1.ToString();
                             sb_port1.Clear();
-                            Parsethisandinsert(parsingdata, thismachinesettings);
+                            ParserDecision.Parsethisandinsert(parsingdata, thismachinesettings);
                             //t.Start();
-                            //Parsethisandinsert(parsingdata, thismachinesettings.ParsingAlgorithm, MachineID);
+                            //ParserDecision.Parsethisandinsert(parsingdata, thismachinesettings.ParsingAlgorithm, MachineID);
                             // parsingdata = string.Empty;
 
 
@@ -1087,11 +1065,11 @@ namespace TestService
 
 
                             string data_tobeparsed = sb_port1.ToString().Substring(sb_port1.ToString().LastIndexOf(Convert.ToChar(3)));
-                            Parsethisandinsert(sb_port1.ToString().Substring(0, sb_port1.ToString().LastIndexOf(Convert.ToChar(3))), thismachinesettings);
+                            ParserDecision.Parsethisandinsert(sb_port1.ToString().Substring(0, sb_port1.ToString().LastIndexOf(Convert.ToChar(3))), thismachinesettings);
                             sb_port1.Clear();
                             sb_port1.Append(data_tobeparsed);
                             //t.Start();
-                            //  Parsethisandinsert(sb_port1.ToString().Substring(0, sb_port1.ToStripng().LastIndexOf(Convert.ToChar(3))), thismachinesettings.ParsingAlgorithm, MachineID);
+                            //  ParserDecision.Parsethisandinsert(sb_port1.ToString().Substring(0, sb_port1.ToStripng().LastIndexOf(Convert.ToChar(3))), thismachinesettings.ParsingAlgorithm, MachineID);
                         }
                     }
                     else if (thismachinesettings.Communication_Stnadard == "LH750")
@@ -1112,7 +1090,7 @@ namespace TestService
                                 string data_toparse = sb_Blocks.ToString();
                                 sb_Blocks.Clear();
                                 is_FirstSYN = true;
-                                Parsethisandinsert(data_toparse, thismachinesettings);
+                                ParserDecision.Parsethisandinsert(data_toparse, thismachinesettings);
                             }
                         }
                         else
@@ -1174,15 +1152,11 @@ namespace TestService
         private void serialPort7_DataReceived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
         {
             string PortName = ((SerialPort)sender).PortName.ToString();
-            mi_tinstruments thismachinesettings;
-            using (_unitOfWork = new UnitOfWork())
+            mi_tinstruments thismachinesettings = allInstruments.Where(x => x.Active == "Y" && x.PORT == PortName.Trim()).FirstOrDefault();// _unitOfWork.InstrumentsRepository.GetSingle(x => x.Active == "Y" && x.PORT == PortName.Trim());
+            if (thismachinesettings == null)
             {
-                thismachinesettings = _unitOfWork.InstrumentsRepository.GetSingle(x => x.Active == "Y" && x.PORT == PortName.Trim());
-                if (thismachinesettings == null)
-                {
-                    Logger.LogExceptions("Machine at Port: " + PortName + " not registered");
-                    return;
-                }
+                Logger.LogExceptions("Machine at Port: " + PortName + " not registered");
+                return;
             }
             string data = "";
             try
@@ -1212,7 +1186,7 @@ namespace TestService
                                 sb_port7.Append(remainingContent);
                             }
                             Logger.LogReceivedData(thismachinesettings.Instrument_Name, content);
-                            Parsethisandinsert(content, thismachinesettings);
+                            ParserDecision.Parsethisandinsert(content, thismachinesettings);
                         }
                     }
                     else if (thismachinesettings.Communication_Stnadard == "Other")
@@ -1234,9 +1208,9 @@ namespace TestService
 
                             string parsingdata = sb_port1.ToString();
                             sb_port1.Clear();
-                            Parsethisandinsert(parsingdata, thismachinesettings);
+                            ParserDecision.Parsethisandinsert(parsingdata, thismachinesettings);
                             //t.Start();
-                            //Parsethisandinsert(parsingdata, thismachinesettings.ParsingAlgorithm, MachineID);
+                            //ParserDecision.Parsethisandinsert(parsingdata, thismachinesettings.ParsingAlgorithm, MachineID);
                             // parsingdata = string.Empty;
 
 
@@ -1246,11 +1220,11 @@ namespace TestService
 
 
                             string data_tobeparsed = sb_port1.ToString().Substring(sb_port1.ToString().LastIndexOf(Convert.ToChar(3)));
-                            Parsethisandinsert(sb_port1.ToString().Substring(0, sb_port1.ToString().LastIndexOf(Convert.ToChar(3))), thismachinesettings);
+                            ParserDecision.Parsethisandinsert(sb_port1.ToString().Substring(0, sb_port1.ToString().LastIndexOf(Convert.ToChar(3))), thismachinesettings);
                             sb_port1.Clear();
                             sb_port1.Append(data_tobeparsed);
                             //t.Start();
-                            //  Parsethisandinsert(sb_port1.ToString().Substring(0, sb_port1.ToStripng().LastIndexOf(Convert.ToChar(3))), thismachinesettings.ParsingAlgorithm, MachineID);
+                            //  ParserDecision.Parsethisandinsert(sb_port1.ToString().Substring(0, sb_port1.ToStripng().LastIndexOf(Convert.ToChar(3))), thismachinesettings.ParsingAlgorithm, MachineID);
                         }
                     }
                     else if (thismachinesettings.Communication_Stnadard == "LH750")
@@ -1271,7 +1245,7 @@ namespace TestService
                                 string data_toparse = sb_Blocks.ToString();
                                 sb_Blocks.Clear();
                                 is_FirstSYN = true;
-                                Parsethisandinsert(data_toparse, thismachinesettings);
+                                ParserDecision.Parsethisandinsert(data_toparse, thismachinesettings);
                             }
                         }
                         else
@@ -1331,30 +1305,7 @@ namespace TestService
 
         }
 
-        private void Parsethisandinsert(string data, mi_tinstruments machineSettings)
-        {
-            IParser parser;
-            switch (machineSettings.ParsingAlgorithm)
-            {
-                ///According to ASTM standard 
-                ///tested on 
-                ///sysmex xs800i,cobase411,cobasu411(urine analyzer)
-                ///
-                case 1:
-                    parser = new ASTM();
-                    parser.Parse(data, machineSettings);
-                    break;//case 1 ends here
-                case 2://AU480 Beckman
-                    parser = new AU480();
-                    parser.Parse(data, machineSettings);
-                    break;
-                case 3:
-                    parser = new BeckManLH750();
-                    parser.Parse(data, machineSettings);
-                    break;
-            }
-        }
-
+       
 
         protected override void OnStop()
         {

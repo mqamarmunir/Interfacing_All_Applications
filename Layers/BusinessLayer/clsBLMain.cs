@@ -256,7 +256,7 @@ namespace BusinessLayer
             QueryBuilder objQB = new QueryBuilder();
 
             objTrans.Start_Transaction();
-            objdbhims.Query = "Delete from mi_tresult where Status!='N'";// Will delete 10 days old data
+            objdbhims.Query = "Delete from mi_tresult where enteredon<subdate(now(),interval 5 hour)";// Will delete 10 days old data
             this.StrErrorMessage = objTrans.DataTrigger_Delete(objdbhims);
             if (StrErrorMessage.Equals("True"))
             {

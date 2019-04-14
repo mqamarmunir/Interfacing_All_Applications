@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace BusinessLayer.Parsers
 {
-    public class ASTM:IParser
+    public class ASTM : IParser
     {
         public void Parse(string data, mi_tinstruments machineSettings)
         {
@@ -89,9 +89,7 @@ namespace BusinessLayer.Parsers
                                     //Get Result
                                     string[] result = def[j].Split(sep3);
                                     attribresult = result[3].ToString();
-                                    string resultUnit = result[4];
-                                    if (resultUnit == "Abs." || resultUnit == "RLU")//This is machine specific, result sent by ABbot c8200i. Need to ignore as guided by Lab staff
-                                        continue;
+                                   
                                     string[] attcode = result[2].Split(sep4);
                                     //writeLog("Result[2]: " + result[2]);
                                     if (attcode.Length > 3)
@@ -200,47 +198,25 @@ namespace BusinessLayer.Parsers
 
                                     string parsedData = labid + "," + attribcode + "," + System.DateTime.Now.ToString("dd/MM/yyyy HH:mm") + "," + attribresult;
                                     Logger.LogParsedData(parsedData);
-                                    mi_tresult objresult;
-                                    if (machineSettings.Instrument_Name.ToLower().Contains("architect") && (attribresult.ToLower().Contains("reactive") || attribresult.ToLower().Contains("negative") || attribresult.ToLower().Contains("positive")))
+
+
+                                    mi_tresult objresult = new DataModel.mi_tresult
                                     {
-                                        objresult = _unitOfWork.ResultsRepository.GetSingle(x => x.BookingID == labid && x.AttributeID == attribcode && x.InstrumentId == MachineID && DateTime.Now.Subtract(x.EnteredOn).Seconds <= 20);
-                                        if (objresult == null)
-                                        {
-                                            Console.WriteLine("Data not found for concatenation");
-                                            continue;
+                                        BookingID = labid,
+                                        AttributeID = attribcode,
+                                        ClientID = System.Configuration.ConfigurationSettings.AppSettings["BranchID"].ToString().Trim(),
+                                        EnteredBy = 1,
+                                        EnteredOn = System.DateTime.Now,//.ToString("yyyy-MM-dd hh:mm:ss tt"),
+                                        InstrumentId = MachineID,
+                                        Result = attribresult,
+                                        Status = "N"
+                                    };
+                                    // var resultserialized = Newtonsoft.Json.JsonConvert.SerializeObject(objresult);
 
-                                        }
-                                        else
-                                        {
-                                            Console.WriteLine("Data found for concatenation");
-                                            objresult.Result += " (" + attribresult + ")";
-                                            objresult.Status = "N";
-                                            objresult.EnteredOn = DateTime.Now;
-                                            objresult.senton = null;
-                                            objresult.sentto = null;
-                                        }
-                                        _unitOfWork.ResultsRepository.UpdateCurrentContext(objresult);
+                                    //Console.WriteLine(MachineID + " Serialized result: " + resultserialized);
+                                    _unitOfWork.ResultsRepository.Insert(objresult);
 
-                                    }
-                                    else
-                                    {
-                                        objresult = new DataModel.mi_tresult
-                                        {
-                                            BookingID = labid,
-                                            AttributeID = attribcode,
-                                            ClientID = System.Configuration.ConfigurationSettings.AppSettings["BranchID"].ToString().Trim(),
-                                            EnteredBy = 1,
-                                            EnteredOn = System.DateTime.Now,//.ToString("yyyy-MM-dd hh:mm:ss tt"),
-                                            InstrumentId = MachineID,
-                                            Result = attribresult,
-                                            Status = "N"
-                                        };
-                                        // var resultserialized = Newtonsoft.Json.JsonConvert.SerializeObject(objresult);
 
-                                        //Console.WriteLine(MachineID + " Serialized result: " + resultserialized);
-                                        _unitOfWork.ResultsRepository.Insert(objresult);
-
-                                    }
                                     ////writeLog("parsed data: " + pars);
                                     ////Console.WriteLine("parsed string:" + pars);
                                     //InsertBooking(pars);
@@ -256,14 +232,14 @@ namespace BusinessLayer.Parsers
                     {
                         _unitOfWork.Save();
                     }
-                   
+
                     catch (Exception ee)
                     {
                         if (!string.IsNullOrEmpty(_unitOfWork.EntityValidationErrors))
                         {
                             Logger.LogExceptions(_unitOfWork.EntityValidationErrors);
                         }
-                        else 
+                        else
                             Logger.LogExceptions(ee.ToString());
                         //Console.WriteLine("On Saving to local results table: " + ee.ToString());//, EventLogEntryType.Error);
                     }

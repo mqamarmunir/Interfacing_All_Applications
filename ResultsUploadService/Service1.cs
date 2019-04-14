@@ -47,7 +47,7 @@ namespace ResultsUploadService
             clsBLMain _main = new clsBLMain();
             if (_main.Deleteolddata())
             {
-                Logger.LogTimerExecution("Processed Data deleted");
+                Logger.LogTimerExecution("Records older than threshold time deleted");
 
             }
             else

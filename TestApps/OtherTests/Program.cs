@@ -8,32 +8,18 @@ using System.Data;
 using System.Linq;
 using Common;
 using BusinessLayer.Parsers;
+using System.Collections.Generic;
+using BusinessLayer;
 // State object for reading client data asynchronously  
-public class StateObject
-{
-    // Client  socket.  
-    public Socket workSocket = null;
-    // Size of receive buffer.  
-    public const int BufferSize = 1024;
-    // Receive buffer.  
-    public byte[] buffer = new byte[BufferSize];
-    // Received data string.  
-    public StringBuilder sb = new StringBuilder();
-    public mi_tinstruments thisInstrument=new mi_tinstruments();
-}
-
 public class AsynchronousSocketListener
 {
-
-    // private UnitOfWork _unitOfWork = new UnitOfWork();
-
     public static ManualResetEvent allDone = new ManualResetEvent(false);
-
-    public AsynchronousSocketListener()
+    public static int Main(String[] args)
     {
-
+        StartListening();
+        Console.ReadLine();
+        return 0;
     }
-
     public static void StartListening()
     {
         // Data buffer for incoming data.  
@@ -99,29 +85,27 @@ public class AsynchronousSocketListener
         // Get the socket that handles the client request.  
         Socket listener = (Socket)ar.AsyncState;
         Socket handler = listener.EndAccept(ar);
-        Console.WriteLine("Connected To: " + (handler.RemoteEndPoint as IPEndPoint).Address.ToString());
+        Console.WriteLine("Connected To: " + (handler.RemoteEndPoint as IPEndPoint).Address.ToString()+":"+ (handler.RemoteEndPoint as IPEndPoint).Port);
         // Create the state object.  
         StateObject state = new StateObject();
         state.workSocket = handler;
-        using (var _unitOfWork = new UnitOfWork())
+
+        var machineSettings = StaticCache.GetAllInstruments(true).Where(x => x.IpAddress == (handler.RemoteEndPoint as IPEndPoint).Address.ToString()).FirstOrDefault();
+        if (machineSettings != null)
         {
-            var machineSettings = _unitOfWork.InstrumentsRepository.GetAll().Where(x => x.IpAddress == (handler.RemoteEndPoint as IPEndPoint).Address.ToString()).FirstOrDefault();
-            if (machineSettings != null)
-            {
-                state.thisInstrument = machineSettings;
-                handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
-                new AsyncCallback(ReadCallback), state);
+            state.thisInstrument = machineSettings;
+            handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
+            new AsyncCallback(ReadCallback), state);
 
-            }
-            else
-            {
-                Logger.LogExceptions("Unregistered machine connected from: " + (handler.RemoteEndPoint as IPEndPoint).Address.ToString());
-
-            }
         }
-            
-    }
+        else
+        {
+            Logger.LogExceptions("Unregistered machine connected from: " + (handler.RemoteEndPoint as IPEndPoint).Address.ToString());
 
+        }
+
+
+    }
     public static void ReadCallback(IAsyncResult ar)
     {
 
@@ -158,12 +142,12 @@ public class AsynchronousSocketListener
                 // Check for end-of-file tag. If it is not there, read   
                 // more data.  
 
-                var machineSettings = state.thisInstrument;                
+                var machineSettings = state.thisInstrument;
                 Send(handler, new byte[] { 0x06 });//send ack
                 if (state.sb.ToString().IndexOf(machineSettings.RecordTerminator) > -1)
                 {
                     string fullText = state.sb.ToString();
-                    content = fullText.Substring(0, fullText.IndexOf(machineSettings.RecordTerminator)+machineSettings.RecordTerminator.Length);
+                    content = fullText.Substring(0, fullText.IndexOf(machineSettings.RecordTerminator) + machineSettings.RecordTerminator.Length);
                     state.sb.Clear();
                     if (fullText.LastIndexOf(@"H|\^&") > 0)
                     {
@@ -171,8 +155,8 @@ public class AsynchronousSocketListener
 
                         state.sb.Append(remainingContent);
                     }
-                    
-                    
+
+
                     if (machineSettings != null && machineSettings.CliqInstrumentID.HasValue)
                     {
                         Console.WriteLine("Read {0} bytes from socket. \n Data : {1}",
@@ -180,7 +164,7 @@ public class AsynchronousSocketListener
                         //if(!File.Exists(System.Configuration.ConfigurationSettings.AppSettings["WriteFilePath"]))
                         //    File.Create(System.Configuration.ConfigurationSettings.AppSettings["WriteFilePath"]);
                         Logger.LogReceivedData(machineSettings.Instrument_Name, content);
-                        Parsethisandinsert(content,machineSettings);
+                        ParserDecision.Parsethisandinsert(content, machineSettings);
                     }
                     else
                     {
@@ -211,7 +195,6 @@ public class AsynchronousSocketListener
         }
 
     }
-
     private static void Send(Socket handler, String data)
     {
         // Convert the string data to byte data using ASCII encoding.  
@@ -230,7 +213,6 @@ public class AsynchronousSocketListener
         handler.BeginSend(byteData, 0, byteData.Length, 0,
             new AsyncCallback(SendCallback), handler);
     }
-
     private static void SendCallback(IAsyncResult ar)
     {
         try
@@ -252,42 +234,16 @@ public class AsynchronousSocketListener
             Console.WriteLine(e.ToString());
         }
     }
-
-    public static int Main(String[] args)
-    {
-        //timer = new System.Timers.Timer(30000D);  // 30000 milliseconds = 30 seconds
-        //timer.AutoReset = true;
-        //timer.Elapsed += new System.Timers.ElapsedEventHandler(UpdateRemoteDatabase);
-        //if (System.Configuration.ConfigurationSettings.AppSettings["IsUpdateRemoteDatabase"].ToString().Trim() == "Y")
-        //    timer.Start();
-        StartListening();
-        //ParseBeckManHematology();
-        //  UpdateRemoteDatabase(null,null);
-        Console.ReadLine();
-        return 0;
-    }
-    private static void Parsethisandinsert(string data,  mi_tinstruments machineSettings)
-    {
-        IParser parser;
-        switch (machineSettings.ParsingAlgorithm)
-        {
-            ///According to ASTM standard 
-            ///tested on 
-            ///sysmex xs800i,cobase411,cobasu411(urine analyzer)
-            ///
-            case 1:
-                parser = new ASTM();
-                parser.Parse(data, machineSettings);
-                break;//case 1 ends here
-            case 2://AU480 Beckman
-                //ParseAu480(data, MachineID);
-                break;
-        }
-    }
-    
-
-
-
-
-
+}
+public class StateObject
+{
+    // Client  socket.  
+    public Socket workSocket = null;
+    // Size of receive buffer.  
+    public const int BufferSize = 1024;
+    // Receive buffer.  
+    public byte[] buffer = new byte[BufferSize];
+    // Received data string.  
+    public StringBuilder sb = new StringBuilder();
+    public mi_tinstruments thisInstrument = new mi_tinstruments();
 }
