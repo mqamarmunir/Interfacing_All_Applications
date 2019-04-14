@@ -1,4 +1,4 @@
-﻿namespace TestService
+﻿namespace ResultsUploadService
 {
     partial class ProjectInstaller
     {
@@ -39,8 +39,7 @@
             // 
             // serviceInstaller1
             // 
-            this.serviceInstaller1.DisplayName = "Serial Data Reader Trees";
-            this.serviceInstaller1.ServiceName = "SerialReader_Trees";
+            this.serviceInstaller1.ServiceName = "Service1";
             this.serviceInstaller1.StartType = System.ServiceProcess.ServiceStartMode.Automatic;
             // 
             // ProjectInstaller

@@ -157,7 +157,7 @@ namespace BusinessLayer
                     break;
                 case 8:
 
-                    objdbhims.Query = @"Select resultid from mi_tresult where bookingid='" + this._BookingID + "' and Attributeid='" + this._AttributeID + "' and Result='" + this._Result + "' and InstrumentId="+InstrumentID;
+                    objdbhims.Query = @"Select resultid from mi_tresult where bookingid='" + this._BookingID + "' and Attributeid='" + this._AttributeID + "' and Result='" + this._Result + "' and InstrumentId="+InstrumentID + " order by 1 desc limit 1";
                     break;
                 case 9:
                    
@@ -168,9 +168,27 @@ namespace BusinessLayer
                 
 
             }
-
+           
             return objTrans.DataTrigger_Get_All(objdbhims);
         }
+        public IEnumerable<T> GetAll<T>(int flag) where T : class
+        {
+            switch (flag)
+            {
+                case 1:
+                    string bookingIdPrefix = ConfigurationSettings.AppSettings["BranchId"] + DateTime.Now.ToString("yy");
+                    string bookingIdPrefixLastYear = ConfigurationSettings.AppSettings["BranchID"] + DateTime.Now.AddYears(-1).ToString("yy");
+                    objdbhims.Query = @"Select i.CliqInstrumentId CliqMachineID,m.AttributeId MachineAttributeCode, m.ClientID,m.Result,trim(m.BookingId) BookingId,m.ResultId
+                                        from mi_tresult m
+                                        inner join mi_tinstruments i on i.instrumentid=m.InstrumentId where
+                                        length(Result) between 1 and 30 and m.enteredon between date_sub(now(),interval 2 hour) and now()
+                                        and Status='N' and isnumeric(trim(m.bookingid))=1 and (trim(m.bookingid) like('"+bookingIdPrefix+ @"%') or trim(m.bookingid) like('" + bookingIdPrefixLastYear + @"%'))   
+                                        order by resultid,bookingid asc limit " + ConfigurationSettings.AppSettings["ResultsToSendInOneTime"].ToString().Trim();
+                    break;
+            }
+            return objTrans.DataTrigger_Get_All<T>(objdbhims);
+        }
+
         public bool Update()
         {
 
@@ -238,7 +256,7 @@ namespace BusinessLayer
             QueryBuilder objQB = new QueryBuilder();
 
             objTrans.Start_Transaction();
-            objdbhims.Query = "Delete from mi_tresult where enteredon<date_sub(Now(), Interval 10 day)";// Will delete 10 days old data
+            objdbhims.Query = "Delete from mi_tresult where enteredon<subdate(now(),interval 5 hour)";// Will delete 10 days old data
             this.StrErrorMessage = objTrans.DataTrigger_Delete(objdbhims);
             if (StrErrorMessage.Equals("True"))
             {

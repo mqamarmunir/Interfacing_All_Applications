@@ -210,10 +210,9 @@ namespace DataModel
         /// <returns>A single record that matches the specified criteria</returns>
         public TEntity GetSingle(Func<TEntity, bool> predicate)
         {
-            if (DbSet.Where(predicate).FirstOrDefault() != null)
-                return DbSet.Single<TEntity>(predicate);
-            else
-                return null;
+            
+                return DbSet.FirstOrDefault<TEntity>(predicate);
+            
         }
 
         /// <summary>

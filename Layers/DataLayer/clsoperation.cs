@@ -1,6 +1,9 @@
 using System;
 using MySql.Data.MySqlClient;
 using System.Data;
+using Dapper;
+using BusinessEntities;
+using System.Collections.Generic;
 
 namespace DataLayer
 {
@@ -186,29 +189,70 @@ namespace DataLayer
 
         public DataView DataTrigger_Get_All(Iinterface Entity)
         {
+            try
+            {
+                using (Conn = Objconn.Odbc_SQL_Connection)
+                {
+                    ObjCmd = Entity.Get_All();
+                    ObjCmd.Connection = Conn;
 
-            Conn = Objconn.Odbc_SQL_Connection;
-            ObjCmd = Entity.Get_All();
-            ObjCmd.Connection = Conn;
-            MySqlDataAdapter da = new MySqlDataAdapter(ObjCmd);
-            DataSet DS = new DataSet();
-            da.Fill(DS);
-            ObjCmd.Connection.Close();
-            ObjCmd.Connection.Dispose();
-            ObjCmd.Connection = null;
+                    using (MySqlDataAdapter da = new MySqlDataAdapter(ObjCmd))
+                    {
+                        DataSet DS = new DataSet();
+                        da.Fill(DS);
+                        ObjCmd.Connection.Close();
+                        ObjCmd.Connection.Dispose();
+                        ObjCmd.Connection = null;
 
-            DataView DV = new DataView(DS.Tables[0]);
+                        DataView DV = new DataView(DS.Tables[0]);
 
-            DS.Dispose();
-            DS = null;				//null
-            da = null;				//null
-            Objconn.Dispose();		//null
-            Conn.Close();			//null
-            Conn.Dispose();			//null
-            Conn = null;			//null
-            ObjCmd = null;			//null
+                        DS.Dispose();
+                        DS = null;              //null
+                                                // da = null;              //null
+                        Objconn.Dispose();      //null
+                                                //null
+                        ObjCmd = null;          //null
+                        return DV;
+                    }
 
-            return DV;
+
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        public IEnumerable<T> DataTrigger_Get_All<T>(Iinterface Entity) where T : class
+        {
+            try
+            {
+                using (Conn = Objconn.Odbc_SQL_Connection)
+                {
+                    ObjCmd = Entity.Get_All();
+                    ObjCmd.Connection = Conn;
+                    var list = SqlMapper.Query<T>(Conn, ObjCmd.CommandText);
+
+                    ObjCmd.Connection.Close();
+                    ObjCmd.Connection.Dispose();
+                    ObjCmd.Connection = null;
+
+
+                    Objconn.Dispose();      //null
+                    Conn.Close();           //null
+                    Conn.Dispose();         //null
+                    Conn = null;            //null
+                    ObjCmd = null;          //null
+
+                    return list;
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
 
         //		public DataView Transaction_Get_All(Iinterface Entity)
@@ -250,7 +294,7 @@ namespace DataLayer
 
         public DataView Transaction_Get_Single(Iinterface Entity)
         {
-            ObjCmd = Entity.Get_Single();            
+            ObjCmd = Entity.Get_Single();
             //ObjCmd.Connection = Conn;
             ObjCmd.Connection = DbTrans.Connection;
             ObjCmd.Transaction = DbTrans;

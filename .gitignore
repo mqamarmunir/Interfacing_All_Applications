@@ -165,3 +165,5 @@ $RECYCLE.BIN/
 /packages/RestSharp.106.6.9/lib
 /packages/RestSharp.106.6.9
 /.vs
+/packages/Dapper.1.60.1
+/Layers/BusinessService/.vs/BusinessService/v15/Server/sqlite3

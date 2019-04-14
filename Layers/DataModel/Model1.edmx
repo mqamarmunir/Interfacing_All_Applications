@@ -495,7 +495,7 @@
           <Property Name="Status" Type="String" MaxLength="1" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="InstrumentId" Type="Int64" Nullable="false" />
           <Property Name="senton" Type="DateTime" />
-          <Property Name="sentto" Type="String" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Name="sentto" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="mi_taudit" Relationship="Self.FK_mi_taudit_1" FromRole="mi_tresult" ToRole="mi_taudit" />
           <NavigationProperty Name="mi_tinstruments" Relationship="Self.FK_mi_tresult_1" FromRole="mi_tresult" ToRole="mi_tinstruments" />
         </EntityType>
