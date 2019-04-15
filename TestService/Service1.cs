@@ -214,7 +214,6 @@ namespace TestService
         {
             try
             {
-                Logger.LogSerialPortRelatedData("Data received at Port serial port 1");
                 string PortName = ((SerialPort)sender).PortName.ToString();
                 mi_tinstruments thismachinesettings = allInstruments.Where(x => x.Active == "Y" && x.PORT == PortName.Trim()).FirstOrDefault();// _unitOfWork.InstrumentsRepository.GetSingle(x => x.Active == "Y" && x.PORT == PortName.Trim());
                 if (thismachinesettings == null)
@@ -232,12 +231,12 @@ namespace TestService
                 if (data.Length > 0)
                 {
 
-
+                    Logger.LogReceivedData(thismachinesettings.Instrument_Name, data);
                     if (thismachinesettings.Communication_Stnadard == "ASTM")
                     {
                         serialPort1.Write(new byte[] { 0x06 }, 0, 1);
                         sb_port1.Append(data);
-                        if (data.Contains(thismachinesettings.RecordTerminator))
+                        if (sb_port1.ToString().IndexOf(thismachinesettings.RecordTerminator) > -1)
                         {
                             //Console.WriteLine("In after terminator");
 
@@ -251,7 +250,7 @@ namespace TestService
 
                                 sb_port1.Append(remainingContent);
                             }
-                            Logger.LogReceivedData(thismachinesettings.Instrument_Name, content);
+                            
                             ParserDecision.Parsethisandinsert(content, thismachinesettings);
                         }
                     }
@@ -395,7 +394,7 @@ namespace TestService
                     {
                         serialPort2.Write(new byte[] { 0x06 }, 0, 1);
                         sb_port2.Append(data);
-                        if (data.Contains(thismachinesettings.RecordTerminator))
+                        if (sb_port2.ToString().IndexOf(thismachinesettings.RecordTerminator) > -1)
                         {
                             //Console.WriteLine("In after terminator");
 
@@ -528,7 +527,6 @@ namespace TestService
             }
 
         }
-
         private void serialPort3_DataReceived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
         {
             string PortName = ((SerialPort)sender).PortName.ToString();
@@ -546,12 +544,13 @@ namespace TestService
 
                 if (data.Length > 0)
                 {
+                    Logger.LogReceivedData(thismachinesettings.Instrument_Name, data);
 
                     if (thismachinesettings.Communication_Stnadard == "ASTM")
                     {
                         serialPort3.Write(new byte[] { 0x06 }, 0, 1);
                         sb_port3.Append(data);
-                        if (data.Contains(thismachinesettings.RecordTerminator))
+                        if (sb_port3.ToString().IndexOf(thismachinesettings.RecordTerminator) > -1)
                         {
                             //Console.WriteLine("In after terminator");
 
@@ -706,7 +705,7 @@ namespace TestService
                     {
                         serialPort4.Write(new byte[] { 0x06 }, 0, 1);
                         sb_port4.Append(data);
-                        if (data.Contains(thismachinesettings.RecordTerminator))
+                        if (sb_port4.ToString().IndexOf(thismachinesettings.RecordTerminator) > -1)
                         {
                             //Console.WriteLine("In after terminator");
 
@@ -861,7 +860,7 @@ namespace TestService
                     {
                         serialPort5.Write(new byte[] { 0x06 }, 0, 1);
                         sb_port5.Append(data);
-                        if (data.Contains(thismachinesettings.RecordTerminator))
+                        if (sb_port5.ToString().IndexOf(thismachinesettings.RecordTerminator) > -1)
                         {
                             //Console.WriteLine("In after terminator");
 
@@ -1016,7 +1015,7 @@ namespace TestService
                     {
                         serialPort6.Write(new byte[] { 0x06 }, 0, 1);
                         sb_port6.Append(data);
-                        if (data.Contains(thismachinesettings.RecordTerminator))
+                        if (sb_port6.ToString().IndexOf(thismachinesettings.RecordTerminator) > -1)
                         {
                             //Console.WriteLine("In after terminator");
 
@@ -1171,7 +1170,7 @@ namespace TestService
                     {
                         serialPort7.Write(new byte[] { 0x06 }, 0, 1);
                         sb_port7.Append(data);
-                        if (data.Contains(thismachinesettings.RecordTerminator))
+                        if (sb_port7.ToString().IndexOf(thismachinesettings.RecordTerminator) > -1)
                         {
                             //Console.WriteLine("In after terminator");
 

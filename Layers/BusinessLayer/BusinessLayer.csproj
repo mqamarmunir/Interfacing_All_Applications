@@ -65,6 +65,7 @@
     <Compile Include="Helper.cs" />
     <Compile Include="Parsers\ASTM.cs" />
     <Compile Include="Parsers\ASTM_AbbottArchitect.cs" />
+    <Compile Include="Parsers\ASTM_Cobas6000.cs" />
     <Compile Include="Parsers\AU480.cs" />
     <Compile Include="Parsers\BeckManLH750.cs" />
     <Compile Include="Parsers\IParser.cs" />

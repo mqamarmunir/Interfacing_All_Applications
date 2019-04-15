@@ -30,6 +30,10 @@ namespace BusinessLayer.Parsers
                     parser = new ASTM_AbbottArchitect();
                     parser.Parse(data, machineSettings);
                     break;
+                case 5:
+                    parser = new ASTM_Cobas6000();
+                    parser.Parse(data, machineSettings);
+                    break;
             }
         }
     }
