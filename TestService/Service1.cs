@@ -357,6 +357,23 @@ namespace TestService
 
                         }
                     }
+                    else if(thismachinesettings.Communication_Stnadard =="Sysmex-KX21")
+                    {
+                        sb_port1.Append(data);
+                        if (sb_port1.ToString().IndexOf(Convert.ToChar(3)) > -1)//3 i-e ETX is the RecordTerminator of Sysmex-KX21
+                        {
+                            
+                            //Console.WriteLine("In after terminator");
+
+                            string fullText = sb_port1.ToString();
+                            //string content = fullText.Substring(0, fullText.IndexOf(thismachinesettings.RecordTerminator) + thismachinesettings.RecordTerminator.Length);
+                            //Console.WriteLine(content);
+                            sb_port1.Clear();
+                           
+
+                            ParserDecision.Parsethisandinsert(fullText, thismachinesettings);
+                        }
+                    }
 
                 }
 

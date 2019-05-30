@@ -34,6 +34,10 @@ namespace BusinessLayer.Parsers
                     parser = new ASTM_Cobas6000();
                     parser.Parse(data, machineSettings);
                     break;
+                case 6:
+                    parser = new SysmexKX21();
+                    parser.Parse(data, machineSettings);
+                    break;
             }
         }
     }
