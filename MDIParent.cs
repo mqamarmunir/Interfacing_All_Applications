@@ -4,6 +4,7 @@ using System.Collections;
 using System.ComponentModel;
 using System.Windows.Forms;
 using System.Data;
+using WindowsApplication5.CommForms;
 
 namespace WindowsApplication5
 {
@@ -37,7 +38,12 @@ namespace WindowsApplication5
         }
         //int childCount = 1;
         TestAttributes _testAttributeForm;
+        private MenuItem menuSerialPort;
+        private MenuItem menuTCPClient;
+        private MenuItem menuTCPServer;
         MachineRegistration _machineRegistration;
+        TCPServer _TCPServer;
+        SerialCommunication _SerialCommunicationForm;
         private MDIParent()
         {
             //
@@ -135,8 +141,11 @@ namespace WindowsApplication5
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.mainMenu1 = new System.Windows.Forms.MainMenu(this.components);
             this.fileMenuItem = new System.Windows.Forms.MenuItem();
-            this.menuItem5 = new System.Windows.Forms.MenuItem();
             this.menuItem1 = new System.Windows.Forms.MenuItem();
+            this.menuTCPClient = new System.Windows.Forms.MenuItem();
+            this.menuTCPServer = new System.Windows.Forms.MenuItem();
+            this.menuSerialPort = new System.Windows.Forms.MenuItem();
+            this.menuItem5 = new System.Windows.Forms.MenuItem();
             this.exitMenuItem = new System.Windows.Forms.MenuItem();
             this.winMenuItem = new System.Windows.Forms.MenuItem();
             this.cascadeMenuItem = new System.Windows.Forms.MenuItem();
@@ -168,14 +177,12 @@ namespace WindowsApplication5
             this.fileMenuItem.Index = 0;
             this.fileMenuItem.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
             this.menuItem1,
+            this.menuTCPClient,
+            this.menuTCPServer,
+            this.menuSerialPort,
             this.menuItem5,
             this.exitMenuItem});
             this.fileMenuItem.Text = "&File";
-            // 
-            // menuItem5
-            // 
-            this.menuItem5.Index = 1;
-            this.menuItem5.Text = "-";
             // 
             // menuItem1
             // 
@@ -183,9 +190,32 @@ namespace WindowsApplication5
             this.menuItem1.Text = "&Register Instrument";
             this.menuItem1.Click += new System.EventHandler(this.menuItem1_Click);
             // 
+            // menuTCPClient
+            // 
+            this.menuTCPClient.Index = 1;
+            this.menuTCPClient.Text = "Start TCP Client";
+            this.menuTCPClient.Click += new System.EventHandler(this.menuTCPClient_Click);
+            // 
+            // menuTCPServer
+            // 
+            this.menuTCPServer.Index = 2;
+            this.menuTCPServer.Text = "Start TCP Server";
+            this.menuTCPServer.Click += new System.EventHandler(this.menuTCPServer_Click);
+            // 
+            // menuSerialPort
+            // 
+            this.menuSerialPort.Index = 3;
+            this.menuSerialPort.Text = "Listen On COM Ports";
+            this.menuSerialPort.Click += new System.EventHandler(this.menuSerialPort_Click);
+            // 
+            // menuItem5
+            // 
+            this.menuItem5.Index = 4;
+            this.menuItem5.Text = "-";
+            // 
             // exitMenuItem
             // 
-            this.exitMenuItem.Index = 2;
+            this.exitMenuItem.Index = 5;
             this.exitMenuItem.Text = "E&xit";
             this.exitMenuItem.Click += new System.EventHandler(this.exitMenuItem_Click);
             // 
@@ -284,7 +314,7 @@ namespace WindowsApplication5
             foreach (Form childForm in this.MdiChildren)
             {
                 //Check for its corresponding MDI child form
-                if (childForm.Text.Equals(tabControl1.SelectedTab.Text))
+                if (tabControl1.SelectedTab!=null && childForm.Text.Equals(tabControl1.SelectedTab.Text))
                 {
                     //Activate the MDI child form
                     childForm.Select();
@@ -310,7 +340,29 @@ namespace WindowsApplication5
 
         private void menuItem1_Click(object sender, EventArgs e)
         {
+            if (_machineRegistration == null)
+            {
+                _machineRegistration = new MachineRegistration();
+                //childForm.Text = "MDIChild " + childCount.ToString();
+                _machineRegistration.MdiParent = this;
 
+                _machineRegistration.TabCtrl = tabControl1;
+                TabPage tp = new TabPage();
+                tp.Parent = tabControl1;
+                tp.Text = _machineRegistration.Text;
+                tp.Show();
+
+                //child Form will now hold a reference value to a tabpage
+                _machineRegistration.TabPag = tp;
+                _machineRegistration.WindowState = FormWindowState.Maximized;
+                //Activate the MDI child form
+                _machineRegistration.Show();
+                tabControl1.SelectedTab = tp;
+                // _testAttributeForm.Dock = DockStyle.Fill; 
+                _machineRegistration.FormClosed += _machineRegistration_FormClosed;
+            }
+            else
+                _machineRegistration.Activate();
         }
 
         internal void LoadAttributesForm(int InstrumentID)
@@ -341,5 +393,82 @@ namespace WindowsApplication5
                 LoadAttributesForm(InstrumentID);
             }
         }
+
+       
+        private void menuTCPClient_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void menuTCPServer_Click(object sender, EventArgs e)
+        {
+            if (_TCPServer == null)
+            {
+                _TCPServer = new TCPServer();
+                //childForm.Text = "MDIChild " + childCount.ToString();
+                _TCPServer.MdiParent = this;
+
+                _TCPServer.TabCtrl = tabControl1;
+                TabPage tp = new TabPage();
+                tp.Parent = tabControl1;
+                tp.Text = _TCPServer.Text;
+                tp.Show();
+
+                //child Form will now hold a reference value to a tabpage
+                _TCPServer.TabPag = tp;
+                _TCPServer.WindowState = FormWindowState.Maximized;
+                //Activate the MDI child form
+                _TCPServer.Show();
+                tabControl1.SelectedTab = tp;
+                // _testAttributeForm.Dock = DockStyle.Fill; 
+                _TCPServer.FormClosed += _TCPServer_FormClosed; ;
+            }
+            else
+                _TCPServer.Activate();
+        }
+
+        private void _TCPServer_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            _TCPServer.m_StopThread = true;
+           
+            _TCPServer = null;
+            
+
+        }
+
+        private void menuSerialPort_Click(object sender, EventArgs e)
+        {
+            if (_SerialCommunicationForm == null)
+            {
+                _SerialCommunicationForm = new SerialCommunication();
+                //childForm.Text = "MDIChild " + childCount.ToString();
+                _SerialCommunicationForm.MdiParent = this;
+
+                _SerialCommunicationForm.TabCtrl = tabControl1;
+                TabPage tp = new TabPage();
+                tp.Parent = tabControl1;
+                tp.Text = _SerialCommunicationForm.Text;
+                tp.Show();
+
+                //child Form will now hold a reference value to a tabpage
+                _SerialCommunicationForm.TabPag = tp;
+                _SerialCommunicationForm.WindowState = FormWindowState.Maximized;
+                //Activate the MDI child form
+                _SerialCommunicationForm.Show();
+                tabControl1.SelectedTab = tp;
+                // _testAttributeForm.Dock = DockStyle.Fill; 
+                _SerialCommunicationForm.FormClosed += _SerialCommunicationForm_FormClosed;
+            }
+            else
+                _SerialCommunicationForm.Activate();
+        }
+
+        private void _SerialCommunicationForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+           // _SerialCommunicationForm.Dispose();
+            _SerialCommunicationForm = null;
+        }
+
+       
     }
 }

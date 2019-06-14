@@ -138,6 +138,24 @@
     <Compile Include="AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="CommForms\SerialCommunication.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CommForms\SerialCommunication.Designer.cs">
+      <DependentUpon>SerialCommunication.cs</DependentUpon>
+    </Compile>
+    <Compile Include="CommForms\TCPClient.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CommForms\TCPClient.Designer.cs">
+      <DependentUpon>TCPClient.cs</DependentUpon>
+    </Compile>
+    <Compile Include="CommForms\TCPServer.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CommForms\TCPServer.Designer.cs">
+      <DependentUpon>TCPServer.cs</DependentUpon>
+    </Compile>
     <Compile Include="MachineRegistration.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -159,12 +177,23 @@
       <SubType>Form</SubType>
     </Compile>
     <Content Include="App.ico" />
+    <Content Include="Reesources\circle-16 %281%29.png" />
+    <Content Include="Reesources\circle-16 green.ico" />
+    <Content Include="Reesources\circle-16 red.ico" />
+    <Content Include="Reesources\circle-16.png" />
+    <None Include="Resources\Icon1.ico" />
     <None Include="packages.config" />
     <None Include="Properties\DataSources\DataModel.cliqmachinemapping.datasource" />
     <None Include="Properties\DataSources\DataModel.cliqtestsandattribute.datasource" />
     <None Include="Properties\DataSources\DataModel.mi_tinstruments.datasource" />
     <None Include="Reesources\olive_logo.png" />
     <None Include="Reesources\splashscreen.jpg" />
+    <EmbeddedResource Include="CommForms\SerialCommunication.resx">
+      <DependentUpon>SerialCommunication.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="CommForms\TCPServer.resx">
+      <DependentUpon>TCPServer.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MachineRegistration.resx">
       <DependentUpon>MachineRegistration.cs</DependentUpon>
     </EmbeddedResource>
@@ -199,6 +228,12 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="Common\Common.csproj">
+      <Project>{8476919E-B596-495F-96EE-7DB723AADEB5}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
