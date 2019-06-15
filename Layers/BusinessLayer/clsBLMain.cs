@@ -182,8 +182,12 @@ namespace BusinessLayer
                                         from mi_tresult m
                                         inner join mi_tinstruments i on i.instrumentid=m.InstrumentId where
                                         length(Result) between 1 and 30 and m.enteredon between date_sub(now(),interval 2 hour) and now()
-                                        and Status='N' and isnumeric(trim(m.bookingid))=1 and (trim(m.bookingid) like('"+bookingIdPrefix+ @"%') or trim(m.bookingid) like('" + bookingIdPrefixLastYear + @"%'))   
-                                        order by resultid,bookingid asc limit " + ConfigurationSettings.AppSettings["ResultsToSendInOneTime"].ToString().Trim();
+                                        and Status='N' and isnumeric(trim(m.bookingid))=1 order by resultid,bookingid asc limit " + ConfigurationSettings.AppSettings["ResultsToSendInOneTime"].ToString().Trim();
+                    ///
+                    ///Required Condition for RMI only
+                    //and (trim(m.bookingid) like('"+bookingIdPrefix+ @"%') or trim(m.bookingid) like('" + bookingIdPrefixLastYear + @"%'))  
+                    
+
                     break;
             }
             return objTrans.DataTrigger_Get_All<T>(objdbhims);
