@@ -68,6 +68,7 @@
     <Compile Include="Parsers\ASTM_Cobas6000.cs" />
     <Compile Include="Parsers\AU480.cs" />
     <Compile Include="Parsers\BeckManLH750.cs" />
+    <Compile Include="Parsers\DIRUIH500.cs" />
     <Compile Include="Parsers\IParser.cs" />
     <Compile Include="Parsers\ParserDecision.cs" />
     <Compile Include="Parsers\SysmexKX21.cs" />

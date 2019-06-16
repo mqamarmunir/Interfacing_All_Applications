@@ -384,13 +384,19 @@ namespace WindowsApplication5.CommForms
             {
                 rtbCommunicationEvents.Invoke(new EventHandler(delegate
                 {
-                    rtbCommunicationEvents.Text += Environment.NewLine+ DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss tt") +"\t"+ Msg;
+                    if (rtbCommunicationEvents.Text.Length > 5000)
+                        rtbCommunicationEvents.Clear();
+                    rtbCommunicationEvents.AppendText(Environment.NewLine + DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss tt") + "\t" + Msg);
+                    rtbCommunicationEvents.ScrollToCaret();
                 }));
 
             }
             else
             {
-                rtbCommunicationEvents.Text += Environment.NewLine + Msg;
+                if (rtbCommunicationEvents.Text.Length > 5000)
+                    rtbCommunicationEvents.Clear();
+                rtbCommunicationEvents.AppendText(Environment.NewLine + DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss tt") + "\t" + Msg);
+                rtbCommunicationEvents.ScrollToCaret();
             }
         }
 

@@ -232,68 +232,77 @@ namespace SerialTest
         private static void DataReceived(object sender)
         {
             string data = "";
-            try
-            {
-                
-                SerialPort thisSerialPort = ((System.IO.Ports.SerialPort)sender);
-                
-                data = thisSerialPort.ReadExisting();
-                Console.WriteLine("Data received from: "+thisSerialPort.PortName);
-                Console.WriteLine(data);
-                if (data.Length > 0)
-                {
-                    _serial.Write(new byte[] { 0x06 }, 0, 1);
-                    var machineSettings = _unitOfWork.InstrumentsRepository.GetSingle(x => x.Active == "Y" && x.PORT == ConfigurationSettings.AppSettings["PortName"].ToString().Trim());
-                    long MachineID = machineSettings.InstrumentID;//.ToString().Trim();
-                    Console.WriteLine("Machine ID: " + MachineID.ToString());
-                    //Logger.LogReceivedData(MachineID.ToString(), data);
-                    if (machineSettings.Communication_Stnadard == "ASTM")
-                    {
-                        sb_Blocks.Append(data);
-                        if (data.Contains("L|1"))
-                        {
-                            Console.WriteLine("In after terminator");
+            #region for ASTM
+            //try
+            //{
 
-                            string fullText = sb_Blocks.ToString();
-                            string content = fullText.Substring(0, fullText.IndexOf(machineSettings.RecordTerminator) + machineSettings.RecordTerminator.Length);
-                            Console.WriteLine(content);
-                            sb_Blocks.Clear();
-                            if (fullText.LastIndexOf(@"H|\^&") > 0)
-                            {
-                                string remainingContent = fullText.Substring(fullText.LastIndexOf(@"H|\^&"));
+            //    SerialPort thisSerialPort = ((System.IO.Ports.SerialPort)sender);
 
-                                sb_Blocks.Append(remainingContent);
-                            }
+            //    data = thisSerialPort.ReadExisting();
+            //    Console.WriteLine("Data received from: "+thisSerialPort.PortName);
+            //    Console.WriteLine(data);
+            //    if (data.Length > 0)
+            //    {
+            //        _serial.Write(new byte[] { 0x06 }, 0, 1);
+            //        var machineSettings = _unitOfWork.InstrumentsRepository.GetSingle(x => x.Active == "Y" && x.PORT == ConfigurationSettings.AppSettings["PortName"].ToString().Trim());
+            //        long MachineID = machineSettings.InstrumentID;//.ToString().Trim();
+            //        Console.WriteLine("Machine ID: " + MachineID.ToString());
+            //        //Logger.LogReceivedData(MachineID.ToString(), data);
+            //        if (machineSettings.Communication_Stnadard == "ASTM")
+            //        {
+            //            sb_Blocks.Append(data);
+            //            if (data.Contains("L|1"))
+            //            {
+            //                Console.WriteLine("In after terminator");
 
+            //                string fullText = sb_Blocks.ToString();
+            //                string content = fullText.Substring(0, fullText.IndexOf(machineSettings.RecordTerminator) + machineSettings.RecordTerminator.Length);
+            //                Console.WriteLine(content);
+            //                sb_Blocks.Clear();
+            //                if (fullText.LastIndexOf(@"H|\^&") > 0)
+            //                {
+            //                    string remainingContent = fullText.Substring(fullText.LastIndexOf(@"H|\^&"));
 
-                            if (machineSettings != null)
-                            {
-                                Console.WriteLine("Read {0} bytes from socket. \n Data : {1}",
-                               content.Length, content);
-                                //if(!File.Exists(System.Configuration.ConfigurationSettings.AppSettings["WriteFilePath"]))
-                                //    File.Create(System.Configuration.ConfigurationSettings.AppSettings["WriteFilePath"]);
-                                Logger.LogReceivedData(machineSettings.Instrument_Name, content);
-                                Parsethisandinsert(content, machineSettings);
-                            }
-                            else
-                            {
-                                ///Log here Invalid Machine
-                                ///
-                                Console.WriteLine("Machine not registered");
-                            }
-                        }
-                    }
+            //                    sb_Blocks.Append(remainingContent);
+            //                }
 
 
-                }
+            //                if (machineSettings != null)
+            //                {
+            //                    Console.WriteLine("Read {0} bytes from socket. \n Data : {1}",
+            //                   content.Length, content);
+            //                    //if(!File.Exists(System.Configuration.ConfigurationSettings.AppSettings["WriteFilePath"]))
+            //                    //    File.Create(System.Configuration.ConfigurationSettings.AppSettings["WriteFilePath"]);
+            //                    Logger.LogReceivedData(machineSettings.Instrument_Name, content);
+            //                    Parsethisandinsert(content, machineSettings);
+            //                }
+            //                else
+            //                {
+            //                    ///Log here Invalid Machine
+            //                    ///
+            //                    Console.WriteLine("Machine not registered");
+            //                }
+            //            }
+            //        }
 
 
-            }
-            catch (Exception ee)
-            {
-                Logger.LogExceptions("Following Exception occured in serialport1 datarecieved method please check." + ee.ToString());
+            //    }
 
-            }
+
+            //}
+            //catch (Exception ee)
+            //{
+            //    Logger.LogExceptions("Following Exception occured in serialport1 datarecieved method please check." + ee.ToString());
+
+            //}
+            #endregion
+            #region NoAck
+            SerialPort thisSerialPort = ((System.IO.Ports.SerialPort)sender);
+            data = thisSerialPort.ReadExisting();
+            Writedatatofile(data);
+            
+            #endregion
+
         }
 
         private static void ParseASTMData(string data, long MachineID)

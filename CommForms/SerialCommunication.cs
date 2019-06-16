@@ -403,6 +403,25 @@ namespace WindowsApplication5.CommForms
                             ParserDecision.Parsethisandinsert(fullText, thismachinesettings);
                         }
                     }
+                    else if (thismachinesettings.Communication_Stnadard == "DirUIH500")
+                    {
+                        sb_port1.Append(data);
+                        if (sb_port1.ToString().IndexOf(Convert.ToChar(3)) > -1)//3 i-e ETX is the RecordTerminator of Sysmex-KX21
+                        {
+
+                            //Console.WriteLine("In after terminator");
+
+                            string fullText = sb_port1.ToString();
+                            //string content = fullText.Substring(0, fullText.IndexOf(thismachinesettings.RecordTerminator) + thismachinesettings.RecordTerminator.Length);
+                            //Console.WriteLine(content);
+                            sb_port1.Clear();
+
+
+                            Logger.LogReceivedData(thismachinesettings.Instrument_Name, fullText);
+                            AppendToRichTextBox("Data Received from " + thismachinesettings.Instrument_Name + " " + fullText);
+                            ParserDecision.Parsethisandinsert(fullText, thismachinesettings);
+                        }
+                    }
 
                 }
 
@@ -1522,13 +1541,19 @@ namespace WindowsApplication5.CommForms
             {
                 rtbCommunicationEvents.Invoke(new EventHandler(delegate
                 {
-                    rtbCommunicationEvents.Text += Environment.NewLine + DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss tt") + "\t" + Msg;
+                    if (rtbCommunicationEvents.Text.Length > 5000)
+                        rtbCommunicationEvents.Clear();
+                    rtbCommunicationEvents.AppendText(Environment.NewLine + DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss tt") + "\t" + Msg);
+                    rtbCommunicationEvents.ScrollToCaret();
                 }));
 
             }
             else
             {
-                rtbCommunicationEvents.Text += Environment.NewLine + Msg;
+                if (rtbCommunicationEvents.Text.Length > 5000)
+                    rtbCommunicationEvents.Clear();
+                rtbCommunicationEvents.AppendText(Environment.NewLine + DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss tt") + "\t" + Msg);
+                rtbCommunicationEvents.ScrollToCaret();
             }
         }
     }

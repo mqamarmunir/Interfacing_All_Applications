@@ -17,8 +17,8 @@ namespace BusinessLayer.Parsers
                 case 1:
                     parser = new ASTM();
                     parser.Parse(data, machineSettings);
-                    break;//case 1 ends here
-                case 2://AU480 Beckman
+                    break;
+                case 2:
                     parser = new AU480();
                     parser.Parse(data, machineSettings);
                     break;
@@ -36,6 +36,10 @@ namespace BusinessLayer.Parsers
                     break;
                 case 6:
                     parser = new SysmexKX21();
+                    parser.Parse(data, machineSettings);
+                    break;
+                case 7:
+                    parser = new DIRUIH500();
                     parser.Parse(data, machineSettings);
                     break;
             }
