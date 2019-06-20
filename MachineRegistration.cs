@@ -13,16 +13,17 @@ using System.Linq;
 using System.Collections.Generic;
 using DataModel;
 using System.Web.Script.Serialization;
-
+using System.Data.Entity.Validation;
+using Common;
 
 namespace WindowsApplication5
 {
-	/// <summary>
-	/// Summary description for MDIChild.
-	/// </summary>
-	/// 
+    /// <summary>
+    /// Summary description for MDIChild.
+    /// </summary>
+    /// 
 
-	public class MachineRegistration : System.Windows.Forms.Form
+    public class MachineRegistration : System.Windows.Forms.Form
     {
         private IContainer components;
         private TabControl tabCtrl;
@@ -77,63 +78,63 @@ namespace WindowsApplication5
         private TextBox txtIpAddress;
         private Label label13;
         private readonly UnitOfWork _unitOfWork;
-		public MachineRegistration()
-		{
-			//
-			// Required for Windows Form Designer support
-			//
-			InitializeComponent();
+        public MachineRegistration()
+        {
+            //
+            // Required for Windows Form Designer support
+            //
+            InitializeComponent();
             _unitOfWork = new UnitOfWork();
-            
-
-			//
-			// TODO: Add any constructor code after InitializeComponent call
-			//
-		}
-
-		/// <summary>
-		/// Clean up any resources being used.
-		/// </summary>
-		protected override void Dispose( bool disposing )
-		{
-			if( disposing )
-			{
-				if(components != null)
-				{
-					components.Dispose();
-				}
-			}
-			base.Dispose( disposing );
-		}
-
-		public TabPage TabPag
-		{
-			get
-			{
-				return tabPag;
-			}
-			set
-			{
-				tabPag = value;
-			}
-		}
-
-		public TabControl TabCtrl
-		{
-			set
-			{
-				tabCtrl = value;
-			}
-		}
 
 
-		#region Windows Form Designer generated code
-		/// <summary>
-		/// Required method for Designer support - do not modify
-		/// the contents of this method with the code editor.
-		/// </summary>
-		private void InitializeComponent()
-		{
+            //
+            // TODO: Add any constructor code after InitializeComponent call
+            //
+        }
+
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (components != null)
+                {
+                    components.Dispose();
+                }
+            }
+            base.Dispose(disposing);
+        }
+
+        public TabPage TabPag
+        {
+            get
+            {
+                return tabPag;
+            }
+            set
+            {
+                tabPag = value;
+            }
+        }
+
+        public TabControl TabCtrl
+        {
+            set
+            {
+                tabCtrl = value;
+            }
+        }
+
+
+        #region Windows Form Designer generated code
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
             this.components = new System.ComponentModel.Container();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -223,8 +224,8 @@ namespace WindowsApplication5
             this.grdMachines.AllowUserToAddRows = false;
             this.grdMachines.AllowUserToDeleteRows = false;
             this.grdMachines.AllowUserToResizeRows = false;
-            this.grdMachines.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.grdMachines.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.grdMachines.AutoGenerateColumns = false;
             this.grdMachines.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
@@ -350,7 +351,7 @@ namespace WindowsApplication5
             // 
             // panel1
             // 
-            this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.panel1.Controls.Add(this.txtCliqId);
             this.panel1.Controls.Add(this.label14);
@@ -694,124 +695,156 @@ namespace WindowsApplication5
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).EndInit();
             this.ResumeLayout(false);
 
-		}
-		#endregion
+        }
+        #endregion
 
 
-        
-		private void MDIChild_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-		{
-			//Destroy the corresponding Tabpage when closing MDI child form
-			this.tabPag.Dispose();
 
-			//If no Tabpage left
-			if (!tabCtrl.HasChildren)
-			{
-				tabCtrl.Visible = false;
-			}
-		}
+        private void MDIChild_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            //Destroy the corresponding Tabpage when closing MDI child form
+            this.tabPag.Dispose();
 
-		private void MDIChild_Activated(object sender, System.EventArgs e)
-		{
-			//Activate the corresponding Tabpage
-			tabCtrl.SelectedTab = tabPag;
+            //If no Tabpage left
+            if (!tabCtrl.HasChildren)
+            {
+                tabCtrl.Visible = false;
+            }
+        }
 
-			if (!tabCtrl.Visible)
-			{
-				tabCtrl.Visible = true;
-			}
-		}
+        private void MDIChild_Activated(object sender, System.EventArgs e)
+        {
+            //Activate the corresponding Tabpage
+            tabCtrl.SelectedTab = tabPag;
 
-		private void linkLabel1_LinkClicked(object sender, System.Windows.Forms.LinkLabelLinkClickedEventArgs e)
-		{
-			Process.Start("www.codeproject.com");
-		}
+            if (!tabCtrl.Visible)
+            {
+                tabCtrl.Visible = true;
+            }
+        }
+
+        private void linkLabel1_LinkClicked(object sender, System.Windows.Forms.LinkLabelLinkClickedEventArgs e)
+        {
+            Process.Start("www.codeproject.com");
+        }
 
         private void TestAttributes_Load(object sender, EventArgs e)
         {
             SetDefaults();
-           
+
             BindInstrumentsToGrid();
-            
+
         }
 
         private void BindInstrumentsToGrid()
         {
-            var machines= _unitOfWork.InstrumentsRepository.GetAll();
+            var machines = _unitOfWork.InstrumentsRepository.GetAll();
             grdMachines.DataSource = machines;
         }
 
-        
 
-        
+
+
 
         private void cmbTests_SelectedIndexChanged(object sender, EventArgs e)
         {
-           
+
             //MessageBox.Show(cmbTests.SelectedValue.ToString());
         }
 
-        
+
 
         private void btnSave_Click(object sender, EventArgs e)
         {
             if (ValidateForm())
             {
-                mi_tinstruments _instrument = new mi_tinstruments
+                try
                 {
-                    Acknowledgement_code = txtAckChar.Text,
-                    Active = chkActive.Checked ? "Y" : "N",
-                    BaudRate = Convert.ToInt32(cmbBaudRate.Text.Trim()),
-                    Bidirectional = "Y",
-                    ClientID = System.Configuration.ConfigurationSettings.AppSettings["BranchID"].ToString().Trim(),
-                    Communication_method = cmbCommMethod.Text.Trim(),
-                    Communication_Stnadard = cmbStandard.Text.Trim(),
-                    DataBit = cmbDataBits.Text.Trim(),
-                    EnteredBy = 1,
-                    EnteredOn = System.DateTime.Now,
-                    FlowControl = cmbFlowControl.Text.Trim(),
-                    Instrument_Name = txtName.Text.Trim(),
-                    Model = txtModel.Text.Trim(),
-                    Parity = cmbParity.Text.Trim(),
-                    PORT = cmbPort.Text.Trim(),
-                    Stopbit = cmbStopBits.Text.Trim(),
-                    RecordTerminator = txtRecordTerminator.Text.Trim(),
-                    ParsingAlgorithm = 1,
-                    IpAddress = txtIpAddress.Text.Trim()
 
-                };
-                int cliqInstrumentid = 0;
-            
-                bool x=int.TryParse(txtCliqId.Text.Trim(), out cliqInstrumentid);
-                if (x)
-                {
-                    _instrument.CliqInstrumentID = cliqInstrumentid;
+
+
+
+                    mi_tinstruments _instrument = new mi_tinstruments
+                    {
+                        Acknowledgement_code = txtAckChar.Text,
+                        Active = chkActive.Checked ? "Y" : "N",
+                        BaudRate = Convert.ToInt32(cmbBaudRate.Text.Trim()),
+                        Bidirectional = "Y",
+                        ClientID = System.Configuration.ConfigurationSettings.AppSettings["BranchID"].ToString().Trim(),
+                        Communication_method = cmbCommMethod.Text.Trim(),
+                        Communication_Stnadard = cmbStandard.Text.Trim(),
+                        DataBit = cmbDataBits.Text.Trim(),
+                        EnteredBy = 1,
+                        EnteredOn = System.DateTime.Now,
+                        FlowControl = cmbFlowControl.Text.Trim(),
+                        Instrument_Name = txtName.Text.Trim(),
+                        Model = txtModel.Text.Trim(),
+                        Parity = cmbParity.Text.Trim(),
+                        PORT = cmbPort.Text.Trim(),
+                        Stopbit = cmbStopBits.Text.Trim(),
+                        RecordTerminator = txtRecordTerminator.Text.Trim(),
+                        ParsingAlgorithm = 1,
+                        IpAddress = txtIpAddress.Text.Trim()
+
+                    };
+                    int cliqInstrumentid = 0;
+
+                    bool x = int.TryParse(txtCliqId.Text.Trim(), out cliqInstrumentid);
+                    if (x)
+                    {
+                        _instrument.CliqInstrumentID = cliqInstrumentid;
+                    }
+                    //1_instrument.
+                    _unitOfWork.InstrumentsRepository.Insert(_instrument);
+                    _unitOfWork.Save();
+                    BindInstrumentsToGrid();
                 }
-                //1_instrument.
-                _unitOfWork.InstrumentsRepository.Insert(_instrument);
-                _unitOfWork.Save();
-                BindInstrumentsToGrid();
+
+                catch (DbEntityValidationException ee)
+                {
+
+                    var outputLines = new List<string>();
+                    foreach (var eve in ee.EntityValidationErrors)
+                    {
+                        outputLines.Add(string.Format(
+                            "{0}: Entity of type \"{1}\" in state \"{2}\" has the following validation errors:", DateTime.Now,
+                            eve.Entry.Entity.GetType().Name, eve.Entry.State));
+                        foreach (var ve in eve.ValidationErrors)
+                        {
+                            outputLines.Add(string.Format("- Property: \"{0}\", Error: \"{1}\"", ve.PropertyName, ve.ErrorMessage));
+                        }
+                    }
+                    string EntityValidationErrors = string.Join(", ", outputLines);
+                    //System.IO.File.AppendAllLines(@"E:\errors.txt", outputLines);
+                    Logger.LogExceptions(EntityValidationErrors);
+                    
+                }
+                catch (Exception exc)
+                {
+                    Logger.LogExceptions(exc.ToString());
+                    
+                }
             }
 
         }
 
         private bool ValidateForm()
         {
-            
+
             return true;
         }
 
         private void btnReset_Click(object sender, EventArgs e)
         {
 
-           
+
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
             clsBLMain objMai = new clsBLMain();
             DataView dv = objMai.GetAll(7);
-            if(dv.Count>0)
+            if (dv.Count > 0)
             {
                 List<cliqresults> lstresults = new List<cliqresults>();
                 for (int i = 0; i < dv.Count; i++)
@@ -826,11 +859,11 @@ namespace WindowsApplication5
                         Result = dv[i]["Result"].ToString().Trim()
                     });
                 }
-                
+
 
 
                 var jsonSerialiser = new JavaScriptSerializer();
-                
+
                 try
                 {
                     var json = jsonSerialiser.Serialize(lstresults);
@@ -843,7 +876,7 @@ namespace WindowsApplication5
                     MessageBox.Show(ee.Message);
                 }
 
-                
+
             }
         }
 
@@ -873,7 +906,7 @@ namespace WindowsApplication5
         private void SetDefaults()
         {
             cmbCommMethod.SelectedIndex = 0;
-            
+
             cmbBaudRate.SelectedIndex = 1;
             cmbDataBits.SelectedIndex = 1;
             cmbFlowControl.SelectedIndex = 0;
@@ -883,5 +916,5 @@ namespace WindowsApplication5
             cmbStopBits.SelectedIndex = 1;
         }
 
-	}
+    }
 }

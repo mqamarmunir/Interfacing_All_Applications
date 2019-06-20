@@ -4,7 +4,7 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="92d8f8de1b94443ba6674bf8fcfa4491" Name="Diagram1" ZoomLevel="86">
+      <Diagram DiagramId="92d8f8de1b94443ba6674bf8fcfa4491" Name="Diagram1" ZoomLevel="82">
         <EntityTypeShape EntityType="miModel.cliqmachinemapping" Width="1.5" PointX="3" PointY="1.125" IsExpanded="true" />
         <EntityTypeShape EntityType="miModel.cliqtestsandattribute" Width="1.5" PointX="5.75" PointY="0.75" IsExpanded="true" />
         <EntityTypeShape EntityType="miModel.mi_setting" Width="1.5" PointX="7.75" PointY="0.75" IsExpanded="true" />

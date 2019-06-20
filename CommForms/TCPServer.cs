@@ -231,6 +231,7 @@ namespace WindowsApplication5.CommForms
             // Create the state object.  
             StateObject state = new StateObject();
             state.workSocket = handler;
+            AppendToRichTextBox("New Client Connected IP:" + (handler.RemoteEndPoint as IPEndPoint).Address.ToString());// + " Machine:" + machineSettings.Instrument_Name);
 
             var machineSettings = StaticCache.GetAllInstruments(true).Where(x => x.IpAddress == (handler.RemoteEndPoint as IPEndPoint).Address.ToString()).FirstOrDefault();
             if (machineSettings != null)

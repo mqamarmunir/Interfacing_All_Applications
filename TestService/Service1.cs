@@ -231,7 +231,7 @@ namespace TestService
                 if (data.Length > 0)
                 {
 
-                    Logger.LogReceivedData(thismachinesettings.Instrument_Name, data);
+                    
                     if (thismachinesettings.Communication_Stnadard == "ASTM")
                     {
                         serialPort1.Write(new byte[] { 0x06 }, 0, 1);
@@ -244,13 +244,8 @@ namespace TestService
                             string content = fullText.Substring(0, fullText.IndexOf(thismachinesettings.RecordTerminator) + thismachinesettings.RecordTerminator.Length);
                             //Console.WriteLine(content);
                             sb_port1.Clear();
-                            if (fullText.LastIndexOf(@"H|\^&") > 0)
-                            {
-                                string remainingContent = fullText.Substring(fullText.LastIndexOf(@"H|\^&"));
+                            Logger.LogReceivedData(thismachinesettings.Instrument_Name, content);
 
-                                sb_port1.Append(remainingContent);
-                            }
-                            
                             ParserDecision.Parsethisandinsert(content, thismachinesettings);
                         }
                     }
@@ -419,12 +414,7 @@ namespace TestService
                             string content = fullText.Substring(0, fullText.IndexOf(thismachinesettings.RecordTerminator) + thismachinesettings.RecordTerminator.Length);
                             //Console.WriteLine(content);
                             sb_port2.Clear();
-                            if (fullText.LastIndexOf(@"H|\^&") > 0)
-                            {
-                                string remainingContent = fullText.Substring(fullText.LastIndexOf(@"H|\^&"));
-
-                                sb_port2.Append(remainingContent);
-                            }
+                           
                             Logger.LogReceivedData(thismachinesettings.Instrument_Name, content);
                             ParserDecision.Parsethisandinsert(content, thismachinesettings);
                         }
@@ -575,12 +565,7 @@ namespace TestService
                             string content = fullText.Substring(0, fullText.IndexOf(thismachinesettings.RecordTerminator) + thismachinesettings.RecordTerminator.Length);
                             //Console.WriteLine(content);
                             sb_port3.Clear();
-                            if (fullText.LastIndexOf(@"H|\^&") > 0)
-                            {
-                                string remainingContent = fullText.Substring(fullText.LastIndexOf(@"H|\^&"));
-
-                                sb_port3.Append(remainingContent);
-                            }
+                           
                             Logger.LogReceivedData(thismachinesettings.Instrument_Name, content);
                             ParserDecision.Parsethisandinsert(content, thismachinesettings);
                         }
@@ -730,12 +715,7 @@ namespace TestService
                             string content = fullText.Substring(0, fullText.IndexOf(thismachinesettings.RecordTerminator) + thismachinesettings.RecordTerminator.Length);
                             //Console.WriteLine(content);
                             sb_port4.Clear();
-                            if (fullText.LastIndexOf(@"H|\^&") > 0)
-                            {
-                                string remainingContent = fullText.Substring(fullText.LastIndexOf(@"H|\^&"));
-
-                                sb_port4.Append(remainingContent);
-                            }
+                           
                             Logger.LogReceivedData(thismachinesettings.Instrument_Name, content);
                             ParserDecision.Parsethisandinsert(content, thismachinesettings);
                         }
@@ -885,12 +865,7 @@ namespace TestService
                             string content = fullText.Substring(0, fullText.IndexOf(thismachinesettings.RecordTerminator) + thismachinesettings.RecordTerminator.Length);
                             //Console.WriteLine(content);
                             sb_port5.Clear();
-                            if (fullText.LastIndexOf(@"H|\^&") > 0)
-                            {
-                                string remainingContent = fullText.Substring(fullText.LastIndexOf(@"H|\^&"));
-
-                                sb_port5.Append(remainingContent);
-                            }
+                           
                             Logger.LogReceivedData(thismachinesettings.Instrument_Name, content);
                             ParserDecision.Parsethisandinsert(content, thismachinesettings);
                         }
@@ -1040,12 +1015,7 @@ namespace TestService
                             string content = fullText.Substring(0, fullText.IndexOf(thismachinesettings.RecordTerminator) + thismachinesettings.RecordTerminator.Length);
                             //Console.WriteLine(content);
                             sb_port6.Clear();
-                            if (fullText.LastIndexOf(@"H|\^&") > 0)
-                            {
-                                string remainingContent = fullText.Substring(fullText.LastIndexOf(@"H|\^&"));
 
-                                sb_port6.Append(remainingContent);
-                            }
                             Logger.LogReceivedData(thismachinesettings.Instrument_Name, content);
                             ParserDecision.Parsethisandinsert(content, thismachinesettings);
                         }

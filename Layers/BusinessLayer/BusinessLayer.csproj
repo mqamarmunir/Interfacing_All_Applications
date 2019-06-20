@@ -63,6 +63,8 @@
     <Compile Include="clsBLMain.cs" />
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="Helper.cs" />
+    <Compile Include="Parsers\ASTM_AbbottAlinity.cs" />
+    <Compile Include="Parsers\ASTM_CellDyn.cs" />
     <Compile Include="Parsers\ASTM.cs" />
     <Compile Include="Parsers\ASTM_AbbottArchitect.cs" />
     <Compile Include="Parsers\ASTM_Cobas6000.cs" />

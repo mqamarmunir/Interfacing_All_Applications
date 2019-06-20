@@ -42,6 +42,15 @@ namespace BusinessLayer.Parsers
                     parser = new DIRUIH500();
                     parser.Parse(data, machineSettings);
                     break;
+                case 8:
+                    parser = new ASTM_CellDyn();
+                    parser.Parse(data, machineSettings);
+                    break;
+                case 9:
+                    parser = new ASTM_AbbottAlinity();
+                    parser.Parse(data, machineSettings);
+                    break;
+              
             }
         }
     }

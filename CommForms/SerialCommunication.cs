@@ -69,7 +69,7 @@ namespace WindowsApplication5.CommForms
                 serialPort1.StopBits = ConfigurationManager.AppSettings["StopBits_1"].ToString() == "1" ? StopBits.One : StopBits.None;
                 serialPort1.DataBits = Convert.ToInt16(ConfigurationManager.AppSettings["DataBits_1"].ToString());
                 serialPort1.Parity = Parity.None;
-                
+                serialPort1.Handshake = Handshake.None;
                 try
                 {
                     

@@ -47,6 +47,7 @@ namespace DataModel
         public int ParsingAlgorithm { get; set; }
         public Nullable<long> CliqInstrumentID { get; set; }
         public string IpAddress { get; set; }
+        public bool IsLabIdPatientId { get; set; }
     
         public virtual ICollection<cliqmachinemapping> cliqmachinemappings { get; set; }
         public virtual ICollection<mi_tresult> mi_tresult { get; set; }

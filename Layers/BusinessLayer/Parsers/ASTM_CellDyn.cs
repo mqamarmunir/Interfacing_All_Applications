@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace BusinessLayer.Parsers
 {
-    public class ASTM : IParser
+    public class ASTM_CellDyn : IParser
     {
         public void Parse(string data, mi_tinstruments machineSettings)
         {
@@ -91,42 +91,19 @@ namespace BusinessLayer.Parsers
                                     attribresult = result[3].ToString();
                                    
                                     string[] attcode = result[2].Split(sep4);
+                                    attribcode = attcode[6];
                                     //writeLog("Result[2]: " + result[2]);
-                                    if (attcode.Length > 3)
-                                    {
-                                        if (attcode[3] != "")
-                                        {
-                                            attribcode = attcode[3].ToString();
-                                        }
-                                        else
-                                        {
-                                            attribcode = attcode[4].ToString();
-                                        }
-                                        if (attribcode.Contains(@"/"))
-                                        {
-                                            attribcode = attribcode.Replace(@"/", "");
-                                        }
-                                    }
-                                    else
-                                    {
-                                        attribcode = attcode[1];
-                                    }
-                                   
-                                    if (attribcode.ToLower().Equals("900") || attribcode.ToLower().Equals("999") || attribcode.ToLower().Equals("102"))
-                                    {
-                                        if (attribresult.Contains("-1^"))
-                                        {
-                                            attribresult = attribresult.Replace("-1^", "Negative  \r\n");
 
-                                        }
-                                        else if (attribresult.Contains("1^"))
-                                        {
-                                            attribresult = attribresult.Replace("1^", "Positive  \r\n");
 
-                                        }
-
+                                    if (attribresult.Trim().StartsWith("."))
+                                    {
+                                        attribresult = "0" + attribresult;
                                     }
-                                    if (string.IsNullOrEmpty(labid) || machineSettings.IsLabIdPatientId)
+                                    else if (attribresult.EndsWith("."))
+                                    {
+                                        attribresult = attribresult.TrimEnd('.');
+                                    }
+                                    if (string.IsNullOrEmpty(labid))
                                     {
                                         labid = patid.Trim();
                                     }

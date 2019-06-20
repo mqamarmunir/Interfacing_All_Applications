@@ -105,6 +105,7 @@
           <Property Name="ParsingAlgorithm" Type="usmallint" Nullable="false" />
           <Property Name="CliqInstrumentID" Type="uint" />
           <Property Name="IpAddress" Type="varchar" MaxLength="15" />
+          <Property Name="IsLabIdPatientId" Type="bool" Nullable="false" />
         </EntityType>
         <EntityType Name="mi_tpersonnel">
           <Key>
@@ -182,7 +183,7 @@
           <Property Name="Status" Type="char" MaxLength="1" Nullable="false" />
           <Property Name="InstrumentId" Type="uint" Nullable="false" />
           <Property Name="senton" Type="datetime" Precision="0" />
-          <Property Name="sentto" Type="varchar" MaxLength="45" />
+          <Property Name="sentto" Type="varchar" MaxLength="1000" />
         </EntityType>
         <EntityType Name="mi_tsuppliers">
           <Key>
@@ -418,6 +419,7 @@
           <Property Name="IpAddress" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="cliqmachinemappings" Relationship="Self.FK_cliqmachinemappings_MachineId" FromRole="mi_tinstruments" ToRole="cliqmachinemappings" />
           <NavigationProperty Name="mi_tresult" Relationship="Self.FK_mi_tresult_1" FromRole="mi_tinstruments" ToRole="mi_tresult" />
+          <Property Name="IsLabIdPatientId" Type="Boolean" Nullable="false" />
         </EntityType>
         <EntityType Name="mi_tpersonnel">
           <Key>
@@ -708,6 +710,7 @@
           <EntitySetMapping Name="mi_tinstruments">
             <EntityTypeMapping TypeName="miModel.mi_tinstruments">
               <MappingFragment StoreEntitySet="mi_tinstruments">
+                <ScalarProperty Name="IsLabIdPatientId" ColumnName="IsLabIdPatientId" />
                 <ScalarProperty Name="InstrumentID" ColumnName="InstrumentID" />
                 <ScalarProperty Name="Supplierid" ColumnName="Supplierid" />
                 <ScalarProperty Name="Instrument_Name" ColumnName="Instrument_Name" />
