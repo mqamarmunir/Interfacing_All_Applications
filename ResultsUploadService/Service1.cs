@@ -168,14 +168,14 @@ namespace ResultsUploadService
                 Logger.LogExceptions(ee.ToString());
             }
 
-    #endregion
-}
+            #endregion
+        }
 
-protected override void OnStop()
-{
-    timer.Stop();
-    timer.Close();
-    GC.Collect();
-}
+        protected override void OnStop()
+        {
+            timer.Stop();
+            timer.Close();
+            GC.Collect();
+        }
     }
 }

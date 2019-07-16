@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,7 +31,12 @@ namespace BusinessLayer.Parsers
                     {
                         abc[i] = abc[i].Replace("\r\n", "");
                         DataType = abc[i].Substring(3, 1);//C for Quality Control and U for Analysis
-                        labid = abc[i].Substring(11, 12);
+                        Int32 labidInt;
+                        bool x= int.TryParse(abc[i].Substring(11, 12),out labidInt);
+                        if (!x)
+                            return;
+
+                        labid = ConfigurationManager.AppSettings["BranchId"].ToString() + DateTime.Now.ToString("yy") + labidInt.ToString();
                         for (int j = 0; j < 18; j++)
                         {
                             attribResult[j] = j < 17 ? abc[i].Substring(31 + (5 * j), 5) : abc[i].Substring(31 + (5 * j), 4);

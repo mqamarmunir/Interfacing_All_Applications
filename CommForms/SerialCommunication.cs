@@ -255,178 +255,9 @@ namespace WindowsApplication5.CommForms
 
                 if (data.Length > 0)
                 {
-
-                    
-                    if (thismachinesettings.Communication_Stnadard == "ASTM")
-                    {
-                        serialPort1.Write(new byte[] { 0x06 }, 0, 1);
-                        sb_port1.Append(data);
-                        if (sb_port1.ToString().IndexOf(thismachinesettings.RecordTerminator) > -1)
-                        {
-                            //Console.WriteLine("In after terminator");
-
-                            string fullText = sb_port1.ToString();
-                            string content = fullText.Substring(0, fullText.IndexOf(thismachinesettings.RecordTerminator) + thismachinesettings.RecordTerminator.Length);
-                            //Console.WriteLine(content);
-                            sb_port1.Clear();
-                            //if (fullText.LastIndexOf(@"H|\^&") > 0)
-                            //{
-                            //    string remainingContent = fullText.Substring(fullText.LastIndexOf(@"H|\^&"));
-
-                            //    sb_port1.Append(remainingContent);
-                            //}
-                            
-                            Logger.LogReceivedData(thismachinesettings.Instrument_Name, content);
-                            AppendToRichTextBox("Data Received from " + thismachinesettings.Instrument_Name + " " + content);
-                            ParserDecision.Parsethisandinsert(content, thismachinesettings);
-                        }
-                    }
-                    else if (thismachinesettings.Communication_Stnadard == "Other")
-                    {
-
-                        if (!String.IsNullOrEmpty(thismachinesettings.Acknowledgement_code))
-                            serialPort1.Write(new byte[] { 0x06 }, 0, 1);//send Ack to machine
-                        sb_port1.Append(data);
-                        //eventLog1.WriteEntry(data);
-
-                        System.IO.File.AppendAllText(ConfigurationManager.AppSettings["ReceivedDataLogFile"].ToString().Trim(), data);
-                        if (sb_port1.ToString().Contains("DE"))//.Split(new string[] { "D ", "DR", "DH", "DQ", "d ", "DA", "dH", "DE" }, StringSplitOptions.RemoveEmptyEntries).Length>0//For Au480 temporary//L|1 is a terminator record according to astm standards
-                        {
-                            ///if the recieved string contains the terminator
-                            ///then parse the record and Clear the string
-                            ///Builder for next Record.
-                            ///
-
-
-                            string parsingdata = sb_port1.ToString();
-                            sb_port1.Clear();
-                            ParserDecision.Parsethisandinsert(parsingdata, thismachinesettings);
-                            //t.Start();
-                            //ParserDecision.Parsethisandinsert(parsingdata, thismachinesettings.ParsingAlgorithm, MachineID);
-                            // parsingdata = string.Empty;
-
-
-                        }
-                        else if (sb_port1.ToString().Contains("D ") && sb_port1.ToString().Contains(Convert.ToChar(3)) && sb_port1.ToString().Contains("          "))
-                        {
-
-
-                            string data_tobeparsed = sb_port1.ToString().Substring(sb_port1.ToString().LastIndexOf(Convert.ToChar(3)));
-                            ParserDecision.Parsethisandinsert(sb_port1.ToString().Substring(0, sb_port1.ToString().LastIndexOf(Convert.ToChar(3))), thismachinesettings);
-                            sb_port1.Clear();
-                            sb_port1.Append(data_tobeparsed);
-                            //t.Start();
-                            //  ParserDecision.Parsethisandinsert(sb_port1.ToString().Substring(0, sb_port1.ToStripng().LastIndexOf(Convert.ToChar(3))), thismachinesettings.ParsingAlgorithm, MachineID);
-                        }
-                    }
-                    else if (thismachinesettings.Communication_Stnadard == "LH750")
-                    {
-
-                        if (data[0] == Convert.ToChar(22))
-                        {
-                            if (is_FirstSYN)
-                            {
-                                serialPort1.Write(new byte[] { 0x16 }, 0, 1);
-                                ReceiveBlockCount = true;
-                                is_FirstSYN = false;
-                            }
-                            else
-                            {
-                                serialPort1.Write(new byte[] { 0x06 }, 0, 1);
-
-                                string data_toparse = sb_Blocks.ToString();
-                                sb_Blocks.Clear();
-                                is_FirstSYN = true;
-                                ParserDecision.Parsethisandinsert(data_toparse, thismachinesettings);
-                            }
-                        }
-                        else
-                        {
-
-                            if (ReceiveBlockCount)
-                            {
-                                if (int.Parse(data) > 0)
-                                {
-                                    BlocksCount = int.Parse(data);
-                                    ReceiveBlockCount = false;
-                                    startBlockReceiving = true;
-                                    serialPort1.Write(new byte[] { 0x06 }, 0, 1);//send Ack to machine
-                                    return;
-                                }
-                                else
-                                    return;
-
-
-                            }
-                            if (startBlockReceiving)
-                            {
-                                if (data.IndexOf(Convert.ToChar(3)) == -1)
-                                {
-                                    sb_thisBlock.Append(data);
-                                    return;
-                                }
-                                sb_thisBlock.Append(data);
-                                sb_Blocks.Append(sb_thisBlock.ToString().Substring(3, sb_thisBlock.ToString().Length - 8));//Remove initial and trailing block headers
-                                if (sb_thisBlock.ToString().StartsWith(Convert.ToChar(2) + BlocksCount.ToString().PadLeft(2, '0')))
-                                {
-                                    //System.IO.File.AppendAllText("E:\\AllBlocks.txt", sb_Blocks.ToString());
-
-
-                                    startBlockReceiving = false;
-                                }
-                                sb_thisBlock.Clear();
-                                serialPort1.Write(new byte[] { 0x06 }, 0, 1);
-
-
-                            }
-
-                            //send Ack to machine
-
-                        }
-                    }
-                    else if (thismachinesettings.Communication_Stnadard == "Sysmex-KX21")
-                    {
-                        sb_port1.Append(data);
-                        if (sb_port1.ToString().IndexOf(Convert.ToChar(3)) > -1)//3 i-e ETX is the RecordTerminator of Sysmex-KX21
-                        {
-
-                            //Console.WriteLine("In after terminator");
-
-                            string fullText = sb_port1.ToString();
-                            //string content = fullText.Substring(0, fullText.IndexOf(thismachinesettings.RecordTerminator) + thismachinesettings.RecordTerminator.Length);
-                            //Console.WriteLine(content);
-                            sb_port1.Clear();
-
-
-                            Logger.LogReceivedData(thismachinesettings.Instrument_Name, fullText);
-                            AppendToRichTextBox("Data Received from " + thismachinesettings.Instrument_Name + " " + fullText);
-                            ParserDecision.Parsethisandinsert(fullText, thismachinesettings);
-                        }
-                    }
-                    else if (thismachinesettings.Communication_Stnadard == "DirUIH500")
-                    {
-                        sb_port1.Append(data);
-                        if (sb_port1.ToString().IndexOf(Convert.ToChar(3)) > -1)//3 i-e ETX is the RecordTerminator of Sysmex-KX21
-                        {
-
-                            //Console.WriteLine("In after terminator");
-
-                            string fullText = sb_port1.ToString();
-                            //string content = fullText.Substring(0, fullText.IndexOf(thismachinesettings.RecordTerminator) + thismachinesettings.RecordTerminator.Length);
-                            //Console.WriteLine(content);
-                            sb_port1.Clear();
-
-
-                            Logger.LogReceivedData(thismachinesettings.Instrument_Name, fullText);
-                            AppendToRichTextBox("Data Received from " + thismachinesettings.Instrument_Name + " " + fullText);
-                            ParserDecision.Parsethisandinsert(fullText, thismachinesettings);
-                        }
-                    }
+                    HandleReceivedData(thismachinesettings, sb_port1,data);
 
                 }
-
-
-
 
             }
             catch (Exception ee)
@@ -437,6 +268,176 @@ namespace WindowsApplication5.CommForms
             }
 
         }
+
+        private void HandleReceivedData(mi_tinstruments thismachinesettings, StringBuilder sb_port1,string data)
+        {
+            if (thismachinesettings.Communication_Stnadard == "ASTM")
+            {
+                serialPort1.Write(new byte[] { 0x06 }, 0, 1);
+                sb_port1.Append(data);
+                if (sb_port1.ToString().IndexOf(thismachinesettings.RecordTerminator) > -1)
+                {
+                    //Console.WriteLine("In after terminator");
+
+                    string fullText = sb_port1.ToString();
+                    string content = fullText.Substring(0, fullText.IndexOf(thismachinesettings.RecordTerminator) + thismachinesettings.RecordTerminator.Length);
+                    //Console.WriteLine(content);
+                    sb_port1.Clear();
+                    //if (fullText.LastIndexOf(@"H|\^&") > 0)
+                    //{
+                    //    string remainingContent = fullText.Substring(fullText.LastIndexOf(@"H|\^&"));
+
+                    //    sb_port1.Append(remainingContent);
+                    //}
+
+                    Logger.LogReceivedData(thismachinesettings.Instrument_Name, content);
+                    AppendToRichTextBox("Data Received from " + thismachinesettings.Instrument_Name + " " + content);
+                    ParserDecision.Parsethisandinsert(content, thismachinesettings);
+                }
+            }
+            else if (thismachinesettings.Communication_Stnadard == "Other")
+            {
+
+                if (!String.IsNullOrEmpty(thismachinesettings.Acknowledgement_code))
+                    serialPort1.Write(new byte[] { 0x06 }, 0, 1);//send Ack to machine
+                sb_port1.Append(data);
+                //eventLog1.WriteEntry(data);
+
+                System.IO.File.AppendAllText(ConfigurationManager.AppSettings["ReceivedDataLogFile"].ToString().Trim(), data);
+                if (sb_port1.ToString().Contains("DE"))//.Split(new string[] { "D ", "DR", "DH", "DQ", "d ", "DA", "dH", "DE" }, StringSplitOptions.RemoveEmptyEntries).Length>0//For Au480 temporary//L|1 is a terminator record according to astm standards
+                {
+                    ///if the recieved string contains the terminator
+                    ///then parse the record and Clear the string
+                    ///Builder for next Record.
+                    ///
+
+
+                    string parsingdata = sb_port1.ToString();
+                    sb_port1.Clear();
+                    ParserDecision.Parsethisandinsert(parsingdata, thismachinesettings);
+                    //t.Start();
+                    //ParserDecision.Parsethisandinsert(parsingdata, thismachinesettings.ParsingAlgorithm, MachineID);
+                    // parsingdata = string.Empty;
+
+
+                }
+                else if (sb_port1.ToString().Contains("D ") && sb_port1.ToString().Contains(Convert.ToChar(3)) && sb_port1.ToString().Contains("          "))
+                {
+
+
+                    string data_tobeparsed = sb_port1.ToString().Substring(sb_port1.ToString().LastIndexOf(Convert.ToChar(3)));
+                    ParserDecision.Parsethisandinsert(sb_port1.ToString().Substring(0, sb_port1.ToString().LastIndexOf(Convert.ToChar(3))), thismachinesettings);
+                    sb_port1.Clear();
+                    sb_port1.Append(data_tobeparsed);
+                    //t.Start();
+                    //  ParserDecision.Parsethisandinsert(sb_port1.ToString().Substring(0, sb_port1.ToStripng().LastIndexOf(Convert.ToChar(3))), thismachinesettings.ParsingAlgorithm, MachineID);
+                }
+            }
+            else if (thismachinesettings.Communication_Stnadard == "LH750")
+            {
+
+                if (data[0] == Convert.ToChar(22))
+                {
+                    if (is_FirstSYN)
+                    {
+                        serialPort1.Write(new byte[] { 0x16 }, 0, 1);
+                        ReceiveBlockCount = true;
+                        is_FirstSYN = false;
+                    }
+                    else
+                    {
+                        serialPort1.Write(new byte[] { 0x06 }, 0, 1);
+
+                        string data_toparse = sb_Blocks.ToString();
+                        sb_Blocks.Clear();
+                        is_FirstSYN = true;
+                        ParserDecision.Parsethisandinsert(data_toparse, thismachinesettings);
+                    }
+                }
+                else
+                {
+
+                    if (ReceiveBlockCount)
+                    {
+                        if (int.Parse(data) > 0)
+                        {
+                            BlocksCount = int.Parse(data);
+                            ReceiveBlockCount = false;
+                            startBlockReceiving = true;
+                            serialPort1.Write(new byte[] { 0x06 }, 0, 1);//send Ack to machine
+                            return;
+                        }
+                        else
+                            return;
+
+
+                    }
+                    if (startBlockReceiving)
+                    {
+                        if (data.IndexOf(Convert.ToChar(3)) == -1)
+                        {
+                            sb_thisBlock.Append(data);
+                            return;
+                        }
+                        sb_thisBlock.Append(data);
+                        sb_Blocks.Append(sb_thisBlock.ToString().Substring(3, sb_thisBlock.ToString().Length - 8));//Remove initial and trailing block headers
+                        if (sb_thisBlock.ToString().StartsWith(Convert.ToChar(2) + BlocksCount.ToString().PadLeft(2, '0')))
+                        {
+                            //System.IO.File.AppendAllText("E:\\AllBlocks.txt", sb_Blocks.ToString());
+
+
+                            startBlockReceiving = false;
+                        }
+                        sb_thisBlock.Clear();
+                        serialPort1.Write(new byte[] { 0x06 }, 0, 1);
+
+
+                    }
+
+                    //send Ack to machine
+
+                }
+            }
+            else if (thismachinesettings.Communication_Stnadard == "Sysmex-KX21")
+            {
+                sb_port1.Append(data);
+                if (sb_port1.ToString().IndexOf(Convert.ToChar(3)) > -1)//3 i-e ETX is the RecordTerminator of Sysmex-KX21
+                {
+
+                    //Console.WriteLine("In after terminator");
+
+                    string fullText = sb_port1.ToString();
+                    //string content = fullText.Substring(0, fullText.IndexOf(thismachinesettings.RecordTerminator) + thismachinesettings.RecordTerminator.Length);
+                    //Console.WriteLine(content);
+                    sb_port1.Clear();
+
+
+                    Logger.LogReceivedData(thismachinesettings.Instrument_Name, fullText);
+                    AppendToRichTextBox("Data Received from " + thismachinesettings.Instrument_Name + " " + fullText);
+                    ParserDecision.Parsethisandinsert(fullText, thismachinesettings);
+                }
+            }
+            else if (thismachinesettings.Communication_Stnadard == "DirUIH500")
+            {
+                sb_port1.Append(data);
+                if (sb_port1.ToString().IndexOf(Convert.ToChar(3)) > -1)//3 i-e ETX is the RecordTerminator of Sysmex-KX21
+                {
+
+                    //Console.WriteLine("In after terminator");
+
+                    string fullText = sb_port1.ToString();
+                    //string content = fullText.Substring(0, fullText.IndexOf(thismachinesettings.RecordTerminator) + thismachinesettings.RecordTerminator.Length);
+                    //Console.WriteLine(content);
+                    sb_port1.Clear();
+
+
+                    Logger.LogReceivedData(thismachinesettings.Instrument_Name, fullText);
+                    AppendToRichTextBox("Data Received from " + thismachinesettings.Instrument_Name + " " + fullText);
+                    ParserDecision.Parsethisandinsert(fullText, thismachinesettings);
+                }
+            }
+        }
+
         private void serialPort2_DataReceived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
         {
             try
@@ -457,154 +458,7 @@ namespace WindowsApplication5.CommForms
 
                 if (data.Length > 0)
                 {
-
-
-                    if (thismachinesettings.Communication_Stnadard == "ASTM")
-                    {
-                        serialPort2.Write(new byte[] { 0x06 }, 0, 1);
-                        sb_port2.Append(data);
-                        if (sb_port2.ToString().IndexOf(thismachinesettings.RecordTerminator) > -1)
-                        {
-                            //Console.WriteLine("In after terminator");
-
-                            string fullText = sb_port2.ToString();
-                            string content = fullText.Substring(0, fullText.IndexOf(thismachinesettings.RecordTerminator) + thismachinesettings.RecordTerminator.Length);
-                            //Console.WriteLine(content);
-                            sb_port2.Clear();
-                            //if (fullText.LastIndexOf(@"H|\^&") > 0)
-                            //{
-                            //    string remainingContent = fullText.Substring(fullText.LastIndexOf(@"H|\^&"));
-
-                            //    sb_port2.Append(remainingContent);
-                            //}
-
-                            Logger.LogReceivedData(thismachinesettings.Instrument_Name, content);
-                            AppendToRichTextBox("Data Received from " + thismachinesettings.Instrument_Name + " " + content);
-                            ParserDecision.Parsethisandinsert(content, thismachinesettings);
-                        }
-                    }
-                    else if (thismachinesettings.Communication_Stnadard == "Other")
-                    {
-
-                        if (!String.IsNullOrEmpty(thismachinesettings.Acknowledgement_code))
-                            serialPort2.Write(new byte[] { 0x06 }, 0, 1);//send Ack to machine
-                        sb_port2.Append(data);
-                        //eventLog1.WriteEntry(data);
-
-                        System.IO.File.AppendAllText(ConfigurationManager.AppSettings["ReceivedDataLogFile"].ToString().Trim(), data);
-                        if (sb_port2.ToString().Contains("DE"))//.Split(new string[] { "D ", "DR", "DH", "DQ", "d ", "DA", "dH", "DE" }, StringSplitOptions.RemoveEmptyEntries).Length>0//For Au480 temporary//L|1 is a terminator record according to astm standards
-                        {
-                            ///if the recieved string contains the terminator
-                            ///then parse the record and Clear the string
-                            ///Builder for next Record.
-                            ///
-
-
-                            string parsingdata = sb_port2.ToString();
-                            sb_port2.Clear();
-                            ParserDecision.Parsethisandinsert(parsingdata, thismachinesettings);
-                            //t.Start();
-                            //ParserDecision.Parsethisandinsert(parsingdata, thismachinesettings.ParsingAlgorithm, MachineID);
-                            // parsingdata = string.Empty;
-
-
-                        }
-                        else if (sb_port2.ToString().Contains("D ") && sb_port2.ToString().Contains(Convert.ToChar(3)) && sb_port2.ToString().Contains("          "))
-                        {
-
-
-                            string data_tobeparsed = sb_port2.ToString().Substring(sb_port2.ToString().LastIndexOf(Convert.ToChar(3)));
-                            ParserDecision.Parsethisandinsert(sb_port2.ToString().Substring(0, sb_port2.ToString().LastIndexOf(Convert.ToChar(3))), thismachinesettings);
-                            sb_port2.Clear();
-                            sb_port2.Append(data_tobeparsed);
-                            //t.Start();
-                            //  ParserDecision.Parsethisandinsert(sb_port2.ToString().Substring(0, sb_port2.ToStripng().LastIndexOf(Convert.ToChar(3))), thismachinesettings.ParsingAlgorithm, MachineID);
-                        }
-                    }
-                    else if (thismachinesettings.Communication_Stnadard == "LH750")
-                    {
-
-                        if (data[0] == Convert.ToChar(22))
-                        {
-                            if (is_FirstSYN)
-                            {
-                                serialPort2.Write(new byte[] { 0x16 }, 0, 1);
-                                ReceiveBlockCount = true;
-                                is_FirstSYN = false;
-                            }
-                            else
-                            {
-                                serialPort2.Write(new byte[] { 0x06 }, 0, 1);
-
-                                string data_toparse = sb_Blocks.ToString();
-                                sb_Blocks.Clear();
-                                is_FirstSYN = true;
-                                ParserDecision.Parsethisandinsert(data_toparse, thismachinesettings);
-                            }
-                        }
-                        else
-                        {
-
-                            if (ReceiveBlockCount)
-                            {
-                                if (int.Parse(data) > 0)
-                                {
-                                    BlocksCount = int.Parse(data);
-                                    ReceiveBlockCount = false;
-                                    startBlockReceiving = true;
-                                    serialPort2.Write(new byte[] { 0x06 }, 0, 1);//send Ack to machine
-                                    return;
-                                }
-                                else
-                                    return;
-
-
-                            }
-                            if (startBlockReceiving)
-                            {
-                                if (data.IndexOf(Convert.ToChar(3)) == -1)
-                                {
-                                    sb_thisBlock.Append(data);
-                                    return;
-                                }
-                                sb_thisBlock.Append(data);
-                                sb_Blocks.Append(sb_thisBlock.ToString().Substring(3, sb_thisBlock.ToString().Length - 8));//Remove initial and trailing block headers
-                                if (sb_thisBlock.ToString().StartsWith(Convert.ToChar(2) + BlocksCount.ToString().PadLeft(2, '0')))
-                                {
-                                    //System.IO.File.AppendAllText("E:\\AllBlocks.txt", sb_Blocks.ToString());
-
-
-                                    startBlockReceiving = false;
-                                }
-                                sb_thisBlock.Clear();
-                                serialPort2.Write(new byte[] { 0x06 }, 0, 1);
-
-
-                            }
-
-                            //send Ack to machine
-
-                        }
-                    }
-                    else if (thismachinesettings.Communication_Stnadard == "Sysmex-KX21")
-                    {
-                        sb_port2.Append(data);
-                        if (sb_port2.ToString().IndexOf(Convert.ToChar(3)) > -1)//3 i-e ETX is the RecordTerminator of Sysmex-KX21
-                        {
-
-                            //Console.WriteLine("In after terminator");
-
-                            string fullText = sb_port2.ToString();
-                            //string content = fullText.Substring(0, fullText.IndexOf(thismachinesettings.RecordTerminator) + thismachinesettings.RecordTerminator.Length);
-                            //Console.WriteLine(content);
-                            sb_port2.Clear();
-
-
-                            Logger.LogReceivedData(thismachinesettings.Instrument_Name, fullText);
-                            AppendToRichTextBox("Data Received from " + thismachinesettings.Instrument_Name + " " + fullText);
-                            ParserDecision.Parsethisandinsert(fullText, thismachinesettings);
-                        }
-                    }
+                    HandleReceivedData(thismachinesettings, sb_port2, data);
 
                 }
 
@@ -640,154 +494,7 @@ namespace WindowsApplication5.CommForms
 
                 if (data.Length > 0)
                 {
-
-
-                    if (thismachinesettings.Communication_Stnadard == "ASTM")
-                    {
-                        serialPort3.Write(new byte[] { 0x06 }, 0, 1);
-                        sb_port3.Append(data);
-                        if (sb_port3.ToString().IndexOf(thismachinesettings.RecordTerminator) > -1)
-                        {
-                            //Console.WriteLine("In after terminator");
-
-                            string fullText = sb_port3.ToString();
-                            string content = fullText.Substring(0, fullText.IndexOf(thismachinesettings.RecordTerminator) + thismachinesettings.RecordTerminator.Length);
-                            //Console.WriteLine(content);
-                            sb_port3.Clear();
-                            //if (fullText.LastIndexOf(@"H|\^&") > 0)
-                            //{
-                            //    string remainingContent = fullText.Substring(fullText.LastIndexOf(@"H|\^&"));
-
-                            //    sb_port3.Append(remainingContent);
-                            //}
-
-                            Logger.LogReceivedData(thismachinesettings.Instrument_Name, content);
-                            AppendToRichTextBox("Data Received from " + thismachinesettings.Instrument_Name + " " + content);
-                            ParserDecision.Parsethisandinsert(content, thismachinesettings);
-                        }
-                    }
-                    else if (thismachinesettings.Communication_Stnadard == "Other")
-                    {
-
-                        if (!String.IsNullOrEmpty(thismachinesettings.Acknowledgement_code))
-                            serialPort3.Write(new byte[] { 0x06 }, 0, 1);//send Ack to machine
-                        sb_port3.Append(data);
-                        //eventLog1.WriteEntry(data);
-
-                        System.IO.File.AppendAllText(ConfigurationManager.AppSettings["ReceivedDataLogFile"].ToString().Trim(), data);
-                        if (sb_port3.ToString().Contains("DE"))//.Split(new string[] { "D ", "DR", "DH", "DQ", "d ", "DA", "dH", "DE" }, StringSplitOptions.RemoveEmptyEntries).Length>0//For Au480 temporary//L|1 is a terminator record according to astm standards
-                        {
-                            ///if the recieved string contains the terminator
-                            ///then parse the record and Clear the string
-                            ///Builder for next Record.
-                            ///
-
-
-                            string parsingdata = sb_port3.ToString();
-                            sb_port3.Clear();
-                            ParserDecision.Parsethisandinsert(parsingdata, thismachinesettings);
-                            //t.Start();
-                            //ParserDecision.Parsethisandinsert(parsingdata, thismachinesettings.ParsingAlgorithm, MachineID);
-                            // parsingdata = string.Empty;
-
-
-                        }
-                        else if (sb_port3.ToString().Contains("D ") && sb_port3.ToString().Contains(Convert.ToChar(3)) && sb_port3.ToString().Contains("          "))
-                        {
-
-
-                            string data_tobeparsed = sb_port3.ToString().Substring(sb_port3.ToString().LastIndexOf(Convert.ToChar(3)));
-                            ParserDecision.Parsethisandinsert(sb_port3.ToString().Substring(0, sb_port3.ToString().LastIndexOf(Convert.ToChar(3))), thismachinesettings);
-                            sb_port3.Clear();
-                            sb_port3.Append(data_tobeparsed);
-                            //t.Start();
-                            //  ParserDecision.Parsethisandinsert(sb_port3.ToString().Substring(0, sb_port3.ToStripng().LastIndexOf(Convert.ToChar(3))), thismachinesettings.ParsingAlgorithm, MachineID);
-                        }
-                    }
-                    else if (thismachinesettings.Communication_Stnadard == "LH750")
-                    {
-
-                        if (data[0] == Convert.ToChar(22))
-                        {
-                            if (is_FirstSYN)
-                            {
-                                serialPort3.Write(new byte[] { 0x16 }, 0, 1);
-                                ReceiveBlockCount = true;
-                                is_FirstSYN = false;
-                            }
-                            else
-                            {
-                                serialPort3.Write(new byte[] { 0x06 }, 0, 1);
-
-                                string data_toparse = sb_Blocks.ToString();
-                                sb_Blocks.Clear();
-                                is_FirstSYN = true;
-                                ParserDecision.Parsethisandinsert(data_toparse, thismachinesettings);
-                            }
-                        }
-                        else
-                        {
-
-                            if (ReceiveBlockCount)
-                            {
-                                if (int.Parse(data) > 0)
-                                {
-                                    BlocksCount = int.Parse(data);
-                                    ReceiveBlockCount = false;
-                                    startBlockReceiving = true;
-                                    serialPort3.Write(new byte[] { 0x06 }, 0, 1);//send Ack to machine
-                                    return;
-                                }
-                                else
-                                    return;
-
-
-                            }
-                            if (startBlockReceiving)
-                            {
-                                if (data.IndexOf(Convert.ToChar(3)) == -1)
-                                {
-                                    sb_thisBlock.Append(data);
-                                    return;
-                                }
-                                sb_thisBlock.Append(data);
-                                sb_Blocks.Append(sb_thisBlock.ToString().Substring(3, sb_thisBlock.ToString().Length - 8));//Remove initial and trailing block headers
-                                if (sb_thisBlock.ToString().StartsWith(Convert.ToChar(2) + BlocksCount.ToString().PadLeft(2, '0')))
-                                {
-                                    //System.IO.File.AppendAllText("E:\\AllBlocks.txt", sb_Blocks.ToString());
-
-
-                                    startBlockReceiving = false;
-                                }
-                                sb_thisBlock.Clear();
-                                serialPort3.Write(new byte[] { 0x06 }, 0, 1);
-
-
-                            }
-
-                            //send Ack to machine
-
-                        }
-                    }
-                    else if (thismachinesettings.Communication_Stnadard == "Sysmex-KX21")
-                    {
-                        sb_port3.Append(data);
-                        if (sb_port3.ToString().IndexOf(Convert.ToChar(3)) > -1)//3 i-e ETX is the RecordTerminator of Sysmex-KX21
-                        {
-
-                            //Console.WriteLine("In after terminator");
-
-                            string fullText = sb_port3.ToString();
-                            //string content = fullText.Substring(0, fullText.IndexOf(thismachinesettings.RecordTerminator) + thismachinesettings.RecordTerminator.Length);
-                            //Console.WriteLine(content);
-                            sb_port3.Clear();
-
-
-                            Logger.LogReceivedData(thismachinesettings.Instrument_Name, fullText);
-                            AppendToRichTextBox("Data Received from " + thismachinesettings.Instrument_Name + " " + fullText);
-                            ParserDecision.Parsethisandinsert(fullText, thismachinesettings);
-                        }
-                    }
+                    HandleReceivedData(thismachinesettings, sb_port3, data);
 
                 }
 
