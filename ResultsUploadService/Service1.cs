@@ -33,7 +33,7 @@ namespace ResultsUploadService
             this.timer.Elapsed += new System.Timers.ElapsedEventHandler(this.UpdateRemoteDatabase);
             if (System.Configuration.ConfigurationSettings.AppSettings["IsUpdateRemoteDatabase"].ToString().Trim() == "Y")
                 this.timer.Start();
-
+         
             DeleteOldData_Timer_Elapsed(null, null);
             deleteOldData_Timer = new Timer(3600000D);
             deleteOldData_Timer.AutoReset = true;
@@ -43,6 +43,10 @@ namespace ResultsUploadService
 
         private void DeleteOldData_Timer_Elapsed(object sender, ElapsedEventArgs e)
         {
+            try
+            {
+
+           
             Logger.LogTimerExecution("Delete Timer called");
             clsBLMain _main = new clsBLMain();
             if (_main.Deleteolddata())
@@ -53,6 +57,12 @@ namespace ResultsUploadService
             else
             {
                 Logger.LogTimerExecution("Error Deleting Data: " + _main.Error);
+            }
+            }
+            catch (Exception ee)
+            {
+
+                Logger.LogExceptions(ee.ToString());
             }
         }
 

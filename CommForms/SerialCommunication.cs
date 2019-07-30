@@ -273,8 +273,11 @@ namespace WindowsApplication5.CommForms
         {
             if (thismachinesettings.Communication_Stnadard == "ASTM")
             {
+                if (data == Convert.ToChar(4).ToString())//if EOT
+                    return;
                 serialPort1.Write(new byte[] { 0x06 }, 0, 1);
                 sb_port1.Append(data);
+                AppendToRichTextBox("Data Received from " + thismachinesettings.Instrument_Name + " " + data);
                 if (sb_port1.ToString().IndexOf(thismachinesettings.RecordTerminator) > -1)
                 {
                     //Console.WriteLine("In after terminator");
@@ -291,7 +294,7 @@ namespace WindowsApplication5.CommForms
                     //}
 
                     Logger.LogReceivedData(thismachinesettings.Instrument_Name, content);
-                    AppendToRichTextBox("Data Received from " + thismachinesettings.Instrument_Name + " " + content);
+                    //AppendToRichTextBox("Data Received from " + thismachinesettings.Instrument_Name + " " + content);
                     ParserDecision.Parsethisandinsert(content, thismachinesettings);
                 }
             }

@@ -103,6 +103,10 @@ namespace BusinessLayer.Parsers
                             string resultUnit = result[4];
                             if (resultUnit == "Abs." || resultUnit == "RLU")//This is machine specific, result sent by ABbot c8200i. Need to ignore as guided by Lab staff
                                 continue;
+                            Guid guidOutput;
+                            bool isValid = Guid.TryParse(result[3], out guidOutput);
+                            if (isValid)
+                                continue;
                             attribresult += result[3].ToString();
                             attribresult = attribresult.ToLower().Replace("negative", " (Negative)").Replace("positive", " (Positive)").Replace("nonreactive", " (Non-Reactive)").Replace("reactive", " (Reactive)");
                             string[] attcode = result[2].Split(sep4);
