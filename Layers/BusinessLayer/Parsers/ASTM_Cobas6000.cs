@@ -119,22 +119,22 @@ namespace BusinessLayer.Parsers
                                     {
                                         attribcode = attcode[1];
                                     }
-                                    
-                                    if (attribcode.ToLower().Equals("900") || attribcode.ToLower().Equals("999") || attribcode.ToLower().Equals("102"))
+
+                                    //if (attribcode.ToLower().Equals("900") || attribcode.ToLower().Equals("999") || attribcode.ToLower().Equals("102"))
+                                    //{
+                                    if (attribresult.Contains("-1^"))
                                     {
-                                        if (attribresult.Contains("-1^"))
-                                        {
-                                            attribresult = attribresult.Replace("-1^", "Negative  \r\n");
-
-                                        }
-                                        else if (attribresult.Contains("1^"))
-                                        {
-                                            attribresult = attribresult.Replace("1^", "Positive  \r\n");
-
-                                        }
+                                        attribresult = attribresult.Replace("-1^", "Non-Reactive  \r\n");
 
                                     }
-                                   
+                                    else if (attribresult.Contains("1^"))
+                                    {
+                                        attribresult = attribresult.Replace("1^", "Reactive  \r\n");
+
+                                    }
+
+                                    //}
+
                                     if (string.IsNullOrEmpty(labid))
                                     {
                                         labid = patid.Trim();

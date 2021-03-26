@@ -66,7 +66,7 @@ namespace BusinessLayer.Parsers
                                         //Console.WriteLine("Exception on getting Patientid: " + ee.ToString());
                                     }
                                 }
-                                else if (def[j].Length > 5 && (def[j].Substring(3, 2).Equals("O|") || def[j].StartsWith("O|")))
+                                else if (def[j].Length > 5 && (def[j].Substring(3, 2).Equals("O|") || def[j].StartsWith("O|") || def[j].Substring(2,2).Equals("O|")))
                                 {
                                     string[] order = def[j].Split(sep3);
                                     labid = order[2].ToString();
@@ -92,7 +92,7 @@ namespace BusinessLayer.Parsers
                                 Logger.LogExceptions(ee.ToString());
                             }
                         }
-                        var Resultstrings = def.Where(x => x.Length > 5 && (x.StartsWith("R|") || x.Substring(3, 2).Equals("R|")) && !(x.StartsWith("R|4") || x.Substring(3, 3).Equals("R|4")));
+                        var Resultstrings = def.Where(x => x.Length > 5 && (x.StartsWith("R|") || x.Substring(3, 2).Equals("R|")) || x.Substring(2,2).Equals("R|") && !(x.StartsWith("R|4") || x.Substring(3, 3).Equals("R|4")));
                         
                         foreach (var x in Resultstrings)
                         {

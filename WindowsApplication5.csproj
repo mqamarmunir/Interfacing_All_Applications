@@ -138,6 +138,7 @@
     <Compile Include="AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Client.cs" />
     <Compile Include="CommForms\SerialCommunication.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -190,6 +191,9 @@
     <None Include="Reesources\splashscreen.jpg" />
     <EmbeddedResource Include="CommForms\SerialCommunication.resx">
       <DependentUpon>SerialCommunication.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="CommForms\TCPClient.resx">
+      <DependentUpon>TCPClient.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="CommForms\TCPServer.resx">
       <DependentUpon>TCPServer.cs</DependentUpon>
