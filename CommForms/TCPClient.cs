@@ -18,6 +18,11 @@ namespace WindowsApplication5.CommForms
             InitializeComponent();
         }
 
+        /// <summary>
+        /// Button Start Click
+        /// </summary>
+        /// <param name="sender">The sender</param>
+        /// <param name="e">The Event arguments</param>
         private void btnStartClient_Click(object sender, EventArgs e)
         {
             Int32 port = int.Parse(txtPort.Text.Trim());
