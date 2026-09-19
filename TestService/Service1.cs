@@ -8,7 +8,6 @@ using System.ServiceProcess;
 using System.Text;
 using System.Timers;
 using System.Configuration;
-using MySql.Data.MySqlClient;
 using BusinessLayer;
 using System.Data.OleDb;
 using DataModel;

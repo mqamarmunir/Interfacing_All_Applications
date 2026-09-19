@@ -1,9 +1,9 @@
 using System;
-using MySql.Data.MySqlClient;
 using System.Data;
 using Dapper;
 using BusinessEntities;
 using System.Collections.Generic;
+using MySqlConnector;
 
 namespace DataLayer
 {

@@ -1,6 +1,5 @@
+using MySqlConnector;
 using System;
-using MySql.Data.MySqlClient;
-using MySql.Data;
 namespace DataLayer
 {	
 	/// <summary>
